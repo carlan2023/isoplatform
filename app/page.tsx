@@ -33,20 +33,11 @@ export default async function HomePage() {
       {/* NAV */}
       <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-sm flex items-center justify-center"
-              style={{ backgroundColor: "#0d9488" }}
-            >
-              <ShieldCheck size={18} className="text-white" />
-            </div>
-            <div>
-              <span className="font-bold text-slate-900 text-lg tracking-tight">
-                Alrena
-              </span>
-              <span className="text-slate-400 text-sm ml-1">Group</span>
-            </div>
-          </div>
+          <img
+            src="./amqms-v4-transparent.png"
+            alt="AM Quality Management Systems"
+            className="h-12 w-auto"
+          />
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
             <a
               href="#courses"
