@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
         <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
           <h1 style="margin: 0; font-size: 24px;">Enrollment Request Received</h1>
-          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">Alrena Group · ISO Lead Auditor Training</p>
+          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems · ISO Lead Auditor Training</p>
         </div>
 
         <p style="font-family: system-ui, sans-serif; color: #475569;">Dear ${name},</p>
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
 
         <p style="font-family: system-ui, sans-serif; color: #475569;">
           Best regards,<br/>
-          <strong>Alrena Group</strong><br/>
+          <strong>AM QMS</strong><br/>
           ISO Lead Auditor Training
         </p>
       </div>

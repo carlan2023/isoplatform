@@ -101,7 +101,9 @@ export default function LoginPage() {
             >
               <ShieldCheck size={15} className="text-white" />
             </div>
-            <span className="font-bold text-slate-900">Alrena Group</span>
+            <span className="font-bold text-slate-900">
+              AM Quality Management Systems
+            </span>
           </Link>
           <h1 className="text-2xl font-bold text-slate-900 mb-1">
             {mode === "register" ? "Create an account" : "Welcome back"}

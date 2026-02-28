@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Alrena Group | ISO Lead Auditor Training",
+  title: "AM Quality Management Systems | ISO Lead Auditor Training",
   description:
-    "Professional ISO 9001, ISO 14001 and ISO 45001 Lead Auditor training for quality and compliance professionals across East Africa.",
+    "Professional ISO Lead Auditor training and ISO certification consulting for organisations across East Africa. Trusted by 500+ professionals.",
 };
 
 export default function RootLayout({

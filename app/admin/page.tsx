@@ -101,7 +101,7 @@ export default function AdminPage() {
           >
             <ShieldCheck size={15} className="text-white" />
           </div>
-          <span className="font-bold text-slate-900">Alrena Group</span>
+          <span className="font-bold text-slate-900">AM Quality Management Systems</span>
           <span
             className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full ml-1"
             style={{ fontFamily: "system-ui, sans-serif" }}
