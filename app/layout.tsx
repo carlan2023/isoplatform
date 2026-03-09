@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "AM Quality Management Systems | ISO Lead Auditor Training",
   description:
     "Professional ISO Lead Auditor training and ISO certification consulting for organisations across East Africa. Trusted by 500+ professionals.",
+  verification: {
+    other: {
+      "websitelaunches-verification": "e8efdcb4dcfe654017ca970ddc64a794",
+    },
+  },
 };
 
 export default function RootLayout({
