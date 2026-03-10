@@ -76,9 +76,19 @@ export default function EnrollPage() {
             <Users size={15} className="text-teal-400 shrink-0" />
             {course.seats_total - course.seats_taken} seats remaining
           </div>
-          <div className="flex items-center gap-3 text-sm text-slate-300">
-            <DollarSign size={15} className="text-teal-400 shrink-0" />$
-            {course.price_usd} — invoice sent after request
+          <div className="flex items-center gap-3 text-sm text-slate-600">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#0d9488"
+              strokeWidth="2"
+            >
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            UGX 1,000,000 per person · UGX 700,000 for teams of 3+
           </div>
         </div>
 
