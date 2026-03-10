@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Auto-reply to client
   await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "info@amqualitysystems.com",
     to: email,
     subject: `We received your enquiry — AM Quality Management Systems`,
     html: `

@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
   // Email to CLIENT
   await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "inf@amqualitysystems.com",
     to: email,
     subject: `Enrollment Confirmed — ${course.title}`,
     html: `
