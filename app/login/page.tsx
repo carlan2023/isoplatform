@@ -29,12 +29,32 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password,
     });
-    if (error) setError(error.message);
-    else router.push("/dashboard");
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Check for redirect param first
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get("redirect");
+    if (redirectTo) {
+      router.push(redirectTo);
+      return;
+    }
+
+    // Otherwise check role
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    router.push(profile?.role === "admin" ? "/admin" : "/dashboard");
     setLoading(false);
   };
 
@@ -58,36 +78,18 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get("redirect");
     const { error } = await supabase.auth.signInWithOtp({
       email: form.email,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+      options: {
+        emailRedirectTo: `${window.location.origin}${redirectTo || "/dashboard"}`,
+      },
     });
     if (error) setError(error.message);
     else setSent(true);
     setLoading(false);
   };
-
-  if (sent)
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-8 max-w-md w-full text-center shadow-sm">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: "#f0fdfa" }}
-          >
-            <Mail size={22} style={{ color: "#0d9488" }} />
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">
-            Check your inbox
-          </h2>
-          <p className="text-slate-500 text-sm">
-            {mode === "register"
-              ? "We sent you a confirmation link. Click it to activate your account."
-              : "We sent you a magic link. Click it to sign in."}
-          </p>
-        </div>
-      </div>
-    );
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">

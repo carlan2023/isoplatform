@@ -3,6 +3,18 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Calendar, Clock, Users, DollarSign } from "lucide-react";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+
+const supabase = createServerComponentClient({ cookies });
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+if (!session) {
+  redirect(`/login?redirect=/enroll/${params.id}`);
+}
 
 export default function EnrollPage() {
   const { id } = useParams();
