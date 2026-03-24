@@ -7,6 +7,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(req: NextRequest) {
   const { courseId, name, company, email, phone } = await req.json();
 
+  // Validate required fields
+  if (!courseId || !name || !email || !phone) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
+  }
+
   // Fetch course details
   const { data: course } = await supabaseServer
     .from("courses")
@@ -16,6 +24,44 @@ export async function POST(req: NextRequest) {
 
   if (!course)
     return NextResponse.json({ error: "Course not found" }, { status: 404 });
+
+  // Check if user already exists by email
+  let userId: string;
+  const { data: existingUser } = await supabaseServer.auth.admin.listUsers();
+  const userExists = existingUser?.users.find((u) => u.email === email);
+
+  if (userExists) {
+    userId = userExists.id;
+  } else {
+    // Create new user account
+    const { data: newUser, error: authError } =
+      await supabaseServer.auth.admin.createUser({
+        email,
+        password: crypto.getRandomValues(new Uint8Array(32)).toString(),
+        email_confirm: true,
+        user_metadata: {
+          name,
+          company,
+          phone,
+        },
+      });
+
+    if (authError || !newUser?.user)
+      return NextResponse.json(
+        { error: "Failed to create user account" },
+        { status: 500 },
+      );
+
+    userId = newUser.user.id;
+
+    // Create user profile
+    await supabaseServer.from("profiles").insert({
+      id: userId,
+      name,
+      company,
+      phone,
+    });
+  }
 
   // Assign seat number based on current enrollment count
   const { count } = await supabaseServer
@@ -27,7 +73,7 @@ export async function POST(req: NextRequest) {
 
   // Save enrollment to Supabase
   await supabaseServer.from("enrollments").insert({
-    user_id: "00000000-0000-0000-0000-000000000000",
+    user_id: userId,
     course_id: courseId,
     status: "pending",
     amount_paid: course.price_usd,
@@ -57,7 +103,7 @@ export async function POST(req: NextRequest) {
       <p><strong>Start Date:</strong> ${startDate}</p>
       <p><strong>Seat Number:</strong> ${seatNumber}</p>
       <p><strong>Price:</strong> UGX ${Number(
-        course.price_usd
+        course.price_usd,
       ).toLocaleString()}</p>
       <hr/>
       <p><strong>Name:</strong> ${name}</p>
@@ -69,7 +115,7 @@ export async function POST(req: NextRequest) {
 
   // Email to CLIENT
   await resend.emails.send({
-    from: "inf@amqualitysystems.com",
+    from: "info@amqualitysystems.com",
     to: email,
     subject: `Enrollment Confirmed — ${course.title}`,
     html: `
@@ -99,7 +145,7 @@ export async function POST(req: NextRequest) {
             } days · ${course.format}</td></tr>
             <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Seat Number</td><td style="color: #0d9488; font-weight: 700;">#${seatNumber}</td></tr>
             <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount Due</td><td>UGX ${Number(
-              course.price_usd
+              course.price_usd,
             ).toLocaleString()}</td></tr>
           </table>
         </div>

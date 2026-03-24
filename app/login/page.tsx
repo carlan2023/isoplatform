@@ -41,11 +41,10 @@ export default function LoginPage() {
 
     // Check for redirect param first
     const params = new URLSearchParams(window.location.search);
-    const redirectTo = params.get("redirect");
-    if (redirectTo) {
-      router.push(redirectTo);
-      return;
-    }
+    const redirectTo =
+      params.get("redirect") ||
+      (data.user?.role === "admin" ? "/admin" : "/dashboard");
+    router.push(redirectTo);
 
     // Otherwise check role
     const { data: profile } = await supabase
