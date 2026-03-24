@@ -14,6 +14,22 @@ async function getSessionToken(): Promise<string> {
   return data.data.token;
 }
 
+function extractReference(json: Record<string, unknown>): string | null {
+  const data = json.data as Record<string, unknown> | undefined;
+  const ref =
+    (typeof data?.reference === "string" && data.reference) ||
+    (typeof data?.collection_reference === "string" && data.collection_reference) ||
+    (typeof json.reference === "string" && json.reference) ||
+    (typeof json.collection_reference === "string" && json.collection_reference) ||
+    (typeof data?.id === "string" && data.id);
+  return ref || null;
+}
+
+export type InitiateCollectionResult = {
+  reference: string;
+  raw: Record<string, unknown>;
+};
+
 export async function initiateCollection({
   payerName,
   phoneNumber,
@@ -26,7 +42,7 @@ export async function initiateCollection({
   amount: number;
   description: string;
   idempotencyKey: string;
-}) {
+}): Promise<InitiateCollectionResult> {
   const token = await getSessionToken();
   const res = await fetch(`${BASE_URL}/v1/collections/initiate`, {
     method: "POST",
@@ -42,7 +58,24 @@ export async function initiateCollection({
       description,
     }),
   });
-  return res.json();
+
+  const json = (await res.json()) as Record<string, unknown>;
+
+  if (!res.ok) {
+    const msg =
+      (typeof json.message === "string" && json.message) ||
+      (typeof json.error === "string" && json.error) ||
+      JSON.stringify(json);
+    throw new Error(`BroRacks initiate failed (${res.status}): ${msg}`);
+  }
+
+  const reference = extractReference(json);
+  if (!reference) {
+    console.error("[broracks] unexpected initiate response:", json);
+    throw new Error("BroRacks did not return a payment reference");
+  }
+
+  return { reference, raw: json };
 }
 
 export async function verifyPhone(phoneNumber: string) {
