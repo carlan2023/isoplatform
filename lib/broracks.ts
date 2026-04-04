@@ -1,6 +1,30 @@
+// ---------------------------------------------------------------------------
+// BroRacks — Mobile Money payment integration (MTN & Airtel Uganda)
+//
+// Two responsibilities:
+//   1. getSessionToken()      — authenticates and caches the bearer token
+//   2. initiateCollection()   — sends a Mobile Money prompt to a payer's phone
+//   3. verifyPhone()          — checks if a number is a valid Mobile Money number
+// ---------------------------------------------------------------------------
+
 const BASE_URL = "https://api.broracks.online";
 
+// ---------------------------------------------------------------------------
+// Token cache — avoids a fresh auth round-trip on every payment request.
+// The token is reused until 5 minutes before it expires.
+// ---------------------------------------------------------------------------
+let cachedToken: string | null = null;
+let tokenExpiresAt: number = 0; // Unix timestamp in milliseconds
+
 async function getSessionToken(): Promise<string> {
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+
+  // Return cached token if it's still valid
+  if (cachedToken && now < tokenExpiresAt - fiveMinutes) {
+    return cachedToken;
+  }
+
   const res = await fetch(`${BASE_URL}/v1/auth/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -9,77 +33,79 @@ async function getSessionToken(): Promise<string> {
       secret_key: process.env.BRORACKS_SECRET_KEY,
     }),
   });
+
+  if (!res.ok) {
+    throw new Error(`BroRacks auth failed: ${res.status} ${res.statusText}`);
+  }
+
   const data = await res.json();
-  if (!data?.data?.token) throw new Error("Failed to get BroRacks token");
+
+  if (!data?.data?.token) {
+    throw new Error("BroRacks auth response did not include a token");
+  }
+
+  // Cache the token. BroRacks tokens typically last 1 hour — adjust if different.
+  cachedToken = data.data.token;
+  tokenExpiresAt = now + 60 * 60 * 1000; // 1 hour from now
+
   return data.data.token;
 }
 
-function extractReference(json: Record<string, unknown>): string | null {
-  const data = json.data as Record<string, unknown> | undefined;
-  const ref =
-    (typeof data?.reference === "string" && data.reference) ||
-    (typeof data?.collection_reference === "string" && data.collection_reference) ||
-    (typeof json.reference === "string" && json.reference) ||
-    (typeof json.collection_reference === "string" && json.collection_reference) ||
-    (typeof data?.id === "string" && data.id);
-  return ref || null;
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface CollectionParams {
+  payerName: string;
+  phoneNumber: string; // Must be in international format e.g. +256771234567
+  amount: number; // In UGX
+  description: string;
+  idempotencyKey: string; // Unique per transaction — prevents double charges
 }
 
-export type InitiateCollectionResult = {
-  reference: string;
-  raw: Record<string, unknown>;
-};
+export interface CollectionResult {
+  success: boolean;
+  reference: string; // Store this in the enrollment to match webhook events
+  message?: string;
+}
 
-export async function initiateCollection({
-  payerName,
-  phoneNumber,
-  amount,
-  description,
-  idempotencyKey,
-}: {
-  payerName: string;
-  phoneNumber: string;
-  amount: number;
-  description: string;
-  idempotencyKey: string;
-}): Promise<InitiateCollectionResult> {
+// ---------------------------------------------------------------------------
+// Initiate a Mobile Money collection (sends a prompt to the payer's phone)
+// ---------------------------------------------------------------------------
+export async function initiateCollection(
+  params: CollectionParams,
+): Promise<CollectionResult> {
   const token = await getSessionToken();
+
   const res = await fetch(`${BASE_URL}/v1/collections/initiate`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      "Idempotency-Key": idempotencyKey,
+      "Idempotency-Key": params.idempotencyKey,
     },
     body: JSON.stringify({
-      payer_name: payerName,
-      phone_number: phoneNumber,
-      amount,
-      description,
+      payer_name: params.payerName,
+      phone_number: params.phoneNumber,
+      amount: params.amount,
+      description: params.description,
     }),
   });
 
-  const json = (await res.json()) as Record<string, unknown>;
-
   if (!res.ok) {
-    const msg =
-      (typeof json.message === "string" && json.message) ||
-      (typeof json.error === "string" && json.error) ||
-      JSON.stringify(json);
-    throw new Error(`BroRacks initiate failed (${res.status}): ${msg}`);
+    const errorBody = await res.text();
+    throw new Error(`BroRacks collection failed: ${res.status} — ${errorBody}`);
   }
 
-  const reference = extractReference(json);
-  if (!reference) {
-    console.error("[broracks] unexpected initiate response:", json);
-    throw new Error("BroRacks did not return a payment reference");
-  }
-
-  return { reference, raw: json };
+  return res.json();
 }
 
+// ---------------------------------------------------------------------------
+// Verify that a phone number is a valid Mobile Money number before charging
+// ---------------------------------------------------------------------------
 export async function verifyPhone(phoneNumber: string) {
   const token = await getSessionToken();
+
   const res = await fetch(`${BASE_URL}/v1/verify/phone`, {
     method: "POST",
     headers: {
@@ -88,5 +114,10 @@ export async function verifyPhone(phoneNumber: string) {
     },
     body: JSON.stringify({ phone_number: phoneNumber }),
   });
+
+  if (!res.ok) {
+    throw new Error(`BroRacks phone verify failed: ${res.status}`);
+  }
+
   return res.json();
 }

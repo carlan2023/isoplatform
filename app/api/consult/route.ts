@@ -30,11 +30,16 @@ export async function POST(req: NextRequest) {
     message: escapeHtml(String(message)).replace(/\n/g, "<br/>"),
   };
 
+  const companyForSubject = String(company ?? "").trim();
+  const staffSubject = companyForSubject
+    ? `New Consulting Enquiry — ${standard} — ${companyForSubject}`
+    : `New Consulting Enquiry — ${standard}`;
+
   if (staffTo) {
     const staff = await sendResendEmail({
       from: getResendNotificationsFrom(),
       to: staffTo,
-      subject: `New Consulting Enquiry — ${standard} — ${company}`,
+      subject: staffSubject,
       html: `
       <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
         <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">

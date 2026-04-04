@@ -58,6 +58,45 @@ async function findUserIdByEmail(
   return null;
 }
 
+async function upsertEnrollmentProfile(
+  admin: SupabaseClient,
+  userId: string,
+  params: { name: string; company: string; phone: string },
+) {
+  const row = {
+    id: userId,
+    name: params.name,
+    full_name: params.name,
+    company: params.company,
+    phone: params.phone,
+  };
+
+  let { error } = await admin.from("profiles").upsert(row, { onConflict: "id" });
+
+  if (
+    error &&
+    typeof error.message === "string" &&
+    /full_name|schema cache|column/i.test(error.message)
+  ) {
+    ({ error } = await admin.from("profiles").upsert(
+      {
+        id: userId,
+        name: params.name,
+        company: params.company,
+        phone: params.phone,
+      },
+      { onConflict: "id" },
+    ));
+  }
+
+  if (error) {
+    console.error("[enroll] profiles upsert:", error);
+    throw new Error(
+      `Could not save profile: ${error.message}. Check profiles columns and that SUPABASE_SERVICE_ROLE_KEY is set.`,
+    );
+  }
+}
+
 async function getOrCreateAuthUserId(
   admin: SupabaseClient,
   params: {
@@ -74,49 +113,38 @@ async function getOrCreateAuthUserId(
     password,
     user_metadata: {
       name: params.name,
+      full_name: params.name,
       company: params.company,
       phone: params.phone,
     },
   });
 
   if (data?.user?.id) {
-    await admin.from("profiles").upsert(
-      {
-        id: data.user.id,
-        name: params.name,
-        company: params.company,
-        phone: params.phone,
-      },
-      { onConflict: "id" },
-    );
+    await upsertEnrollmentProfile(admin, data.user.id, {
+      name: params.name,
+      company: params.company,
+      phone: params.phone,
+    });
     return data.user.id;
   }
 
-  const msg = error?.message?.toLowerCase() ?? "";
-  const duplicate =
-    msg.includes("already") ||
-    msg.includes("registered") ||
-    msg.includes("duplicate") ||
-    (error as { status?: number })?.status === 422;
-
-  if (duplicate) {
-    const id = await findUserIdByEmail(admin, params.email);
-    if (id) {
-      await admin.from("profiles").upsert(
-        {
-          id,
-          name: params.name,
-          company: params.company,
-          phone: params.phone,
-        },
-        { onConflict: "id" },
-      );
-      return id;
-    }
+  // Supabase often returns opaque messages for "email already in use". Always try
+  // resolving an existing auth user before failing the enrollment.
+  const existingId = await findUserIdByEmail(admin, params.email);
+  if (existingId) {
+    await upsertEnrollmentProfile(admin, existingId, {
+      name: params.name,
+      company: params.company,
+      phone: params.phone,
+    });
+    return existingId;
   }
 
-  console.error("[enroll] createUser:", error);
-  throw new Error(error?.message || "Failed to create or resolve user account");
+  console.error("[enroll] createUser failed and email not found in auth:", error);
+  throw new Error(
+    error?.message ||
+      "Could not create an account for this email. Confirm SUPABASE_SERVICE_ROLE_KEY is set on the server and Auth sign-ups are allowed.",
+  );
 }
 
 export async function POST(req: NextRequest) {
