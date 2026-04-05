@@ -1,13 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
+// ---------------------------------------------------------------------------
+// ⚠️  This file is kept for backwards compatibility only.
+// All imports still resolve correctly via the re-exports below.
+//
+// Prefer importing directly from the specific module going forward:
+//   Client Components:  import { supabase } from "@/lib/supabase/client"
+//   API routes:         import { supabaseServer } from "@/lib/supabase/server"
+//   Types:              import type { Course } from "@/lib/supabase/types"
+// ---------------------------------------------------------------------------
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export const supabaseServer = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-  },
-});
+export { supabase, supabaseServer } from "./index";
+export type {
+  Database,
+  Course,
+  Profile,
+  Enrollment,
+  EnrollmentStatus,
+} from "./supabase/types";
