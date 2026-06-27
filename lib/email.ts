@@ -1,244 +1,112 @@
 // ---------------------------------------------------------------------------
-// Email service — all transactional emails sent by the platform.
+// Email service — thin wrapper around Resend (https://resend.com).
 //
-// Uses Resend (https://resend.com) for delivery.
-// All templates live here so they are easy to update in one place.
+// Exposes small, composable primitives that the API routes use to build and
+// send their own HTML emails:
 //
-// Usage:
-//   import { sendConsultEnquiryEmails } from "@/lib/email"
-//   await sendConsultEnquiryEmails({ name, company, email, phone, standard, message })
+//   escapeHtml(value)                 — escape user input before interpolation
+//   getResendFrom()                   — client-facing "From" address
+//   getResendNotificationsFrom()      — internal/staff-alert "From" address
+//   sendResendEmail({ from, to, ... })— send one email, returns { ok, ... }
+//
+// Configuration (see .env.example):
+//   RESEND_API_KEY              — required to actually send
+//   RESEND_FROM                 — defaults to info@amqualitysystems.com
+//   RESEND_NOTIFICATIONS_FROM   — defaults to RESEND_FROM
 // ---------------------------------------------------------------------------
 
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// The address that receives internal notifications (set in your .env)
-const NOTIFY_EMAIL = process.env.NOTIFICATION_EMAIL!;
-
-// The address emails are sent FROM to clients
-const FROM_CLIENT = "info@amqualitysystems.com";
-
-// Used only for internal notifications during development / Resend onboarding
-const FROM_INTERNAL = "onboarding@resend.dev";
-
 // ---------------------------------------------------------------------------
-// Shared HTML wrapper — keeps all emails visually consistent
+// Lazy Resend client.
+//
+// We do NOT construct this at module load: doing so would read/validate env
+// during `next build`, where RESEND_API_KEY may be absent. Constructing on
+// first send keeps the module import side-effect free and build-safe.
 // ---------------------------------------------------------------------------
-function emailWrapper(bodyHtml: string): string {
-  return `
-    <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
-      ${bodyHtml}
-    </div>
-  `;
-}
+let cachedClient: Resend | null = null;
 
-function emailHeader(title: string, subtitle: string): string {
-  return `
-    <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
-      <h1 style="margin: 0; font-size: 22px;">${title}</h1>
-      <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">${subtitle}</p>
-    </div>
-  `;
+function getResendClient(): Resend {
+  if (cachedClient) return cachedClient;
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+
+  cachedClient = new Resend(apiKey);
+  return cachedClient;
 }
 
 // ---------------------------------------------------------------------------
-// 1. Consulting enquiry emails
-//    Sent when someone submits the ConsultForm on the homepage.
-//    Sends two emails: one to you (notification) and one to the client (receipt).
+// "From" addresses
 // ---------------------------------------------------------------------------
 
-interface ConsultEmailParams {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  standard: string;
-  message: string;
+const DEFAULT_FROM = "info@amqualitysystems.com";
+
+/** Address client-facing emails are sent from (auto-replies, confirmations). */
+export function getResendFrom(): string {
+  return process.env.RESEND_FROM?.trim() || DEFAULT_FROM;
 }
 
-export async function sendConsultEnquiryEmails(
-  params: ConsultEmailParams,
-): Promise<void> {
-  const { name, company, email, phone, standard, message } = params;
-
-  // Email to you
-  await resend.emails.send({
-    from: FROM_INTERNAL,
-    to: NOTIFY_EMAIL,
-    subject: `New Consulting Enquiry — ${standard} — ${company}`,
-    html: emailWrapper(`
-      ${emailHeader("New Consulting Enquiry", "AM Quality Management Systems")}
-      <table style="width: 100%; font-family: system-ui, sans-serif; font-size: 14px; color: #475569;">
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 140px;">Name</td><td>${name}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Company</td><td>${company}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Email</td><td>${email}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Phone</td><td>${phone}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">ISO Standard</td><td>${standard}</td></tr>
-      </table>
-      <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-top: 20px;">
-        <p style="font-family: system-ui, sans-serif; font-size: 14px; color: #475569; margin: 0;">
-          <strong>Message:</strong><br/>${message}
-        </p>
-      </div>
-    `),
-  });
-
-  // Email to client
-  await resend.emails.send({
-    from: FROM_CLIENT,
-    to: email,
-    subject: `We received your enquiry — AM Quality Management Systems`,
-    html: emailWrapper(`
-      ${emailHeader(`Thank you, ${name}`, "AM Quality Management Systems")}
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        We have received your enquiry regarding <strong>${standard}</strong> certification support.
-        Our team will review your requirements and get back to you within 24 hours.
-      </p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        In the meantime, feel free to reach us directly on WhatsApp at
-        <a href="https://wa.me/256707068533" style="color: #0d9488;">+256 707 068 533</a>.
-      </p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        Best regards,<br/>
-        <strong>AM Quality Management Systems</strong><br/>
-        A subsidiary of Alrena Group
-      </p>
-    `),
-  });
+/** Address internal/staff notification emails are sent from. */
+export function getResendNotificationsFrom(): string {
+  return process.env.RESEND_NOTIFICATIONS_FROM?.trim() || getResendFrom();
 }
 
 // ---------------------------------------------------------------------------
-// 2. Enrollment request emails
-//    Sent when someone submits an enrollment (payment initiated but not yet confirmed).
-//    Sends two emails: one to you (notification) and one to the client (receipt).
+// HTML escaping — always run user-supplied values through this before
+// interpolating them into an email template.
 // ---------------------------------------------------------------------------
 
-interface EnrollmentEmailParams {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  courseTitle: string;
-  courseStandard: string;
-  startDate: string; // Pre-formatted date string e.g. "Monday, 5 May 2025"
-  durationDays: number;
-  format: string;
-  seatNumber: number;
-  amountDue: number; // In UGX
-}
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
 
-export async function sendEnrollmentEmails(
-  params: EnrollmentEmailParams,
-): Promise<void> {
-  const {
-    name,
-    company,
-    email,
-    phone,
-    courseTitle,
-    courseStandard,
-    startDate,
-    durationDays,
-    format,
-    seatNumber,
-    amountDue,
-  } = params;
-
-  // Email to you
-  await resend.emails.send({
-    from: FROM_INTERNAL,
-    to: NOTIFY_EMAIL,
-    subject: `New Enrollment — ${courseTitle} · Seat ${seatNumber}`,
-    html: emailWrapper(`
-      ${emailHeader("New Enrollment Request", "AM Quality Management Systems")}
-      <table style="width: 100%; font-family: system-ui, sans-serif; font-size: 14px; color: #475569;">
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 140px;">Course</td><td>${courseTitle}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Standard</td><td>${courseStandard}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Start Date</td><td>${startDate}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Seat Number</td><td>#${seatNumber}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount</td><td>UGX ${amountDue.toLocaleString()}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Name</td><td>${name}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Company</td><td>${company}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Email</td><td>${email}</td></tr>
-        <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Phone</td><td>${phone}</td></tr>
-      </table>
-    `),
-  });
-
-  // Email to client
-  await resend.emails.send({
-    from: FROM_CLIENT,
-    to: email,
-    subject: `Enrollment Request Received — ${courseTitle}`,
-    html: emailWrapper(`
-      ${emailHeader("Enrollment Request Received", "AM Quality Management Systems · ISO Lead Auditor Training")}
-      <p style="font-family: system-ui, sans-serif; color: #475569;">Dear ${name},</p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        Thank you for your enrollment request. Your seat has been reserved and our team will
-        contact you within 24 hours with your invoice and payment instructions.
-      </p>
-      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 24px; margin: 24px 0;">
-        <h2 style="margin: 0 0 16px; font-size: 16px; color: #0f766e;">Your Enrollment Details</h2>
-        <table style="width: 100%; font-family: system-ui, sans-serif; font-size: 14px; color: #475569;">
-          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Course</td><td>${courseTitle}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Standard</td><td>${courseStandard}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Start Date</td><td>${startDate}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Duration</td><td>${durationDays} days · ${format}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Seat Number</td><td style="color: #0d9488; font-weight: 700;">#${seatNumber}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount Due</td><td>UGX ${amountDue.toLocaleString()}</td></tr>
-        </table>
-      </div>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        Please keep this email for your records. Your seat number <strong>#${seatNumber}</strong>
-        will be used for all correspondence regarding this enrollment.
-      </p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        Best regards,<br/>
-        <strong>AM Quality Management Systems</strong><br/>
-        ISO Lead Auditor Training
-      </p>
-    `),
-  });
+export function escapeHtml(value: unknown): string {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
 }
 
 // ---------------------------------------------------------------------------
-// 3. Payment confirmed email
-//    Sent by the BroRacks webhook when Mobile Money payment is successful.
+// Send a single email.
+//
+// Never throws — callers branch on `result.ok` so that a failed email does
+// not abort the surrounding request (e.g. an enrollment whose payment has
+// already been initiated).
 // ---------------------------------------------------------------------------
 
-interface PaymentConfirmedEmailParams {
-  email: string;
-  name: string;
-  courseTitle: string;
-  amountPaid: number; // In UGX
-  reference: string;
+export interface SendResendEmailParams {
+  from: string;
+  to: string | string[];
+  subject: string;
+  html: string;
 }
 
-export async function sendPaymentConfirmedEmail(
-  params: PaymentConfirmedEmailParams,
-): Promise<void> {
-  const { email, name, courseTitle, amountPaid, reference } = params;
+export type SendResendEmailResult =
+  | { ok: true; id: string | null }
+  | { ok: false; error: string };
 
-  await resend.emails.send({
-    from: FROM_CLIENT,
-    to: email,
-    subject: `Payment Confirmed — ${courseTitle}`,
-    html: emailWrapper(`
-      ${emailHeader("Enrollment Confirmed ✓", "AM Quality Management Systems")}
-      <p style="font-family: system-ui, sans-serif; color: #475569;">Dear ${name},</p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        Your payment of <strong>UGX ${amountPaid.toLocaleString()}</strong> was received successfully.
-        You are now enrolled in <strong>${courseTitle}</strong>.
-      </p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        We will be in touch shortly with joining instructions.<br/>
-        Reference: <strong>${reference}</strong>
-      </p>
-      <p style="font-family: system-ui, sans-serif; color: #475569;">
-        Best regards,<br/>
-        <strong>AM Quality Management Systems</strong>
-      </p>
-    `),
-  });
+export async function sendResendEmail(
+  params: SendResendEmailParams,
+): Promise<SendResendEmailResult> {
+  try {
+    const { data, error } = await getResendClient().emails.send({
+      from: params.from,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+    });
+
+    if (error) {
+      return { ok: false, error: error.message || String(error) };
+    }
+
+    return { ok: true, id: data?.id ?? null };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
 }

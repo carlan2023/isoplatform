@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import ConsultForm from "@/app/components/ConsultForm";
 import Link from "next/link";
 import {
@@ -10,10 +10,17 @@ import {
   Award,
   Globe,
 } from "lucide-react";
+import {
+  INDIVIDUAL_PRICE,
+  TEAM_PRICE,
+  TEAM_MIN_SIZE,
+  formatUGX,
+} from "@/lib/pricing";
 
 export const revalidate = 60;
 
 async function getCourses() {
+  const supabase = getSupabaseAdmin();
   const { data } = await supabase
     .from("courses")
     .select("*")
@@ -325,6 +332,14 @@ export default async function HomePage() {
               a certificate of completion.
             </p>
           </div>
+          {courses.length === 0 && (
+            <div
+              className="border border-slate-200 rounded-lg p-12 text-center text-slate-500"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              No upcoming courses are scheduled right now. Please check back soon.
+            </div>
+          )}
           <div className="grid md:grid-cols-3 gap-6">
             {courses.map((course) => (
               <div
@@ -387,13 +402,13 @@ export default async function HomePage() {
                   <div className="border-t border-slate-100 pt-4 flex items-center justify-between">
                     <div>
                       <div className="text-xl font-bold text-slate-900">
-                        UGX {Number(course.price_usd).toLocaleString()}
+                        {formatUGX(INDIVIDUAL_PRICE)}
                       </div>
                       <div
                         className="text-xs text-teal-600"
                         style={{ fontFamily: "system-ui, sans-serif" }}
                       >
-                        UGX 700,000 for teams of 3+
+                        {formatUGX(TEAM_PRICE)} for teams of {TEAM_MIN_SIZE}+
                       </div>
                     </div>
                     <Link
@@ -439,7 +454,7 @@ export default async function HomePage() {
                 For professionals enrolling independently
               </p>
               <div className="text-4xl font-bold text-slate-900 mb-1">
-                UGX 1,000,000
+                {formatUGX(INDIVIDUAL_PRICE)}
               </div>
               <div
                 className="text-sm text-slate-500 mb-6"
@@ -485,16 +500,16 @@ export default async function HomePage() {
                 className="text-sm text-slate-500 mb-6"
                 style={{ fontFamily: "system-ui, sans-serif" }}
               >
-                For companies enrolling 3 or more people
+                For companies enrolling {TEAM_MIN_SIZE} or more people
               </p>
               <div className="text-4xl font-bold text-slate-900 mb-1">
-                UGX 700,000
+                {formatUGX(TEAM_PRICE)}
               </div>
               <div
                 className="text-sm text-slate-500 mb-6"
                 style={{ fontFamily: "system-ui, sans-serif" }}
               >
-                per person · minimum 3
+                per person · minimum {TEAM_MIN_SIZE}
               </div>
               <ul
                 className="space-y-2 text-sm text-slate-600"

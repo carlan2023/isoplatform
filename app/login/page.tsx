@@ -39,22 +39,23 @@ export default function LoginPage() {
       return;
     }
 
-    // Check for redirect param first
+    // Honor an explicit ?redirect= target (set by middleware); otherwise route
+    // by the app role stored on the profile. The auth user object has no app
+    // role, so we must read it from `profiles`. Redirect exactly once.
     const params = new URLSearchParams(window.location.search);
-    const redirectTo =
-      params.get("redirect") ||
-      (data.user?.role === "admin" ? "/admin" : "/dashboard");
-    router.push(redirectTo);
+    let destination = params.get("redirect");
 
-    // Otherwise check role
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
+    if (!destination) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+      destination = profile?.role === "admin" ? "/admin" : "/dashboard";
+    }
 
-    router.push(profile?.role === "admin" ? "/admin" : "/dashboard");
-    setLoading(false);
+    router.replace(destination);
+    router.refresh();
   };
 
   const handleRegister = async (e: React.FormEvent) => {

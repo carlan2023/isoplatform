@@ -25,7 +25,14 @@ export async function POST(req: NextRequest) {
       .update(`${timestamp}.${rawBody}`)
       .digest("hex");
 
-  if (expected !== signature) {
+  // Constant-time comparison to avoid leaking the signature via timing.
+  const expectedBuf = Buffer.from(expected);
+  const signatureBuf = Buffer.from(signature);
+  const signatureValid =
+    expectedBuf.length === signatureBuf.length &&
+    crypto.timingSafeEqual(expectedBuf, signatureBuf);
+
+  if (!signatureValid) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -78,6 +85,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // Verify the amount actually collected matches what this enrollment owed
+    // before confirming. If it doesn't, leave it pending for manual review.
+    const collectedAmount = event.data?.amount;
+    if (
+      typeof collectedAmount === "number" &&
+      Number.isFinite(collectedAmount) &&
+      collectedAmount !== enrollment.amount_paid
+    ) {
+      console.error(
+        `[broracks webhook] amount mismatch for ${reference}: collected ${collectedAmount}, expected ${enrollment.amount_paid}`,
+      );
+      return NextResponse.json({ received: true });
+    }
+
     const course = enrollment.courses as {
       id: string;
       title: string;
@@ -89,16 +110,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // The seat was already counted in seats_taken at reservation time, so we do
+    // NOT increment again here — confirming a pending booking doesn't change how
+    // many seats are held.
     await admin
       .from("enrollments")
       .update({ status: "confirmed" })
       .eq("id", enrollment.id);
-
-    const prevSeats = course.seats_taken ?? 0;
-    await admin
-      .from("courses")
-      .update({ seats_taken: prevSeats + 1 })
-      .eq("id", enrollment.course_id);
 
     const { data: userData, error: userErr } =
       await admin.auth.admin.getUserById(enrollment.user_id);
@@ -154,10 +172,20 @@ export async function POST(req: NextRequest) {
   if (event.event === "collection.failed") {
     const reference = event.data?.reference;
     if (reference) {
-      await admin
+      // Cancel the booking and release its held seat.
+      const { data: cancelled } = await admin
         .from("enrollments")
         .update({ status: "cancelled" })
-        .eq("stripe_session_id", reference);
+        .eq("stripe_session_id", reference)
+        .neq("status", "cancelled")
+        .select("course_id")
+        .maybeSingle();
+
+      if (cancelled?.course_id) {
+        await admin.rpc("recompute_course_seats", {
+          p_course_id: cancelled.course_id,
+        });
+      }
     }
   }
 

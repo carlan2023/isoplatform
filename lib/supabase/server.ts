@@ -1,37 +1,40 @@
 // ---------------------------------------------------------------------------
-// Server client — use ONLY in API routes and Server Components.
+// Server client (per-request) — use in Server Components and Route Handlers
+// that need to act AS THE SIGNED-IN USER (e.g. read the session, check role).
 //
-// Uses the SERVICE ROLE key which bypasses Row-Level Security entirely.
-// This is required for admin operations such as:
-//   - supabaseServer.auth.admin.createUser()
-//   - supabaseServer.auth.admin.listUsers()
-//   - Any write that normal users shouldn't be able to trigger directly
-//
-// ⚠️  NEVER import this file from a Client Component or expose it to
-//     the browser. The service role key grants unrestricted DB access.
+// Uses the PUBLIC anon key and reads/writes the auth cookies for the current
+// request, so Row-Level Security applies. This is NOT the admin client — for
+// privileged operations that must bypass RLS, use getSupabaseAdmin() from
+// "@/lib/supabase-admin".
 // ---------------------------------------------------------------------------
 
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "./types";
+import "server-only";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error(
-    "Missing Supabase server environment variables: " +
-      "NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.",
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          // In a Server Component render this can throw (cookies are read-only);
+          // it is safe to ignore because middleware refreshes the session.
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // no-op
+          }
+        },
+      },
+    },
   );
 }
-
-export const supabaseServer = createClient<Database>(
-  supabaseUrl,
-  supabaseServiceRoleKey,
-  {
-    auth: {
-      // Never persist a session server-side — each request is stateless.
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  },
-);

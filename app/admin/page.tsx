@@ -61,16 +61,23 @@ export default function AdminPage() {
   }, [router]);
 
   const updateStatus = async (id: string, status: string) => {
-    await supabase.from("enrollments").update({ status }).eq("id", id);
-    setEnrollments((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, status } : e)),
-    );
-    setStats((prev) => ({
-      ...prev,
-      confirmed:
-        status === "confirmed" ? prev.confirmed + 1 : prev.confirmed - 1,
-      pending: status === "pending" ? prev.pending + 1 : prev.pending - 1,
-    }));
+    // Privileged action goes through a server route that re-checks admin role.
+    const res = await fetch("/api/admin/enrollments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enrollmentId: id, status }),
+    });
+    if (!res.ok) {
+      alert("Could not update enrollment. Please try again.");
+      return;
+    }
+    const next = enrollments.map((e) => (e.id === id ? { ...e, status } : e));
+    setEnrollments(next);
+    setStats({
+      total: next.length,
+      confirmed: next.filter((e: any) => e.status === "confirmed").length,
+      pending: next.filter((e: any) => e.status === "pending").length,
+    });
   };
 
   const handleLogout = async () => {

@@ -9,17 +9,7 @@ import {
   sendResendEmail,
 } from "@/lib/email";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-
-const FULL_PRICE = 1_000_000;
-
-function computePricing(teamSize: number) {
-  const team = Math.min(10, Math.max(1, Math.floor(teamSize) || 1));
-  const isTeam = team >= 3;
-  const pricePerPerson = isTeam ? 700_000 : FULL_PRICE;
-  const fullAmount = pricePerPerson * team;
-  const minDeposit = Math.ceil(fullAmount * 0.3);
-  return { team, fullAmount, minDeposit };
-}
+import { computePricing } from "@/lib/pricing";
 
 function isValidPayAmount(
   amount: number,
@@ -220,19 +210,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    const { count: activeSlots } = await admin
-      .from("enrollments")
-      .select("*", { count: "exact", head: true })
-      .eq("course_id", courseId)
-      .in("status", ["pending", "confirmed"]);
-
-    if ((activeSlots ?? 0) >= (course.seats_total ?? 0)) {
-      return NextResponse.json(
-        { error: "This course is full. Please choose another date." },
-        { status: 409 },
-      );
-    }
-
     const userId = await getOrCreateAuthUserId(admin, {
       email,
       name,
@@ -240,36 +217,82 @@ export async function POST(req: NextRequest) {
       phone,
     });
 
-    const { count: enrollmentCount } = await admin
-      .from("enrollments")
-      .select("*", { count: "exact", head: true })
-      .eq("course_id", courseId);
+    // Atomically reserve a seat: one row-locked DB function does the capacity
+    // check AND the insert, so concurrent requests can't oversell the course or
+    // collide on a seat number. It also keeps courses.seats_taken in sync.
+    const { data: reservation, error: reserveError } = await admin.rpc(
+      "reserve_enrollment_seat",
+      { p_course_id: courseId, p_user_id: userId, p_amount: amount },
+    );
 
-    const seatNumber = (enrollmentCount ?? 0) + 1;
+    if (reserveError) {
+      const msg = reserveError.message || "";
+      if (msg.includes("COURSE_FULL")) {
+        return NextResponse.json(
+          { error: "This course is full. Please choose another date." },
+          { status: 409 },
+        );
+      }
+      if (msg.includes("COURSE_NOT_FOUND")) {
+        return NextResponse.json({ error: "Course not found" }, { status: 404 });
+      }
+      console.error("[enroll] seat reservation failed:", reserveError);
+      return NextResponse.json(
+        { error: "Could not reserve a seat. Please try again." },
+        { status: 500 },
+      );
+    }
 
+    const reserved = Array.isArray(reservation) ? reservation[0] : reservation;
+    const enrollmentId: string | undefined = reserved?.enrollment_id;
+    const seatNumber: number = reserved?.seat_number ?? 0;
+
+    if (!enrollmentId) {
+      console.error("[enroll] reservation returned no row:", reservation);
+      return NextResponse.json(
+        { error: "Could not reserve a seat. Please try again." },
+        { status: 500 },
+      );
+    }
+
+    // Seat is held. Initiate Mobile Money; if that fails, release the seat so an
+    // un-started payment never holds capacity.
     const idempotencyKey = randomUUID();
-    const { reference } = await initiateCollection({
-      payerName: name.trim(),
-      phoneNumber: phone.trim(),
-      amount,
-      description: `${course.standard ?? "Course"} · ${course.title} · seat ${seatNumber}`,
-      idempotencyKey,
-    });
+    let reference = "";
+    try {
+      const collection = await initiateCollection({
+        payerName: name.trim(),
+        phoneNumber: phone.trim(),
+        amount,
+        description: `${course.standard ?? "Course"} · ${course.title} · seat ${seatNumber}`,
+        idempotencyKey,
+      });
+      reference = collection.reference;
+    } catch (e) {
+      await admin
+        .from("enrollments")
+        .update({ status: "cancelled" })
+        .eq("id", enrollmentId);
+      await admin.rpc("recompute_course_seats", { p_course_id: courseId });
+      console.error("[enroll] collection initiate failed; seat released:", e);
+      return NextResponse.json(
+        { error: "Could not start the Mobile Money payment. Please try again." },
+        { status: 502 },
+      );
+    }
 
-    const { error: insertError } = await admin.from("enrollments").insert({
-      user_id: userId,
-      course_id: courseId,
-      status: "pending",
-      amount_paid: amount,
-      stripe_session_id: reference,
-    });
+    // Link the payment reference to the reserved enrollment for webhook matching.
+    const { error: refError } = await admin
+      .from("enrollments")
+      .update({ stripe_session_id: reference })
+      .eq("id", enrollmentId);
 
-    if (insertError) {
-      console.error("[enroll] enrollment insert failed:", insertError);
+    if (refError) {
+      console.error("[enroll] could not store payment reference:", refError);
       return NextResponse.json(
         {
           error:
-            "Payment started but enrollment could not be saved. Contact support with your payment reference.",
+            "Payment started but could not be linked. Contact support with your payment reference.",
           reference,
         },
         { status: 500 },

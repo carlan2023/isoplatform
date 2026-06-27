@@ -1,14 +1,11 @@
 // ---------------------------------------------------------------------------
-// Barrel export for lib/supabase
-//
-// Import guide:
-//   Client Components / pages:       import { supabase } from "@/lib/supabase"
-//   API routes / Server Components:  import { supabaseServer } from "@/lib/supabase"
-//   Type imports:                    import type { Course, Enrollment } from "@/lib/supabase"
+// Convenience re-exports. Prefer importing from the specific module:
+//   Client Components / pages:  import { supabase } from "@/lib/supabase"
+//   Server (as the user):       import { createSupabaseServerClient } from "@/lib/supabase/server"
+//   Privileged (service role):  import { getSupabaseAdmin } from "@/lib/supabase-admin"
 // ---------------------------------------------------------------------------
 
 export { supabase } from "./supabase/client";
-export { supabaseServer } from "./supabase/server";
 export type {
   Database,
   Course,

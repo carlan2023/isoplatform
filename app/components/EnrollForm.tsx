@@ -2,9 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Smartphone, Loader2 } from "lucide-react";
-
-const FULL_PRICE = 1000000;
-const MIN_DEPOSIT = 300000;
+import {
+  computePricing,
+  pricePerPerson,
+  formatUGX,
+  DEPOSIT_RATE,
+  MAX_TEAM_SIZE,
+} from "@/lib/pricing";
 
 export default function EnrollForm({
   courseId,
@@ -27,10 +31,9 @@ export default function EnrollForm({
   const [errorMsg, setErrorMsg] = useState("");
   const [reference, setReference] = useState("");
 
-  const isTeam = parseInt(form.teamSize) >= 3;
-  const pricePerPerson = isTeam ? 700000 : FULL_PRICE;
-  const fullAmount = pricePerPerson * parseInt(form.teamSize || "1");
-  const minDeposit = Math.ceil(fullAmount * 0.3);
+  const { fullAmount, minDeposit } = computePricing(
+    parseInt(form.teamSize || "1"),
+  );
   const payAmount =
     form.paymentType === "full"
       ? fullAmount
@@ -257,12 +260,9 @@ export default function EnrollForm({
           className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500 bg-white"
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+          {Array.from({ length: MAX_TEAM_SIZE }, (_, i) => i + 1).map((n) => (
             <option key={n} value={n}>
-              {n}{" "}
-              {n >= 3
-                ? `— UGX ${(700000 * n).toLocaleString()} total`
-                : `— UGX ${(1000000 * n).toLocaleString()} total`}
+              {n} — {formatUGX(pricePerPerson(n) * n)} total
             </option>
           ))}
         </select>
@@ -280,7 +280,7 @@ export default function EnrollForm({
           {[
             {
               value: "deposit",
-              label: `Deposit (30%)`,
+              label: `Deposit (${Math.round(DEPOSIT_RATE * 100)}%)`,
               amount: `UGX ${minDeposit.toLocaleString()}`,
             },
             {

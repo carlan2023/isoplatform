@@ -1,7 +1,15 @@
 import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
+import {
+  INDIVIDUAL_PRICE,
+  TEAM_PRICE,
+  TEAM_MIN_SIZE,
+  DEPOSIT_RATE,
+  computePricing,
+  formatUGX,
+} from "@/lib/pricing";
 
 export default async function EnrollPage({
   params,
@@ -11,7 +19,7 @@ export default async function EnrollPage({
   const { id } = await params;
 
   // Fetch course
-  const { data: course } = await supabaseServer
+  const { data: course } = await getSupabaseAdmin()
     .from("courses")
     .select("*")
     .eq("id", id)
@@ -128,17 +136,19 @@ export default async function EnrollPage({
                 >
                   Individual
                 </span>
-                <span className="font-bold text-slate-900">UGX 1,000,000</span>
+                <span className="font-bold text-slate-900">
+                  {formatUGX(INDIVIDUAL_PRICE)}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span
                   className="text-sm text-slate-600"
                   style={{ fontFamily: "system-ui, sans-serif" }}
                 >
-                  Team (3+ people)
+                  Team ({TEAM_MIN_SIZE}+ people)
                 </span>
                 <span className="font-bold text-slate-900">
-                  UGX 700,000{" "}
+                  {formatUGX(TEAM_PRICE)}{" "}
                   <span className="text-xs text-slate-400">per person</span>
                 </span>
               </div>
@@ -148,10 +158,10 @@ export default async function EnrollPage({
                     className="text-sm text-slate-600"
                     style={{ fontFamily: "system-ui, sans-serif" }}
                   >
-                    Minimum deposit (30%)
+                    Minimum deposit ({Math.round(DEPOSIT_RATE * 100)}%)
                   </span>
                   <span className="font-bold" style={{ color: "#0d9488" }}>
-                    UGX 300,000
+                    {formatUGX(computePricing(1).minDeposit)}
                   </span>
                 </div>
               </div>
