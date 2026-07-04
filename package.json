@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "ci": "npm run typecheck && npm run lint"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "ci": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.15.0",
@@ -28,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.0"
   }
 }

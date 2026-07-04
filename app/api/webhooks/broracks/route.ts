@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
+import {
+  verifyWebhookSignature,
+  isFreshTimestamp,
+  shouldConfirmPayment,
+} from "@/lib/webhook";
 import {
   escapeHtml,
   getResendFrom,
@@ -18,25 +22,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
-  const expected =
-    "sha256=" +
-    crypto
-      .createHmac("sha256", secret)
-      .update(`${timestamp}.${rawBody}`)
-      .digest("hex");
-
-  // Constant-time comparison to avoid leaking the signature via timing.
-  const expectedBuf = Buffer.from(expected);
-  const signatureBuf = Buffer.from(signature);
-  const signatureValid =
-    expectedBuf.length === signatureBuf.length &&
-    crypto.timingSafeEqual(expectedBuf, signatureBuf);
-
-  if (!signatureValid) {
+  if (!verifyWebhookSignature({ secret, timestamp, rawBody, signature })) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) {
+  if (!isFreshTimestamp(timestamp)) {
     return NextResponse.json({ error: "Webhook expired" }, { status: 401 });
   }
 
@@ -88,11 +78,7 @@ export async function POST(req: NextRequest) {
     // Verify the amount actually collected matches what this enrollment owed
     // before confirming. If it doesn't, leave it pending for manual review.
     const collectedAmount = event.data?.amount;
-    if (
-      typeof collectedAmount === "number" &&
-      Number.isFinite(collectedAmount) &&
-      collectedAmount !== enrollment.amount_paid
-    ) {
+    if (!shouldConfirmPayment(collectedAmount, enrollment.amount_paid)) {
       console.error(
         `[broracks webhook] amount mismatch for ${reference}: collected ${collectedAmount}, expected ${enrollment.amount_paid}`,
       );

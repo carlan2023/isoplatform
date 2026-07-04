@@ -9,18 +9,7 @@ import {
   sendResendEmail,
 } from "@/lib/email";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { computePricing } from "@/lib/pricing";
-
-function isValidPayAmount(
-  amount: number,
-  fullAmount: number,
-  minDeposit: number,
-): boolean {
-  if (amount === fullAmount) return true;
-  if (amount === minDeposit) return true;
-  if (amount >= minDeposit && amount <= fullAmount) return true;
-  return false;
-}
+import { computePricing, isValidPayAmount } from "@/lib/pricing";
 
 async function findUserIdByEmail(
   admin: SupabaseClient,

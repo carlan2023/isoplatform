@@ -33,3 +33,16 @@ export function computePricing(teamSize: number) {
 export function formatUGX(amount: number): string {
   return `UGX ${Math.round(amount).toLocaleString()}`;
 }
+
+/**
+ * Whether a "pay now" amount is acceptable for a booking: anything from the
+ * minimum deposit up to (and including) the full amount — never below the
+ * deposit or above the full amount.
+ */
+export function isValidPayAmount(
+  amount: number,
+  fullAmount: number,
+  minDeposit: number,
+): boolean {
+  return amount >= minDeposit && amount <= fullAmount;
+}
