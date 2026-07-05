@@ -112,11 +112,9 @@ export default function DashboardPage() {
       (e) => e.status === "awaiting_confirmation",
     ).length;
     const pending = active.filter((e) => e.status === "pending").length;
+    // Only count money that's actually settled (confirmed).
     const totalPaid = enrollments
-      .filter(
-        (e) =>
-          e.status === "confirmed" || e.status === "awaiting_confirmation",
-      )
+      .filter((e) => e.status === "confirmed")
       .reduce((sum, e) => sum + (e.amount_paid || 0), 0);
 
     const now = loadedAt || 0;

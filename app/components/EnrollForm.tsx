@@ -18,6 +18,7 @@ type Step =
   | "details"
   | "payment"
   | "pending"
+  | "offline"
   | "already";
 
 export default function EnrollForm({
@@ -178,6 +179,45 @@ export default function EnrollForm({
     }
   };
 
+  // Fallback when Mobile Money won't go through: reserve the seat and pay by
+  // cash / bank transfer, to be confirmed by an admin.
+  const submitOffline = async () => {
+    if (form.paymentType === "custom" && payAmount < minDeposit) {
+      setErrorMsg(`Minimum payment is UGX ${minDeposit.toLocaleString()}`);
+      return;
+    }
+    setSubmitting(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/enroll/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enrollmentId,
+          teamSize: parseInt(form.teamSize),
+          amount: payAmount,
+          fullAmount,
+          payerName: form.full_name,
+          method: "offline",
+        }),
+      });
+      if (res.status === 401) {
+        setStep("signin");
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.error || "Could not reserve your seat. Please try again.");
+        return;
+      }
+      setStep("offline");
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const sans = { fontFamily: "system-ui, sans-serif" as const };
   const inputCls =
     "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500";
@@ -287,6 +327,46 @@ export default function EnrollForm({
         >
           Go to Dashboard →
         </button>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------- offline reserved
+  if (step === "offline") {
+    return (
+      <div className="text-center py-6">
+        <CheckCircle2
+          size={40}
+          className="mx-auto mb-4"
+          style={{ color: "#0d9488" }}
+        />
+        <h3 className="font-bold text-slate-900 text-lg mb-2">
+          Seat reserved
+        </h3>
+        <p className="text-slate-500 text-sm mb-4" style={sans}>
+          We&apos;ve held your seat in <strong>{courseTitle}</strong>. To
+          confirm it, pay <strong>UGX {payAmount.toLocaleString()}</strong> by
+          cash or bank transfer — we&apos;ll confirm your seat once we receive
+          it.
+        </p>
+        <a
+          href="https://wa.me/256707068533"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 text-white text-sm font-semibold px-5 py-3 rounded-lg"
+          style={{ backgroundColor: "#25d366", ...sans }}
+        >
+          Arrange payment on WhatsApp
+        </a>
+        <div>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="mt-5 text-sm font-semibold underline"
+            style={{ color: "#0d9488" }}
+          >
+            Go to Dashboard →
+          </button>
+        </div>
       </div>
     );
   }
@@ -531,6 +611,26 @@ export default function EnrollForm({
             Mobile Money
           </>
         )}
+      </button>
+
+      {/* Offline fallback — for when Mobile Money / the MTN prompt won't work. */}
+      <div className="relative py-1">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-3 text-xs text-slate-400" style={sans}>
+            or
+          </span>
+        </div>
+      </div>
+      <button
+        onClick={submitOffline}
+        disabled={submitting}
+        className="w-full border border-slate-200 text-slate-700 text-sm font-medium py-3 rounded-lg transition-colors hover:bg-slate-50 disabled:opacity-50"
+        style={sans}
+      >
+        Mobile Money not working? Reserve seat & pay cash / bank transfer
       </button>
 
       <button

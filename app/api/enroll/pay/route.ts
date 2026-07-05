@@ -1,12 +1,17 @@
 // ---------------------------------------------------------------------------
-// POST /api/enroll/pay — step 2 of enrollment: initiate Mobile Money payment
-// for an existing PENDING enrollment. This is where a seat is actually HELD.
+// POST /api/enroll/pay — step 2 of enrollment: hold a seat and take payment.
 //
-// Flow: authenticate (session) -> validate amount -> reserve a seat
-// (pending -> awaiting_confirmation, capacity enforced in one locked txn) ->
-// initiate the BroRacks collection. If the collection can't be started, the
-// seat is released (enrollment reverted to pending) so it never holds capacity
-// for a payment that never began. The webhook later confirms the seat.
+// Two methods:
+//   "momo" (default) — reserve a seat, then initiate a BroRacks Mobile Money
+//                      prompt. The webhook confirms the seat on success.
+//   "offline"        — reserve a seat WITHOUT charging (Mobile Money down /
+//                      cash / bank transfer). The seat is held as
+//                      awaiting_confirmation and an admin confirms once the
+//                      money is received. This is the fallback for when the
+//                      MTN/BroRacks API is failing.
+//
+// Either way the seat is held atomically first (capacity-checked); if the MoMo
+// call then fails, the seat is released back to pending.
 // ---------------------------------------------------------------------------
 
 import { randomUUID } from "crypto";
@@ -15,7 +20,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { initiateCollection } from "@/lib/broracks";
 import { computePricing, isValidPayAmount } from "@/lib/pricing";
-import { escapeHtml, getResendFrom, sendResendEmail } from "@/lib/email";
+import {
+  escapeHtml,
+  getResendFrom,
+  getResendNotificationsFrom,
+  sendResendEmail,
+} from "@/lib/email";
+
+// Sentinel stored in the payment-reference column for cash/offline bookings so
+// the admin dashboard can tell them apart from a real BroRacks reference.
+const OFFLINE_REF = "OFFLINE-CASH";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,6 +53,7 @@ export async function POST(req: NextRequest) {
       fullAmount: rawFullAmount,
       momoPhone,
       payerName,
+      method: rawMethod,
     } = body as {
       enrollmentId?: string;
       teamSize?: number;
@@ -46,9 +61,12 @@ export async function POST(req: NextRequest) {
       fullAmount?: number;
       momoPhone?: string;
       payerName?: string;
+      method?: string;
     };
 
-    if (!enrollmentId || !momoPhone?.trim()) {
+    const method = rawMethod === "offline" ? "offline" : "momo";
+
+    if (!enrollmentId || (method === "momo" && !momoPhone?.trim())) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -90,7 +108,7 @@ export async function POST(req: NextRequest) {
 
     const { data: enrollment, error: enrollError } = await admin
       .from("enrollments")
-      .select("id, user_id, status, course_id, courses(*)")
+      .select("id, user_id, status, course_id, courses (*)")
       .eq("id", enrollmentId)
       .maybeSingle();
 
@@ -147,13 +165,78 @@ export async function POST(req: NextRequest) {
     const reserved = Array.isArray(reservation) ? reservation[0] : reservation;
     const seatNumber: number = reserved?.seat_number ?? 0;
 
-    // Seat held. Start the Mobile Money prompt; on failure, release the seat.
+    const safeName = escapeHtml((payerName || "").trim());
+    const safeTitle = escapeHtml(String(course.title));
+
+    // -----------------------------------------------------------------------
+    // Offline / cash fallback — seat held, admin confirms once paid.
+    // -----------------------------------------------------------------------
+    if (method === "offline") {
+      await admin
+        .from("enrollments")
+        .update({ stripe_session_id: OFFLINE_REF })
+        .eq("id", enrollmentId);
+
+      if (user.email) {
+        const mail = await sendResendEmail({
+          from: getResendFrom(),
+          to: user.email.trim(),
+          subject: `Seat reserved — pay to confirm — ${course.title}`,
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
+              <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
+                <h1 style="margin: 0; font-size: 22px;">Your seat is reserved</h1>
+                <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems</p>
+              </div>
+              <p style="font-family: system-ui, sans-serif; color: #475569;">${safeName ? `Dear ${safeName},` : "Hello,"}</p>
+              <p style="font-family: system-ui, sans-serif; color: #475569;">
+                We've held your seat for <strong>${safeTitle}</strong>. To confirm it, please
+                pay <strong>UGX ${amount.toLocaleString()}</strong> by cash or bank transfer.
+              </p>
+              <p style="font-family: system-ui, sans-serif; color: #475569;">
+                Contact us on WhatsApp at
+                <a href="https://wa.me/256707068533" style="color: #0d9488;">+256 707 068 533</a>
+                to arrange payment. Once we receive it, we'll confirm your seat by email.
+              </p>
+            </div>
+          `,
+        });
+        if (!mail.ok) {
+          console.error("[enroll:pay] offline learner email failed:", mail.error);
+        }
+      }
+
+      const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
+      if (staffTo) {
+        await sendResendEmail({
+          from: getResendNotificationsFrom(),
+          to: staffTo,
+          subject: `Offline/cash enrollment to confirm — ${course.title}`,
+          html: `
+            <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
+              <h2 style="margin: 0 0 12px;">Cash / offline enrollment awaiting confirmation</h2>
+              <p style="color: #475569;">
+                <strong>${safeTitle}</strong> · seat ${seatNumber} · agreed UGX ${amount.toLocaleString()}<br/>
+                Learner: ${escapeHtml(user.email ?? "unknown")}
+              </p>
+              <p style="color: #475569;">Confirm it in the admin dashboard once payment is received.</p>
+            </div>
+          `,
+        });
+      }
+
+      return NextResponse.json({ success: true, offline: true, amount });
+    }
+
+    // -----------------------------------------------------------------------
+    // Mobile Money path — start the prompt; release the seat if it can't start.
+    // -----------------------------------------------------------------------
     const idempotencyKey = randomUUID();
     let reference = "";
     try {
       const collection = await initiateCollection({
         payerName: (payerName || user.email || "Learner").trim(),
-        phoneNumber: momoPhone.trim(),
+        phoneNumber: momoPhone!.trim(),
         amount,
         description: `${course.standard ?? "Course"} · ${course.title} · seat ${seatNumber}`,
         idempotencyKey,
@@ -169,7 +252,11 @@ export async function POST(req: NextRequest) {
       });
       console.error("[enroll:pay] collection initiate failed; seat released:", e);
       return NextResponse.json(
-        { error: "Could not start the Mobile Money payment. Please try again." },
+        {
+          error: "Could not start the Mobile Money payment. Please try again.",
+          // Tell the client an offline fallback is available.
+          canPayOffline: true,
+        },
         { status: 502 },
       );
     }
@@ -192,11 +279,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Tell the learner to approve the prompt. The seat-confirmed email is sent
-    // by the webhook once BroRacks reports the collection succeeded.
     if (user.email) {
-      const safeName = escapeHtml((payerName || "").trim());
-      const safeTitle = escapeHtml(String(course.title));
       const mail = await sendResendEmail({
         from: getResendFrom(),
         to: user.email.trim(),

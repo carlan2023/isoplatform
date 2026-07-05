@@ -94,18 +94,16 @@ export default function AdminPage() {
   }, [router]);
 
   const stats = useMemo(() => {
-    const active = enrollments.filter((e) => e.status !== "cancelled");
     return {
       total: enrollments.length,
       awaiting: enrollments.filter((e) => e.status === "awaiting_confirmation")
         .length,
       confirmed: enrollments.filter((e) => e.status === "confirmed").length,
       pending: enrollments.filter((e) => e.status === "pending").length,
-      revenue: active
-        .filter(
-          (e) =>
-            e.status === "confirmed" || e.status === "awaiting_confirmation",
-        )
+      // Only money actually received (confirmed) — cash reservations that are
+      // still awaiting confirmation are not counted.
+      revenue: enrollments
+        .filter((e) => e.status === "confirmed")
         .reduce((sum, e) => sum + (e.amount_paid || 0), 0),
     };
   }, [enrollments]);
@@ -334,11 +332,15 @@ export default function AdminPage() {
                       </td>
                       <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
                         <div>{formatUGX(Number(e.amount_paid || 0))}</div>
-                        {e.reference && (
+                        {e.reference === "OFFLINE-CASH" ? (
+                          <div className="text-xs text-amber-600 font-medium">
+                            Cash / offline
+                          </div>
+                        ) : e.reference ? (
                           <div className="text-xs text-slate-300 font-mono">
                             {e.reference}
                           </div>
-                        )}
+                        ) : null}
                       </td>
                       <td className="px-6 py-4">
                         <span

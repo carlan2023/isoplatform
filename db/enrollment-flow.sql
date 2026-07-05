@@ -17,6 +17,27 @@
 -- ===========================================================================
 
 -- ---------------------------------------------------------------------------
+-- 0) Preflight — this migration assumes enrollments.status is a TEXT column.
+--    If it's a Postgres ENUM, stop cleanly (an enum needs ALTER TYPE ... ADD
+--    VALUE, not a CHECK constraint). Nothing below runs if this aborts.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  v_type text;
+begin
+  select data_type into v_type
+  from information_schema.columns
+  where table_schema = 'public'
+    and table_name = 'enrollments'
+    and column_name = 'status';
+
+  if v_type = 'USER-DEFINED' then
+    raise exception
+      'enrollments.status is an ENUM, not text — this migration needs the enum variant. Send the output of: select udt_name from information_schema.columns where table_name=''enrollments'' and column_name=''status'';';
+  end if;
+end $$;
+
+-- ---------------------------------------------------------------------------
 -- 1) profiles columns — additive & idempotent. Fixes the missing-column error.
 -- ---------------------------------------------------------------------------
 alter table public.profiles add column if not exists full_name text;
@@ -25,20 +46,25 @@ alter table public.profiles add column if not exists company   text;
 alter table public.profiles add column if not exists phone     text;
 
 -- ---------------------------------------------------------------------------
--- 2) enrollments.status — allow the new value. Replace the check constraint if
---    one pins the allowed set (no-op if status is free text).
+-- 2) enrollments.status — allow the new value. Drop ANY existing CHECK
+--    constraint on the status column (whatever it's named), then add ours.
 -- ---------------------------------------------------------------------------
 do $$
+declare
+  r record;
 begin
-  if exists (
-    select 1
-    from information_schema.table_constraints
-    where table_schema = 'public'
-      and table_name = 'enrollments'
-      and constraint_name = 'enrollments_status_check'
-  ) then
-    alter table public.enrollments drop constraint enrollments_status_check;
-  end if;
+  for r in
+    select con.conname
+    from pg_constraint con
+    join pg_class rel on rel.oid = con.conrelid
+    join pg_namespace nsp on nsp.oid = rel.relnamespace
+    where nsp.nspname = 'public'
+      and rel.relname = 'enrollments'
+      and con.contype = 'c'                       -- check constraints only
+      and pg_get_constraintdef(con.oid) ilike '%status%'
+  loop
+    execute format('alter table public.enrollments drop constraint %I', r.conname);
+  end loop;
 end $$;
 
 alter table public.enrollments
