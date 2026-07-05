@@ -16,6 +16,7 @@ import {
   formatUGX,
 } from "@/lib/pricing";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { STANDARDS } from "@/lib/standards";
 
 export const revalidate = 60;
 
@@ -327,6 +328,76 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* CERTIFICATIONS — information-security & data-protection landing pages */}
+      <section className="bg-white border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="mb-12">
+            <div
+              className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full border mb-6"
+              style={{
+                backgroundColor: "#f0fdfa",
+                borderColor: "#99f6e4",
+                color: "#0f766e",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              <ShieldCheck size={12} /> Information Security & Data Protection
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+              ISO 27001, ISO 27701 &amp; PCI DSS
+            </h2>
+            <p
+              className="text-slate-500 max-w-2xl"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Handling sensitive or payment data? We take organisations through
+              information-security and data-protection certification, end to end.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {STANDARDS.map((s) => (
+              <Link
+                key={s.slug}
+                href={`/certifications/${s.slug}`}
+                className="group relative border border-slate-200 rounded-lg p-6 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
+              >
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  style={{ backgroundColor: "#f0fdfa" }}
+                >
+                  <ShieldCheck size={20} style={{ color: "#0d9488" }} />
+                </div>
+                <div className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
+                  {s.code}
+                </div>
+                <div
+                  className="text-sm font-medium text-slate-600 mb-3"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  {s.name}
+                </div>
+                <p
+                  className="text-sm text-slate-500 leading-relaxed mb-4"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  {s.tagline}
+                </p>
+                <span
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 font-medium"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  Learn more{" "}
+                  <ArrowRight
+                    size={14}
+                    className="group-hover:translate-x-0.5 transition-transform"
+                  />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* TRAINING — Lead Auditor training for individuals (demoted from hero so
           the business intent leads, but still fully indexable and linkable). */}
       <section id="training" className="bg-white border-b border-slate-100">
@@ -472,8 +543,15 @@ export default async function HomePage() {
             {courses.map((course) => (
               <div
                 key={course.id}
-                className="border border-slate-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                className="group relative border border-slate-200 rounded-lg overflow-hidden bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
               >
+                {/* Whole-card overlay link to the course description. Sits below
+                    the Enroll button (which is z-10) so both are clickable. */}
+                <Link
+                  href={`/courses/${course.id}`}
+                  className="absolute inset-0 z-0"
+                  aria-label={`View ${course.title}`}
+                />
                 {/* Card top accent */}
                 <div
                   className="h-1 w-full"
@@ -491,11 +569,11 @@ export default async function HomePage() {
                   >
                     {course.standard}
                   </span>
-                  <h3 className="font-bold text-slate-900 text-lg mb-1">
+                  <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-teal-700 transition-colors">
                     {course.title}
                   </h3>
                   <p
-                    className="text-slate-500 text-sm mb-5 leading-relaxed"
+                    className="text-slate-500 text-sm mb-5 leading-relaxed line-clamp-3"
                     style={{ fontFamily: "system-ui, sans-serif" }}
                   >
                     {course.description}
@@ -541,7 +619,7 @@ export default async function HomePage() {
                     </div>
                     <Link
                       href={`/enroll/${course.id}`}
-                      className="inline-flex items-center gap-1 text-white text-sm px-4 py-2 rounded-md font-medium transition-colors"
+                      className="relative z-10 inline-flex items-center gap-1 text-white text-sm px-4 py-2 rounded-md font-medium transition-colors hover:brightness-95"
                       style={{
                         backgroundColor: "#0d9488",
                         fontFamily: "system-ui, sans-serif",

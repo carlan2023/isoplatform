@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select("id")
       .eq("is_active", true);
     courseRoutes = (data || []).map((c) => ({
-      url: abs(`/enroll/${c.id}`),
+      url: abs(`/courses/${c.id}`),
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
