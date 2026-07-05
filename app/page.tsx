@@ -189,7 +189,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Standards panel — signals the business certification offer */}
+          {/* Standards panel — clickable cards into the consulting offer */}
           <div className="grid grid-cols-2 gap-4">
             {[
               { code: "ISO 9001", label: "Quality Management" },
@@ -197,11 +197,12 @@ export default async function HomePage() {
               { code: "ISO 45001", label: "Health & Safety" },
               { code: "ISO 22000", label: "Food Safety" },
             ].map((s) => (
-              <div
+              <Link
                 key={s.code}
-                className="border border-slate-200 rounded-lg p-6"
+                href="/iso-certification-consulting"
+                className="group block border border-slate-200 rounded-lg p-6 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
               >
-                <div className="text-2xl font-bold text-slate-900 mb-1">
+                <div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
                   {s.code}
                 </div>
                 <div
@@ -210,7 +211,7 @@ export default async function HomePage() {
                 >
                   {s.label}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
