@@ -9,7 +9,11 @@
 // later to get end-to-end type safety without further changes.
 // ---------------------------------------------------------------------------
 
-export type EnrollmentStatus = "pending" | "confirmed" | "cancelled";
+export type EnrollmentStatus =
+  | "pending" // details captured, no payment yet — holds no seat
+  | "awaiting_confirmation" // payment initiated — seat held, confirming
+  | "confirmed" // payment confirmed — seat assigned
+  | "cancelled";
 
 export interface Course {
   id: string;

@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Smartphone, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Smartphone, Loader2, Lock, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import {
   computePricing,
   pricePerPerson,
@@ -9,6 +11,14 @@ import {
   DEPOSIT_RATE,
   MAX_TEAM_SIZE,
 } from "@/lib/pricing";
+
+type Step =
+  | "loading"
+  | "signin"
+  | "details"
+  | "payment"
+  | "pending"
+  | "already";
 
 export default function EnrollForm({
   courseId,
@@ -18,18 +28,53 @@ export default function EnrollForm({
   courseTitle: string;
 }) {
   const router = useRouter();
+  const [step, setStep] = useState<Step>("loading");
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [enrollmentId, setEnrollmentId] = useState("");
+  const [reference, setReference] = useState("");
+  const [alreadyStatus, setAlreadyStatus] = useState("");
   const [form, setForm] = useState({
-    name: "",
+    full_name: "",
     company: "",
-    email: "",
     phone: "",
     teamSize: "1",
-    paymentType: "deposit", // 'deposit' | 'full'
+    paymentType: "deposit", // 'deposit' | 'full' | 'custom'
     customAmount: "",
+    momoPhone: "",
   });
-  const [step, setStep] = useState<"form" | "pending" | "error">("form");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [reference, setReference] = useState("");
+
+  // Gate on auth and prefill contact details from the signed-in profile.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!active) return;
+      if (!user) {
+        setStep("signin");
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, phone, company")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!active) return;
+      setForm((f) => ({
+        ...f,
+        full_name: profile?.full_name ?? "",
+        phone: profile?.phone ?? "",
+        company: profile?.company ?? "",
+        momoPhone: profile?.phone ?? "",
+      }));
+      setStep("details");
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const { fullAmount, minDeposit } = computePricing(
     parseInt(form.teamSize || "1"),
@@ -47,54 +92,169 @@ export default function EnrollForm({
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.phone) {
-      setErrorMsg("Please fill in all required fields.");
+  const submitDetails = async () => {
+    if (!form.full_name.trim() || !form.phone.trim()) {
+      setErrorMsg("Please enter your full name and phone number.");
       return;
     }
-    if (form.paymentType === "custom" && payAmount < minDeposit) {
-      setErrorMsg(`Minimum payment is UGX ${minDeposit.toLocaleString()}`);
-      return;
-    }
-
-    setStep("pending");
+    setSubmitting(true);
     setErrorMsg("");
-
     try {
       const res = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           courseId,
-          name: form.name,
+          full_name: form.full_name,
           company: form.company,
-          email: form.email,
-          phone: form.phone.startsWith("+")
-            ? form.phone
-            : `+256${form.phone.replace(/^0/, "")}`,
-          teamSize: parseInt(form.teamSize),
-          amount: payAmount,
-          fullAmount,
+          phone: form.phone,
         }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setErrorMsg(data.error || "Payment failed. Please try again.");
-        setStep("error");
+      if (res.status === 401) {
+        setStep("signin");
         return;
       }
-
-      setReference(data.reference);
+      const data = await res.json();
+      if (!res.ok || !data.enrollmentId) {
+        setErrorMsg(data.error || "Could not start your enrollment.");
+        return;
+      }
+      setEnrollmentId(data.enrollmentId);
+      if (data.alreadyEnrolled) {
+        setAlreadyStatus(data.status);
+        setStep("already");
+        return;
+      }
+      setStep("payment");
     } catch {
       setErrorMsg("Network error. Please try again.");
-      setStep("error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Pending state — waiting for phone approval
-  if (step === "pending" && reference) {
+  const submitPayment = async () => {
+    if (!form.momoPhone.trim()) {
+      setErrorMsg("Enter the Mobile Money number to charge.");
+      return;
+    }
+    if (form.paymentType === "custom" && payAmount < minDeposit) {
+      setErrorMsg(`Minimum payment is UGX ${minDeposit.toLocaleString()}`);
+      return;
+    }
+    setSubmitting(true);
+    setErrorMsg("");
+    const momo = form.momoPhone.startsWith("+")
+      ? form.momoPhone
+      : `+256${form.momoPhone.replace(/^0/, "")}`;
+    try {
+      const res = await fetch("/api/enroll/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enrollmentId,
+          teamSize: parseInt(form.teamSize),
+          amount: payAmount,
+          fullAmount,
+          momoPhone: momo,
+          payerName: form.full_name,
+        }),
+      });
+      if (res.status === 401) {
+        setStep("signin");
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.error || "Payment failed. Please try again.");
+        return;
+      }
+      setReference(data.reference);
+      setStep("pending");
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const sans = { fontFamily: "system-ui, sans-serif" as const };
+  const inputCls =
+    "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500";
+  const labelCls =
+    "block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide";
+
+  // -------------------------------------------------------------- loading
+  if (step === "loading") {
+    return (
+      <div className="text-center py-10">
+        <Loader2
+          size={28}
+          className="animate-spin mx-auto"
+          style={{ color: "#0d9488" }}
+        />
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------- sign in
+  if (step === "signin") {
+    return (
+      <div className="text-center py-6">
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{ backgroundColor: "#f0fdfa" }}
+        >
+          <Lock size={24} style={{ color: "#0d9488" }} />
+        </div>
+        <h3 className="font-bold text-slate-900 text-lg mb-2">
+          Sign in to enroll
+        </h3>
+        <p className="text-slate-500 text-sm mb-6" style={sans}>
+          Create an account or sign in so you can enroll and track your
+          confirmation in your dashboard.
+        </p>
+        <Link
+          href={`/login?redirect=${encodeURIComponent(`/enroll/${courseId}`)}`}
+          className="inline-block text-white text-sm font-semibold px-6 py-3 rounded-lg"
+          style={{ backgroundColor: "#0d9488", ...sans }}
+        >
+          Sign in or create an account
+        </Link>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------- already enrolled
+  if (step === "already") {
+    return (
+      <div className="text-center py-6">
+        <CheckCircle2
+          size={40}
+          className="mx-auto mb-4"
+          style={{ color: "#0d9488" }}
+        />
+        <h3 className="font-bold text-slate-900 text-lg mb-2">
+          You&apos;re already enrolled
+        </h3>
+        <p className="text-slate-500 text-sm mb-6" style={sans}>
+          {alreadyStatus === "confirmed"
+            ? `Your seat in ${courseTitle} is confirmed.`
+            : `You already have a payment being confirmed for ${courseTitle}.`}
+        </p>
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="text-sm font-semibold underline"
+          style={{ color: "#0d9488" }}
+        >
+          Go to Dashboard →
+        </button>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------- pending (phone approval)
+  if (step === "pending") {
     return (
       <div className="text-center py-6">
         <div
@@ -104,31 +264,21 @@ export default function EnrollForm({
           <Smartphone size={28} style={{ color: "#0d9488" }} />
         </div>
         <h3 className="font-bold text-slate-900 text-lg mb-2">
-          Check Your Phone
+          Check your phone
         </h3>
-        <p
-          className="text-slate-500 text-sm mb-4"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          A Mobile Money prompt has been sent to <strong>{form.phone}</strong>.
-          Approve it to confirm your enrollment in{" "}
-          <strong>{courseTitle}</strong>.
+        <p className="text-slate-500 text-sm mb-4" style={sans}>
+          A Mobile Money prompt was sent to <strong>{form.momoPhone}</strong>.
+          Approve it to confirm your seat in <strong>{courseTitle}</strong>.
         </p>
         <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-left">
-          <div
-            className="text-xs text-slate-400 mb-1"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
+          <div className="text-xs text-slate-400 mb-1" style={sans}>
             Payment Reference
           </div>
           <div className="font-mono text-sm text-slate-900">{reference}</div>
         </div>
-        <p
-          className="text-xs text-slate-400"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          You will receive a confirmation email once payment is approved. Save
-          your reference number for follow-up.
+        <p className="text-xs text-slate-400" style={sans}>
+          You&apos;ll get a confirmation email once payment is approved. Save
+          your reference for follow-up.
         </p>
         <button
           onClick={() => router.push("/dashboard")}
@@ -141,124 +291,118 @@ export default function EnrollForm({
     );
   }
 
-  if (step === "pending" && !reference) {
+  // -------------------------------------------------------------- step indicator
+  const stepBadge = (
+    <div className="flex items-center gap-2 mb-5 text-xs" style={sans}>
+      <span
+        className="px-2 py-0.5 rounded-full font-medium"
+        style={
+          step === "details"
+            ? { backgroundColor: "#0d9488", color: "white" }
+            : { backgroundColor: "#f0fdfa", color: "#0f766e" }
+        }
+      >
+        1 · Your details
+      </span>
+      <span className="text-slate-300">→</span>
+      <span
+        className="px-2 py-0.5 rounded-full font-medium"
+        style={
+          step === "payment"
+            ? { backgroundColor: "#0d9488", color: "white" }
+            : { backgroundColor: "#f1f5f9", color: "#94a3b8" }
+        }
+      >
+        2 · Payment
+      </span>
+    </div>
+  );
+
+  const errorBanner = errorMsg && (
+    <div
+      className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-4"
+      style={sans}
+    >
+      {errorMsg}
+    </div>
+  );
+
+  // -------------------------------------------------------------- step 1: details
+  if (step === "details") {
     return (
-      <div className="text-center py-10">
-        <Loader2
-          size={32}
-          className="animate-spin mx-auto mb-4"
-          style={{ color: "#0d9488" }}
-        />
-        <p
-          className="text-slate-500 text-sm"
-          style={{ fontFamily: "system-ui, sans-serif" }}
+      <div className="space-y-4">
+        {stepBadge}
+        {errorBanner}
+        <div>
+          <label className={labelCls} style={sans}>
+            Full Name *
+          </label>
+          <input
+            name="full_name"
+            value={form.full_name}
+            onChange={handleChange}
+            className={inputCls}
+            style={sans}
+            placeholder="Your full name"
+          />
+        </div>
+        <div>
+          <label className={labelCls} style={sans}>
+            Phone Number *
+          </label>
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            className={inputCls}
+            style={sans}
+            placeholder="e.g. 0771234567 or +256771234567"
+          />
+        </div>
+        <div>
+          <label className={labelCls} style={sans}>
+            Organisation / Company
+          </label>
+          <input
+            name="company"
+            value={form.company}
+            onChange={handleChange}
+            className={inputCls}
+            style={sans}
+            placeholder="Your organisation (optional)"
+          />
+        </div>
+        <button
+          onClick={submitDetails}
+          disabled={submitting}
+          className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold py-3.5 rounded-lg transition-colors disabled:opacity-50"
+          style={{ backgroundColor: "#0d9488", ...sans }}
         >
-          Initiating payment...
+          {submitting ? "Saving..." : "Continue to payment →"}
+        </button>
+        <p className="text-center text-xs text-slate-400" style={sans}>
+          No payment is taken on this step.
         </p>
       </div>
     );
   }
 
+  // -------------------------------------------------------------- step 2: payment
   return (
     <div className="space-y-4">
-      {errorMsg && (
-        <div
-          className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          {errorMsg}
-        </div>
-      )}
-
-      {/* Personal Details */}
-      <div>
-        <label
-          className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          Full Name *
-        </label>
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-          placeholder="Your full name"
-        />
-      </div>
+      {stepBadge}
+      {errorBanner}
 
       <div>
-        <label
-          className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          Email Address *
-        </label>
-        <input
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-          placeholder="you@company.com"
-        />
-      </div>
-
-      <div>
-        <label
-          className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          Mobile Money Number *
-        </label>
-        <input
-          name="phone"
-          value={form.phone}
-          onChange={handleChange}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-          placeholder="e.g. 0771234567 or +256771234567"
-        />
-        <p
-          className="text-xs text-slate-400 mt-1"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          MTN or Airtel Uganda number — you&apos;ll get a payment prompt here
-        </p>
-      </div>
-
-      <div>
-        <label
-          className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
-          Organisation / Company
-        </label>
-        <input
-          name="company"
-          value={form.company}
-          onChange={handleChange}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-          placeholder="Your organisation (optional)"
-        />
-      </div>
-
-      <div>
-        <label
-          className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
+        <label className={labelCls} style={sans}>
           Number of Participants
         </label>
         <select
           name="teamSize"
           value={form.teamSize}
           onChange={handleChange}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500 bg-white"
-          style={{ fontFamily: "system-ui, sans-serif" }}
+          className={`${inputCls} bg-white`}
+          style={sans}
         >
           {Array.from({ length: MAX_TEAM_SIZE }, (_, i) => i + 1).map((n) => (
             <option key={n} value={n}>
@@ -268,12 +412,25 @@ export default function EnrollForm({
         </select>
       </div>
 
-      {/* Payment Amount */}
       <div>
-        <label
-          className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide"
-          style={{ fontFamily: "system-ui, sans-serif" }}
-        >
+        <label className={labelCls} style={sans}>
+          Mobile Money Number *
+        </label>
+        <input
+          name="momoPhone"
+          value={form.momoPhone}
+          onChange={handleChange}
+          className={inputCls}
+          style={sans}
+          placeholder="e.g. 0771234567 or +256771234567"
+        />
+        <p className="text-xs text-slate-400 mt-1" style={sans}>
+          MTN or Airtel Uganda number — you&apos;ll get the payment prompt here.
+        </p>
+      </div>
+
+      <div>
+        <label className={labelCls} style={sans}>
           Payment Amount
         </label>
         <div className="space-y-2">
@@ -309,17 +466,14 @@ export default function EnrollForm({
                 />
                 <span
                   className="text-sm font-medium text-slate-900"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={sans}
                 >
                   {opt.label}
                 </span>
               </div>
               <span
                 className="text-sm font-bold"
-                style={{
-                  color: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
-                }}
+                style={{ color: "#0d9488", ...sans }}
               >
                 {opt.amount}
               </span>
@@ -336,19 +490,15 @@ export default function EnrollForm({
             min={minDeposit}
             max={fullAmount}
             placeholder={`Enter amount (min ${minDeposit.toLocaleString()})`}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500 mt-2"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            className={`${inputCls} mt-2`}
+            style={sans}
           />
         )}
       </div>
 
-      {/* Summary */}
       <div className="bg-slate-50 border border-slate-100 rounded-lg p-4">
         <div className="flex justify-between text-sm mb-1">
-          <span
-            className="text-slate-500"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
+          <span className="text-slate-500" style={sans}>
             Amount to pay now
           </span>
           <span className="font-bold text-slate-900">
@@ -356,10 +506,7 @@ export default function EnrollForm({
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span
-            className="text-slate-500"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
+          <span className="text-slate-500" style={sans}>
             Balance remaining
           </span>
           <span className="font-semibold text-slate-700">
@@ -369,21 +516,35 @@ export default function EnrollForm({
       </div>
 
       <button
-        onClick={handleSubmit}
-        className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold py-3.5 rounded-lg transition-colors"
-        style={{
-          backgroundColor: "#0d9488",
-          fontFamily: "system-ui, sans-serif",
-        }}
+        onClick={submitPayment}
+        disabled={submitting}
+        className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold py-3.5 rounded-lg transition-colors disabled:opacity-50"
+        style={{ backgroundColor: "#0d9488", ...sans }}
       >
-        <Smartphone size={16} />
-        Pay UGX {payAmount.toLocaleString()} via Mobile Money
+        {submitting ? (
+          <>
+            <Loader2 size={16} className="animate-spin" /> Starting payment...
+          </>
+        ) : (
+          <>
+            <Smartphone size={16} /> Pay UGX {payAmount.toLocaleString()} via
+            Mobile Money
+          </>
+        )}
       </button>
 
-      <p
-        className="text-center text-xs text-slate-400"
-        style={{ fontFamily: "system-ui, sans-serif" }}
+      <button
+        onClick={() => {
+          setErrorMsg("");
+          setStep("details");
+        }}
+        className="w-full text-center text-xs text-slate-400 hover:text-slate-600"
+        style={sans}
       >
+        ← Back to details
+      </button>
+
+      <p className="text-center text-xs text-slate-400" style={sans}>
         Powered by broRacks · Secure Mobile Money
       </p>
     </div>

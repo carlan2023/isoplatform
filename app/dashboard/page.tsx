@@ -183,12 +183,37 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span
-                    className={`text-xs font-medium px-3 py-1 rounded-full ${e.status === "confirmed" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}
-                    style={{ fontFamily: "system-ui, sans-serif" }}
-                  >
-                    {e.status === "confirmed" ? "Confirmed" : "Pending Payment"}
-                  </span>
+                  {(() => {
+                    const badge = {
+                      confirmed: {
+                        cls: "bg-green-100 text-green-700",
+                        label: "Confirmed",
+                      },
+                      awaiting_confirmation: {
+                        cls: "bg-blue-100 text-blue-700",
+                        label: "Confirming payment",
+                      },
+                      cancelled: {
+                        cls: "bg-red-100 text-red-600",
+                        label: "Cancelled",
+                      },
+                      pending: {
+                        cls: "bg-amber-100 text-amber-700",
+                        label: "Awaiting payment",
+                      },
+                    }[e.status] ?? {
+                      cls: "bg-amber-100 text-amber-700",
+                      label: "Awaiting payment",
+                    };
+                    return (
+                      <span
+                        className={`text-xs font-medium px-3 py-1 rounded-full ${badge.cls}`}
+                        style={{ fontFamily: "system-ui, sans-serif" }}
+                      >
+                        {badge.label}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

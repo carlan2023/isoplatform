@@ -180,8 +180,8 @@ export default async function EnrollPage({
               className="text-sm text-slate-500 mb-6"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              Pay via Mobile Money. You will receive a prompt on your phone to
-              approve.
+              Enter your details, then pay via Mobile Money to reserve your
+              seat. You&apos;ll get a prompt on your phone to approve.
             </p>
             <EnrollForm courseId={course.id} courseTitle={course.title} />
           </div>

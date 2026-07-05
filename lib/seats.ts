@@ -1,10 +1,11 @@
 // ---------------------------------------------------------------------------
 // Seat capacity rules.
 //
-// The ATOMIC enforcement lives in db/payments.sql (reserve_enrollment_seat,
-// which locks the course row). These pure helpers state the same rule in one
-// place so it can be unit-tested and reasoned about. "Held" = enrollments with
-// status 'pending' or 'confirmed'.
+// The ATOMIC enforcement lives in db/enrollment-flow.sql
+// (reserve_seat_for_payment, which locks the course row). These pure helpers
+// state the same rule in one place so it can be unit-tested and reasoned about.
+// "Held" = enrollments with status 'awaiting_confirmation' or 'confirmed' (a
+// bare 'pending' enrollment holds no seat until payment is initiated).
 // ---------------------------------------------------------------------------
 
 /** A seat can be reserved only while held seats are below the total. */
