@@ -19,13 +19,21 @@ import {
 export const revalidate = 60;
 
 async function getCourses() {
-  const supabase = getSupabaseAdmin();
-  const { data } = await supabase
-    .from("courses")
-    .select("*")
-    .eq("is_active", true)
-    .order("start_date");
-  return data || [];
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("is_active", true)
+      .order("start_date");
+    return data || [];
+  } catch (err) {
+    // A public marketing homepage should never fail the whole build/deploy
+    // because a data fetch hiccupped or env vars were missing. Render with no
+    // courses ("No upcoming courses…") and let ISR retry on the next revalidate.
+    console.error("Failed to load courses for homepage:", err);
+    return [];
+  }
 }
 
 export default async function HomePage() {
