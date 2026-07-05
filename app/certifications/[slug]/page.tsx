@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import ConsultForm from "@/app/components/ConsultForm";
 import { SITE_NAME, abs } from "@/lib/site";
-import { formatUGX } from "@/lib/pricing";
 import {
   STANDARDS,
   getStandard,
@@ -343,50 +342,31 @@ export default async function CertificationPage({
         </div>
       </section>
 
-      {/* PRICING */}
+      {/* REQUEST A QUOTE */}
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20 text-center">
           <h2 className="text-3xl font-bold text-slate-900 mb-4">
-            {standard.code} pricing
+            Request a {standard.code} quote
           </h2>
           <p
-            className="text-slate-500 mb-10"
+            className="text-slate-500 mb-10 max-w-2xl mx-auto"
             style={{ fontFamily: "system-ui, sans-serif" }}
           >
-            Every engagement is fixed-scope — no open-ended billing. The figure
-            below is a starting point; we confirm an exact quote after a short
-            scoping call.
+            Every engagement is fixed-scope — no open-ended billing. Because
+            cost depends on your size, systems and current maturity, we prepare
+            a tailored proposal after a short scoping call. Send us your details
+            and we&apos;ll get back to you within 24 hours.
           </p>
-          <div
-            className="inline-block border-2 rounded-xl px-12 py-10"
-            style={{ borderColor: "#0d9488", backgroundColor: "#f0fdfa" }}
+          <a
+            href="#enquiry"
+            className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-md font-medium transition-colors"
+            style={{
+              backgroundColor: "#0d9488",
+              fontFamily: "system-ui, sans-serif",
+            }}
           >
-            <div
-              className="text-sm text-slate-500 mb-1"
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              From
-            </div>
-            <div className="text-5xl font-bold text-slate-900 mb-2">
-              {formatUGX(standard.priceFrom)}
-            </div>
-            <div
-              className="text-sm text-teal-700"
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              {standard.priceNote}
-            </div>
-            <a
-              href="#enquiry"
-              className="mt-6 inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
-              style={{
-                backgroundColor: "#0d9488",
-                fontFamily: "system-ui, sans-serif",
-              }}
-            >
-              Get an exact quote <ArrowRight size={16} />
-            </a>
-          </div>
+            Request a quote <ArrowRight size={16} />
+          </a>
         </div>
       </section>
 
@@ -426,7 +406,7 @@ export default async function CertificationPage({
 
           <div className="bg-white border border-slate-200 rounded-xl p-8">
             <h3 className="font-bold text-slate-900 text-lg mb-1">
-              Request a consultation
+              Request a quote
             </h3>
             <p
               className="text-slate-500 text-sm mb-6"

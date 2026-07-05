@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Mail, Lock, User, Phone } from "lucide-react";
+import { ShieldCheck, Mail, Lock, User, Phone, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 type Mode = "login" | "register" | "magic";
@@ -16,9 +16,18 @@ export default function LoginPage() {
   const [form, setForm] = useState({
     email: "",
     password: "",
+    confirm_password: "",
     full_name: "",
     phone: "",
   });
+  // Per-field password visibility (login password, register password, confirm).
+  const [visible, setVisible] = useState({
+    login: false,
+    register: false,
+    confirm: false,
+  });
+  const toggleVisible = (key: keyof typeof visible) =>
+    setVisible((v) => ({ ...v, [key]: !v[key] }));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -60,6 +69,10 @@ export default function LoginPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.password !== form.confirm_password) {
+      setError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
     setError("");
     const { error } = await supabase.auth.signUp({
@@ -125,6 +138,7 @@ export default function LoginPage() {
               onClick={() => {
                 setMode(m);
                 setError("");
+                setSent(false);
               }}
               className="flex-1 py-3 text-sm font-medium transition-colors"
               style={{
@@ -153,8 +167,29 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* SUCCESS — shown after register / magic-link so the user knows to
+              check their inbox instead of the form silently doing nothing. */}
+          {sent && (
+            <div className="bg-teal-50 border border-teal-200 rounded-lg p-5 text-center">
+              <div
+                className="text-teal-700 font-semibold mb-1"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                ✓ Check your email
+              </div>
+              <p
+                className="text-teal-600 text-sm"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                {mode === "register"
+                  ? "We've sent a confirmation link to verify your account. Open it to finish signing up."
+                  : "We've sent you a one-click sign-in link. Open it to continue."}
+              </p>
+            </div>
+          )}
+
           {/* PASSWORD LOGIN */}
-          {mode === "login" && (
+          {mode === "login" && !sent && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
                 <Mail
@@ -179,14 +214,22 @@ export default function LoginPage() {
                 />
                 <input
                   name="password"
-                  type="password"
+                  type={visible.login ? "text" : "password"}
                   placeholder="Password"
                   value={form.password}
                   onChange={handleChange}
                   required
-                  className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full border border-slate-200 rounded-lg pl-9 pr-10 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500"
                   style={{ fontFamily: "system-ui, sans-serif" }}
                 />
+                <button
+                  type="button"
+                  onClick={() => toggleVisible("login")}
+                  aria-label={visible.login ? "Hide password" : "Show password"}
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {visible.login ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
               <button
                 type="submit"
@@ -216,7 +259,7 @@ export default function LoginPage() {
           )}
 
           {/* REGISTER */}
-          {mode === "register" && (
+          {mode === "register" && !sent && (
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="relative">
                 <User
@@ -272,16 +315,69 @@ export default function LoginPage() {
                 />
                 <input
                   name="password"
-                  type="password"
+                  type={visible.register ? "text" : "password"}
                   placeholder="Password (min. 6 characters)"
                   value={form.password}
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full border border-slate-200 rounded-lg pl-9 pr-10 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500"
                   style={{ fontFamily: "system-ui, sans-serif" }}
                 />
+                <button
+                  type="button"
+                  onClick={() => toggleVisible("register")}
+                  aria-label={
+                    visible.register ? "Hide password" : "Show password"
+                  }
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {visible.register ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
+              <div className="relative">
+                <Lock
+                  size={15}
+                  className="absolute left-3 top-3.5 text-slate-400"
+                />
+                <input
+                  name="confirm_password"
+                  type={visible.confirm ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={form.confirm_password}
+                  onChange={handleChange}
+                  required
+                  minLength={6}
+                  className={`w-full border rounded-lg pl-9 pr-10 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 ${
+                    form.confirm_password &&
+                    form.password !== form.confirm_password
+                      ? "border-red-300"
+                      : "border-slate-200"
+                  }`}
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleVisible("confirm")}
+                  aria-label={
+                    visible.confirm
+                      ? "Hide confirm password"
+                      : "Show confirm password"
+                  }
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {visible.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {form.confirm_password &&
+                form.password !== form.confirm_password && (
+                  <p
+                    className="text-xs text-red-500 -mt-2"
+                    style={{ fontFamily: "system-ui, sans-serif" }}
+                  >
+                    Passwords do not match.
+                  </p>
+                )}
               <button
                 type="submit"
                 disabled={loading}
@@ -297,7 +393,7 @@ export default function LoginPage() {
           )}
 
           {/* MAGIC LINK */}
-          {mode === "magic" && (
+          {mode === "magic" && !sent && (
             <form onSubmit={handleMagicLink} className="space-y-4">
               <p
                 className="text-sm text-slate-500 mb-2"

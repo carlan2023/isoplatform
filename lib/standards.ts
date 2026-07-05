@@ -41,10 +41,6 @@ export type Standard = {
   services: StandardService[];
   /** The road to certification / attestation. */
   process: StandardStep[];
-  /** Indicative starting price in UGX (scope-dependent). */
-  priceFrom: number;
-  /** Caption shown next to the price. */
-  priceNote: string;
   faqs: StandardFaq[];
 };
 
@@ -129,8 +125,6 @@ export const STANDARDS: Standard[] = [
       },
     ],
     process: SHARED_PROCESS,
-    priceFrom: 12_000_000,
-    priceNote: "indicative — final scope depends on your size and systems",
     faqs: [
       {
         q: "How long does ISO 27001 certification take?",
@@ -198,8 +192,6 @@ export const STANDARDS: Standard[] = [
       },
     ],
     process: SHARED_PROCESS,
-    priceFrom: 8_000_000,
-    priceNote: "indicative — lower when added to an existing ISO 27001 ISMS",
     faqs: [
       {
         q: "Do we need ISO 27001 before ISO 27701?",
@@ -293,8 +285,6 @@ export const STANDARDS: Standard[] = [
         desc: "We keep you compliant through ongoing scans, reviews and your annual re-validation.",
       },
     ],
-    priceFrom: 10_000_000,
-    priceNote: "indicative — depends on your merchant level and environment",
     faqs: [
       {
         q: "Which PCI DSS level applies to us?",
