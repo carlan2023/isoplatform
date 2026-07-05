@@ -4,12 +4,28 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, BookOpen, Clock, LogOut } from "lucide-react";
 import Link from "next/link";
+import type { User } from "@supabase/supabase-js";
+
+type Profile = {
+  role?: string | null;
+  full_name?: string | null;
+};
+
+type Enrollment = {
+  id: string;
+  status: string;
+  courses?: {
+    title: string | null;
+    standard: string | null;
+    start_date: string | null;
+  } | null;
+};
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,7 +56,7 @@ export default function DashboardPage() {
         .select("*, courses(*)")
         .eq("user_id", user.id)
         .order("enrolled_at", { ascending: false });
-      setEnrollments(enrollments || []);
+      setEnrollments((enrollments ?? []) as Enrollment[]);
       setLoading(false);
     };
     load();
@@ -130,7 +146,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {enrollments.map((e: any) => (
+            {enrollments.map((e) => (
               <div
                 key={e.id}
                 className="bg-white border border-slate-200 rounded-xl p-6 flex items-center justify-between"
@@ -156,10 +172,13 @@ export default function DashboardPage() {
                   >
                     <span className="flex items-center gap-1">
                       <Clock size={12} />
-                      {new Date(e.courses?.start_date).toLocaleDateString(
-                        "en-GB",
-                        { day: "numeric", month: "long", year: "numeric" },
-                      )}
+                      {new Date(
+                        e.courses?.start_date ?? "",
+                      ).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
                 </div>

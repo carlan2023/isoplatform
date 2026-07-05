@@ -225,7 +225,7 @@ export default function EnrollForm({
           className="text-xs text-slate-400 mt-1"
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
-          MTN or Airtel Uganda number — you'll get a payment prompt here
+          MTN or Airtel Uganda number — you&apos;ll get a payment prompt here
         </p>
       </div>
 

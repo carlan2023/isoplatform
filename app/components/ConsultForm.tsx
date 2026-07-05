@@ -50,7 +50,7 @@ export default function ConsultForm() {
           className="text-teal-600 text-sm"
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
-          We'll be in touch within 24 hours. Check your inbox for a
+          We&apos;ll be in touch within 24 hours. Check your inbox for a
           confirmation.
         </p>
       </div>

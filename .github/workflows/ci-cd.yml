@@ -1,0 +1,142 @@
+name: CI/CD
+
+# Single pipeline for iso-platform. On every push to main and every pull
+# request it first runs the build gate (typecheck + lint + tests), then — only
+# if that gate passes — deploys to Vercel:
+#   - Pull requests  -> Preview deployment
+#   - Push to main   -> Production deployment
+#
+# The `verify` job is the always-on required gate and needs no secrets. Deploy
+# jobs depend on it, so broken code never reaches Vercel.
+#
+# Vercel app env vars (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+# RESEND_*, BRORACKS_*, etc.) are pulled from the Vercel project by
+# `vercel pull` — they do NOT need to live in GitHub.
+#
+# Required GitHub repository secrets (Settings > Secrets and variables > Actions):
+#   VERCEL_TOKEN        - https://vercel.com/account/tokens
+#   VERCEL_ORG_ID       - from .vercel/project.json after running `vercel link`
+#   VERCEL_PROJECT_ID   - from .vercel/project.json after running `vercel link`
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, lint & test
+    runs-on: ubuntu-latest
+    # Cancel superseded runs on the same ref to save CI minutes.
+    concurrency:
+      group: ci-verify-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+  build:
+    name: Production build
+    needs: verify
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ci-build-${{ github.ref }}
+      cancel-in-progress: true
+    # Opt-in: set repository variable ENABLE_BUILD_CHECK=true and configure the
+    # secrets below. `next build` prerenders ISR pages, which read from Supabase,
+    # so it needs real credentials. Off by default so missing secrets never make
+    # CI falsely red — typecheck + lint + test above remain the always-on gate.
+    # Not needed when deploying via Vercel, which builds during `vercel build`.
+    if: ${{ vars.ENABLE_BUILD_CHECK == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ secrets.RESEND_FROM }}
+          RESEND_NOTIFICATIONS_FROM: ${{ secrets.RESEND_NOTIFICATIONS_FROM }}
+          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+          BRORACKS_PUBLIC_KEY: ${{ secrets.BRORACKS_PUBLIC_KEY }}
+          BRORACKS_SECRET_KEY: ${{ secrets.BRORACKS_SECRET_KEY }}
+          BRORACKS_WEBHOOK_SECRET: ${{ secrets.BRORACKS_WEBHOOK_SECRET }}
+
+  preview:
+    name: Preview deploy
+    needs: verify
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: vercel-preview-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull Vercel environment (preview)
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy preview
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+
+  production:
+    name: Production deploy
+    needs: verify
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: vercel-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull Vercel environment (production)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

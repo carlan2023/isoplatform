@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
@@ -40,13 +41,13 @@ export default async function EnrollPage({
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-5xl mx-auto">
-          <a href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <img
               src="/amqms-v4-transparent.png"
               alt="AM Quality Management Systems"
               className="h-10 w-auto"
             />
-          </a>
+          </Link>
         </div>
       </div>
 

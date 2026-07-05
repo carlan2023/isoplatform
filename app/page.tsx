@@ -278,7 +278,7 @@ export default async function HomePage() {
                 className="text-slate-500 text-sm mb-6"
                 style={{ fontFamily: "system-ui, sans-serif" }}
               >
-                Tell us about your organisation and we'll get back to you within
+                Tell us about your organisation and we&apos;ll get back to you within
                 24 hours.
               </p>
               <ConsultForm />

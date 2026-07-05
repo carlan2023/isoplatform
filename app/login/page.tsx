@@ -303,7 +303,7 @@ export default function LoginPage() {
                 className="text-sm text-slate-500 mb-2"
                 style={{ fontFamily: "system-ui, sans-serif" }}
               >
-                Enter your email and we'll send you a one-click sign in link. No
+                Enter your email and we&apos;ll send you a one-click sign in link. No
                 password needed.
               </p>
               <div className="relative">

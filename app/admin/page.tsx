@@ -12,9 +12,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+type Enrollment = {
+  id: string;
+  status: string;
+  amount_paid: number | null;
+  courses?: {
+    title: string | null;
+    standard: string | null;
+    start_date: string | null;
+  } | null;
+};
+
 export default function AdminPage() {
   const router = useRouter();
-  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, confirmed: 0, pending: 0 });
 
@@ -48,12 +59,12 @@ export default function AdminPage() {
         )
         .order("enrolled_at", { ascending: false });
 
-      const list = data || [];
+      const list = (data ?? []) as Enrollment[];
       setEnrollments(list);
       setStats({
         total: list.length,
-        confirmed: list.filter((e: any) => e.status === "confirmed").length,
-        pending: list.filter((e: any) => e.status === "pending").length,
+        confirmed: list.filter((e) => e.status === "confirmed").length,
+        pending: list.filter((e) => e.status === "pending").length,
       });
       setLoading(false);
     };
@@ -75,8 +86,8 @@ export default function AdminPage() {
     setEnrollments(next);
     setStats({
       total: next.length,
-      confirmed: next.filter((e: any) => e.status === "confirmed").length,
-      pending: next.filter((e: any) => e.status === "pending").length,
+      confirmed: next.filter((e) => e.status === "confirmed").length,
+      pending: next.filter((e) => e.status === "pending").length,
     });
   };
 
@@ -201,7 +212,7 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {enrollments.map((e: any) => (
+                {enrollments.map((e) => (
                   <tr
                     key={e.id}
                     className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
@@ -213,10 +224,13 @@ export default function AdminPage() {
                       {e.courses?.standard}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
-                      {new Date(e.courses?.start_date).toLocaleDateString(
-                        "en-GB",
-                        { day: "numeric", month: "short", year: "numeric" },
-                      )}
+                      {new Date(
+                        e.courses?.start_date ?? "",
+                      ).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
                       UGX {Number(e.amount_paid).toLocaleString()}
