@@ -15,6 +15,7 @@ import {
   TEAM_MIN_SIZE,
   formatUGX,
 } from "@/lib/pricing";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -39,11 +40,61 @@ async function getCourses() {
 export default async function HomePage() {
   const courses = await getCourses();
 
+  // Flagship business offer — indexed on the homepage so the higher-value
+  // "get your company ISO certified" intent ranks from the root URL.
+  const serviceLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "ISO Certification Consulting",
+    serviceType: "ISO certification consulting",
+    provider: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    areaServed: [
+      { "@type": "Country", name: "Uganda" },
+      { "@type": "Place", name: "East Africa" },
+    ],
+    description:
+      "We help businesses across Uganda and East Africa get ISO 9001, 14001, 45001 and 22000 certified — gap analysis, documentation, internal audits and certification-audit preparation, end to end.",
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "ISO certification services",
+      itemListElement: [
+        "ISO gap analysis",
+        "Management system documentation",
+        "Internal auditor training",
+        "Certification audit preparation",
+        "Post-certification maintenance",
+        "ISO 27001 information security certification",
+        "ISO 27701 privacy certification",
+        "PCI DSS compliance",
+        "ISO Lead Auditor training",
+      ].map((name) => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name },
+      })),
+    },
+  };
+
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+  };
+
   return (
     <main
       className="min-h-screen bg-white"
       style={{ fontFamily: "'Georgia', serif" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+      />
+
       {/* NAV */}
       <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -98,63 +149,65 @@ export default async function HomePage() {
                 fontFamily: "system-ui, sans-serif",
               }}
             >
-              <Award size={12} />
-              Internationally Recognised Training
+              <ShieldCheck size={12} />
+              ISO Certification for Businesses
             </div>
             <h1 className="text-5xl font-bold text-slate-900 leading-tight mb-6">
-              Become a Certified
-              <br />
-              <span style={{ color: "#0d9488" }}>ISO Lead Auditor</span>
+              Helping businesses get{" "}
+              <span style={{ color: "#0d9488" }}>ISO certified</span> in Uganda &
+              East Africa
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              Professional Lead Auditor training for ISO 9001, ISO 14001, and
-              ISO 45001. Equipping quality and compliance professionals across
-              East Africa and beyond.
+              We take your organisation all the way to ISO 9001, 14001, 45001
+              and 22000 certification — gap analysis, documentation, internal
+              audits and certification-audit preparation, handled end to end. We
+              also run internationally recognised Lead Auditor training for
+              professionals.
             </p>
-            <div className="flex items-center gap-4">
-              <a
-                href="#courses"
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/iso-certification-consulting"
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
                 style={{
                   backgroundColor: "#0d9488",
                   fontFamily: "system-ui, sans-serif",
                 }}
               >
-                View Courses <ArrowRight size={16} />
-              </a>
+                Get your business certified <ArrowRight size={16} />
+              </Link>
               <a
-                href="#pricing"
+                href="#training"
                 className="text-slate-600 text-sm underline underline-offset-4"
                 style={{ fontFamily: "system-ui, sans-serif" }}
               >
-                See pricing
+                Looking for Lead Auditor training?
               </a>
             </div>
           </div>
 
-          {/* Stats panel */}
+          {/* Standards panel — signals the business certification offer */}
           <div className="grid grid-cols-2 gap-4">
             {[
-              { value: "500+", label: "Auditors Trained" },
-              { value: "10+", label: "Years Experience" },
-              { value: "3", label: "ISO Standards" },
-              { value: "98%", label: "Pass Rate" },
-            ].map((stat) => (
+              { code: "ISO 9001", label: "Quality Management" },
+              { code: "ISO 14001", label: "Environmental" },
+              { code: "ISO 45001", label: "Health & Safety" },
+              { code: "ISO 22000", label: "Food Safety" },
+            ].map((s) => (
               <div
-                key={stat.label}
+                key={s.code}
                 className="border border-slate-200 rounded-lg p-6"
               >
-                <div className="text-3xl font-bold text-slate-900 mb-1">
-                  {stat.value}
+                <div className="text-2xl font-bold text-slate-900 mb-1">
+                  {s.code}
                 </div>
                 <div
                   className="text-sm text-slate-500"
                   style={{ fontFamily: "system-ui, sans-serif" }}
                 >
-                  {stat.label}
+                  {s.label}
                 </div>
               </div>
             ))}
@@ -179,20 +232,21 @@ export default async function HomePage() {
                 fontFamily: "system-ui, sans-serif",
               }}
             >
-              <ShieldCheck size={12} /> For Businesses
+              <ShieldCheck size={12} /> What we do for your business
             </div>
             <h2 className="text-4xl font-bold text-slate-900 leading-tight mb-4">
-              We help businesses get{" "}
-              <span style={{ color: "#0d9488" }}>ISO certified</span>
+              End-to-end{" "}
+              <span style={{ color: "#0d9488" }}>ISO certification</span>{" "}
+              consulting
             </h2>
             <p
               className="text-slate-600 leading-relaxed mb-6"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              Beyond training, we take your organisation all the way to ISO
-              certification — ISO 9001, 14001, 45001 and 22000. From gap
-              analysis and documentation to internal audits and certification-audit
-              preparation, we handle it end to end.
+              From your first gap analysis to a valid certificate, we manage the
+              whole journey — ISO 9001, 14001, 45001 and 22000. Documentation,
+              internal audits and certification-audit preparation, so your team
+              can keep running the business.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <Link
@@ -215,6 +269,33 @@ export default async function HomePage() {
                 Talk to us on WhatsApp
               </a>
             </div>
+            <p
+              className="text-sm text-slate-500 mt-5"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Handling sensitive or payment data? We also do{" "}
+              <Link
+                href="/certifications/iso-27001"
+                className="text-teal-600 hover:underline font-medium"
+              >
+                ISO 27001
+              </Link>
+              ,{" "}
+              <Link
+                href="/certifications/iso-27701"
+                className="text-teal-600 hover:underline font-medium"
+              >
+                ISO 27701
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/certifications/pci-dss"
+                className="text-teal-600 hover:underline font-medium"
+              >
+                PCI DSS
+              </Link>
+              .
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
@@ -246,11 +327,88 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* TRAINING — Lead Auditor training for individuals (demoted from hero so
+          the business intent leads, but still fully indexable and linkable). */}
+      <section id="training" className="bg-white border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div
+              className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full border mb-6"
+              style={{
+                backgroundColor: "#f0fdfa",
+                borderColor: "#99f6e4",
+                color: "#0f766e",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              <Award size={12} /> Internationally Recognised Training
+            </div>
+            <h2 className="text-4xl font-bold text-slate-900 leading-tight mb-4">
+              Become a certified{" "}
+              <span style={{ color: "#0d9488" }}>ISO Lead Auditor</span>
+            </h2>
+            <p
+              className="text-slate-600 leading-relaxed mb-6"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Professional Lead Auditor training for ISO 9001, ISO 14001 and ISO
+              45001 — equipping quality and compliance professionals across East
+              Africa. Every enrollment includes study materials, mock audits and
+              exam coaching.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <a
+                href="#courses"
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
+                style={{
+                  backgroundColor: "#0d9488",
+                  fontFamily: "system-ui, sans-serif",
+                }}
+              >
+                View upcoming courses <ArrowRight size={16} />
+              </a>
+              <a
+                href="#pricing"
+                className="text-slate-600 text-sm underline underline-offset-4"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                See training pricing
+              </a>
+            </div>
+          </div>
+
+          {/* Stats panel */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { value: "500+", label: "Auditors Trained" },
+              { value: "10+", label: "Years Experience" },
+              { value: "3", label: "ISO Standards" },
+              { value: "98%", label: "Pass Rate" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="border border-slate-200 rounded-lg p-6"
+              >
+                <div className="text-3xl font-bold text-slate-900 mb-1">
+                  {stat.value}
+                </div>
+                <div
+                  className="text-sm text-slate-500"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* WHY US */}
       <section id="why" className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">
-            Why train with AM Quality Management Systems?
+            Why work with AM Quality Management Systems?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[

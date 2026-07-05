@@ -2,13 +2,18 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 
-export default function ConsultForm() {
+export default function ConsultForm({
+  defaultStandard = "",
+}: {
+  /** Preselect the standard dropdown (e.g. from a certification landing page). */
+  defaultStandard?: string;
+}) {
   const [form, setForm] = useState({
     name: "",
     company: "",
     email: "",
     phone: "",
-    standard: "",
+    standard: defaultStandard,
     message: "",
   });
   const [loading, setLoading] = useState(false);
@@ -94,11 +99,18 @@ export default function ConsultForm() {
         className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-teal-500 bg-white"
         style={{ fontFamily: "system-ui, sans-serif" }}
       >
-        <option value="">Which ISO standard are you pursuing?</option>
-        <option>ISO 9001 — Quality Management</option>
-        <option>ISO 14001 — Environmental Management</option>
-        <option>ISO 45001 — Occupational Health & Safety</option>
-        <option>ISO 22000 — Food Safety</option>
+        <option value="">Which standard are you pursuing?</option>
+        <optgroup label="Management systems">
+          <option>ISO 9001 — Quality Management</option>
+          <option>ISO 14001 — Environmental Management</option>
+          <option>ISO 45001 — Occupational Health & Safety</option>
+          <option>ISO 22000 — Food Safety</option>
+        </optgroup>
+        <optgroup label="Information security & data protection">
+          <option>ISO 27001 — Information Security</option>
+          <option>ISO 27701 — Privacy Information Management</option>
+          <option>PCI DSS — Payment Card Security</option>
+        </optgroup>
         <option>Multiple standards</option>
         <option>Not sure yet</option>
       </select>

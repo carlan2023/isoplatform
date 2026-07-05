@@ -17,20 +17,28 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default:
-      "AM Quality Management Systems | ISO Lead Auditor Training & Certification Consulting",
+      "ISO Certification for Businesses in Uganda & East Africa | AM Quality Management Systems",
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "ISO certification consulting and Lead Auditor training for organisations across Uganda and East Africa. We help businesses get ISO 9001, 14001, 45001 & 22000 certified. Trusted by 500+ professionals.",
+    "We help businesses across Uganda and East Africa get ISO 9001, 14001, 45001 & 22000 certified — gap analysis, documentation and audit preparation, end to end. Plus internationally recognised ISO Lead Auditor training.",
+  keywords: [
+    "ISO certification Uganda",
+    "ISO certification East Africa",
+    "ISO 9001 certification",
+    "ISO certification consulting",
+    "get ISO certified",
+    "ISO Lead Auditor training",
+  ],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
     url: SITE_URL,
     title:
-      "AM Quality Management Systems | ISO Certification Consulting & Lead Auditor Training",
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | AM Quality Management Systems",
     description:
-      "Helping businesses across East Africa get ISO certified — plus internationally recognised Lead Auditor training.",
+      "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
   },
   verification: {
     other: {

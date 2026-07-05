@@ -12,6 +12,7 @@ import {
   Award,
 } from "lucide-react";
 import { SITE_NAME, abs } from "@/lib/site";
+import { STANDARDS as SECURITY_STANDARDS } from "@/lib/standards";
 
 const TITLE = "ISO Certification Consulting in Uganda & East Africa";
 const DESCRIPTION =
@@ -298,6 +299,65 @@ export default function ConsultingPage() {
                   {s.name}
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* INFORMATION SECURITY & DATA PROTECTION — dedicated landing pages */}
+      <section className="bg-white border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div
+            className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full border mb-6"
+            style={{
+              backgroundColor: "#f0fdfa",
+              borderColor: "#99f6e4",
+              color: "#0f766e",
+              fontFamily: "system-ui, sans-serif",
+            }}
+          >
+            <ShieldCheck size={12} /> Information Security & Data Protection
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-3">
+            ISO 27001, ISO 27701 & PCI DSS
+          </h2>
+          <p
+            className="text-slate-500 mb-10 max-w-2xl"
+            style={{ fontFamily: "system-ui, sans-serif" }}
+          >
+            Handling sensitive or payment data? We also take organisations
+            through information-security and data-protection certification —
+            each with its own dedicated programme.
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {SECURITY_STANDARDS.map((s) => (
+              <Link
+                key={s.slug}
+                href={`/certifications/${s.slug}`}
+                className="border border-slate-200 rounded-lg p-6 hover:border-teal-300 hover:shadow-sm transition-all"
+              >
+                <div className="text-xl font-bold text-slate-900 mb-1">
+                  {s.code}
+                </div>
+                <div
+                  className="text-sm font-medium text-slate-600 mb-3"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  {s.name}
+                </div>
+                <p
+                  className="text-sm text-slate-500 leading-relaxed mb-4"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  {s.tagline}
+                </p>
+                <span
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 font-medium"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  Learn more <ArrowRight size={14} />
+                </span>
+              </Link>
             ))}
           </div>
         </div>
