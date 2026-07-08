@@ -186,7 +186,7 @@ export default function DashboardPage() {
             className="flex items-center gap-1 text-sm text-slate-400 hover:text-red-500 transition-colors"
             style={sans}
           >
-            <LogOut size={14} /> Sign out
+            <LogOut size={14} /> Sign out.
           </button>
         </div>
       </nav>
