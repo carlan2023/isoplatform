@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_URL, SITE_NAME, abs } from "@/lib/site";
+import { OG_IMAGE } from "@/lib/media";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,22 @@ export const metadata: Metadata = {
       "Helping Businesses Get ISO Certified in Uganda & East Africa | AM Quality Management Systems",
     description:
       "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
+    images: [
+      {
+        url: OG_IMAGE.src,
+        width: OG_IMAGE.width,
+        height: OG_IMAGE.height,
+        alt: OG_IMAGE.alt,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | AM Quality Management Systems",
+    description:
+      "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting across East Africa — plus internationally recognised Lead Auditor training.",
+    images: [OG_IMAGE.src],
   },
   verification: {
     other: {

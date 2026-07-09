@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import ConsultForm from "@/app/components/ConsultForm";
 import {
   ShieldCheck,
@@ -13,6 +14,14 @@ import {
 } from "lucide-react";
 import { SITE_NAME, abs } from "@/lib/site";
 import { STANDARDS as SECURITY_STANDARDS } from "@/lib/standards";
+import {
+  IMG,
+  OG_IMAGE,
+  PRIMARY_VIDEO,
+  PRIMARY_VIDEO_EMBED_URL,
+  PRIMARY_VIDEO_URL,
+  PRIMARY_VIDEO_THUMBNAIL,
+} from "@/lib/media";
 
 const TITLE = "ISO Certification Consulting in Uganda & East Africa";
 const DESCRIPTION =
@@ -28,6 +37,20 @@ export const metadata: Metadata = {
     url: abs("/iso-certification-consulting"),
     siteName: SITE_NAME,
     type: "website",
+    images: [
+      {
+        url: OG_IMAGE.src,
+        width: OG_IMAGE.width,
+        height: OG_IMAGE.height,
+        alt: OG_IMAGE.alt,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${TITLE} | ${SITE_NAME}`,
+    description: DESCRIPTION,
+    images: [OG_IMAGE.src],
   },
 };
 
@@ -149,6 +172,23 @@ export default function ConsultingPage() {
     })),
   };
 
+  const videoLd = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: PRIMARY_VIDEO.name,
+    description: PRIMARY_VIDEO.description,
+    thumbnailUrl: [PRIMARY_VIDEO_THUMBNAIL],
+    uploadDate: PRIMARY_VIDEO.uploadDate,
+    ...(PRIMARY_VIDEO.duration ? { duration: PRIMARY_VIDEO.duration } : {}),
+    contentUrl: PRIMARY_VIDEO_URL,
+    embedUrl: PRIMARY_VIDEO_EMBED_URL,
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: abs("/"),
+    },
+  };
+
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -175,6 +215,10 @@ export default function ConsultingPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }}
       />
       <script
         type="application/ld+json"
@@ -217,8 +261,8 @@ export default function ConsultingPage() {
 
       {/* HERO */}
       <section className="bg-white border-b border-slate-100">
-        <div className="max-w-6xl mx-auto px-6 py-24">
-          <div className="max-w-3xl">
+        <div className="max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16 items-center">
+          <div>
             <div
               className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full border mb-6"
               style={{
@@ -267,12 +311,53 @@ export default function ConsultingPage() {
               </a>
             </div>
           </div>
+
+          <Image
+            src={IMG.certifiedClients.src}
+            width={IMG.certifiedClients.width}
+            height={IMG.certifiedClients.height}
+            alt={IMG.certifiedClients.alt}
+            priority
+            sizes="(max-width: 768px) 100vw, 45vw"
+            className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
+          />
+        </div>
+      </section>
+
+      {/* VIDEO */}
+      <section className="bg-white border-b border-slate-100">
+        <div className="max-w-5xl mx-auto px-6 py-20">
+          <h2 className="text-3xl font-bold text-slate-900 mb-3">
+            See how we get your business ISO certified
+          </h2>
+          <p
+            className="text-slate-500 mb-10 max-w-2xl"
+            style={{ fontFamily: "system-ui, sans-serif" }}
+          >
+            A short walkthrough of our end-to-end approach — from gap analysis to
+            a valid certificate.
+          </p>
+          <div
+            className="relative w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+            style={{ aspectRatio: "16 / 9" }}
+          >
+            <iframe
+              className="absolute inset-0 h-full w-full"
+              src={PRIMARY_VIDEO_EMBED_URL}
+              title={PRIMARY_VIDEO.name}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
         </div>
       </section>
 
       {/* STANDARDS */}
       <section className="bg-slate-50 border-b border-slate-100">
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
+          <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-3">
             ISO standards we certify organisations to
           </h2>
@@ -283,7 +368,7 @@ export default function ConsultingPage() {
             Whether you need one standard or an integrated management system
             covering several, we take you all the way to certification.
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             {STANDARDS.map((s) => (
               <div
                 key={s.code}
@@ -301,6 +386,16 @@ export default function ConsultingPage() {
               </div>
             ))}
           </div>
+          </div>
+
+          <Image
+            src={IMG.foodSafetyAudit.src}
+            width={IMG.foodSafetyAudit.width}
+            height={IMG.foodSafetyAudit.height}
+            alt={IMG.foodSafetyAudit.alt}
+            sizes="(max-width: 1024px) 100vw, 45vw"
+            className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
+          />
         </div>
       </section>
 
@@ -366,16 +461,28 @@ export default function ConsultingPage() {
       {/* SERVICES */}
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
-          <h2 className="text-3xl font-bold text-slate-900 mb-3">
-            What our ISO certification consulting covers
-          </h2>
-          <p
-            className="text-slate-500 mb-12 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            A complete engagement — from the first gap analysis to keeping your
-            certificate valid year after year.
-          </p>
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                What our ISO certification consulting covers
+              </h2>
+              <p
+                className="text-slate-500 max-w-2xl"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                A complete engagement — from the first gap analysis to keeping
+                your certificate valid year after year.
+              </p>
+            </div>
+            <Image
+              src={IMG.implementationTraining.src}
+              width={IMG.implementationTraining.width}
+              height={IMG.implementationTraining.height}
+              alt={IMG.implementationTraining.alt}
+              sizes="(max-width: 1024px) 100vw, 45vw"
+              className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
+            />
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {SERVICES.map((s) => (
               <div
@@ -398,7 +505,8 @@ export default function ConsultingPage() {
 
       {/* PROCESS */}
       <section className="bg-slate-50 border-b border-slate-100">
-        <div className="max-w-6xl mx-auto px-6 py-20">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1.4fr_1fr] gap-12 items-start">
+          <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-3">
             How the road to ISO certification works
           </h2>
@@ -434,6 +542,16 @@ export default function ConsultingPage() {
               </div>
             ))}
           </div>
+          </div>
+
+          <Image
+            src={IMG.qmsImplementation.src}
+            width={IMG.qmsImplementation.width}
+            height={IMG.qmsImplementation.height}
+            alt={IMG.qmsImplementation.alt}
+            sizes="(max-width: 1024px) 100vw, 40vw"
+            className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover lg:sticky lg:top-24"
+          />
         </div>
       </section>
 

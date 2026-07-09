@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/pricing";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
+import { IMG } from "@/lib/media";
 
 export const revalidate = 60;
 
@@ -449,8 +451,17 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Stats panel */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Training visual + stats panel */}
+          <div className="space-y-4">
+            <Image
+              src={IMG.leadAuditorTraining.src}
+              width={IMG.leadAuditorTraining.width}
+              height={IMG.leadAuditorTraining.height}
+              alt={IMG.leadAuditorTraining.alt}
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="w-full h-auto rounded-lg border border-slate-200 object-cover"
+            />
+            <div className="grid grid-cols-2 gap-4">
             {[
               { value: "500+", label: "Auditors Trained" },
               { value: "10+", label: "Years Experience" },
@@ -472,6 +483,7 @@ export default async function HomePage() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </section>
