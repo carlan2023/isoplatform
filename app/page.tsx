@@ -191,8 +191,18 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Standards panel — clickable cards into the consulting offer */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Hero visual + standards panel — clickable cards into consulting */}
+          <div className="space-y-4">
+            <Image
+              src={IMG.certifiedClients.src}
+              width={IMG.certifiedClients.width}
+              height={IMG.certifiedClients.height}
+              alt={IMG.certifiedClients.alt}
+              priority
+              sizes="(max-width: 768px) 100vw, 45vw"
+              className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
+            />
+            <div className="grid grid-cols-2 gap-4">
             {[
               { code: "ISO 9001", label: "Quality Management" },
               { code: "ISO 14001", label: "Environmental" },
@@ -215,6 +225,7 @@ export default async function HomePage() {
                 </div>
               </Link>
             ))}
+            </div>
           </div>
         </div>
       </section>
