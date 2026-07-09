@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import ConsultForm from "@/app/components/ConsultForm";
+import Footer from "@/app/components/Footer";
 import {
   ShieldCheck,
   ArrowRight,
@@ -25,10 +26,10 @@ import {
 
 const TITLE = "ISO Certification Consulting in Uganda & East Africa";
 const DESCRIPTION =
-  "We help businesses across Uganda and East Africa achieve ISO 9001, ISO 14001, ISO 45001 and ISO 22000 certification — gap analysis, documentation, internal audits and certification-audit preparation, end to end.";
+  "We take businesses across Uganda & East Africa to ISO 9001, 14001, 45001 & 22000 — gap analysis, documentation, internal audits and audit prep.";
 
 export const metadata: Metadata = {
-  title: `${TITLE} | ${SITE_NAME}`,
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/iso-certification-consulting" },
   openGraph: {
@@ -660,29 +661,7 @@ export default function ConsultingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-slate-900 text-slate-400 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-6 h-6 rounded-sm flex items-center justify-center"
-              style={{ backgroundColor: "#0d9488" }}
-            >
-              <ShieldCheck size={13} className="text-white" />
-            </div>
-            <span className="text-white font-bold">Alrena Group</span>
-          </div>
-          <p className="text-sm" style={{ fontFamily: "system-ui, sans-serif" }}>
-            © {new Date().getFullYear()} Alrena Group. All rights reserved.
-          </p>
-          <Link
-            href="/"
-            className="text-sm hover:text-white transition-colors"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Home
-          </Link>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

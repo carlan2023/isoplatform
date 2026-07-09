@@ -17,12 +17,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default:
-      "ISO Certification for Businesses in Uganda & East Africa | AM Quality Management Systems",
-    template: `%s | ${SITE_NAME}`,
+    default: "ISO Certification & Lead Auditor Training in Uganda | AMQMS",
+    template: `%s | AMQMS`,
   },
   description:
-    "We help businesses across Uganda and East Africa get ISO 9001, 14001, 45001 & 22000 certified — gap analysis, documentation and audit preparation, end to end. Plus internationally recognised ISO Lead Auditor training.",
+    "Get your business ISO 9001, 14001, 45001 & 22000 certified across Uganda & East Africa — gap analysis, documentation and audit prep, end to end.",
   keywords: [
     "ISO certification Uganda",
     "ISO certification East Africa",

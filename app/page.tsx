@@ -19,6 +19,7 @@ import {
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
+import Footer from "@/app/components/Footer";
 
 export const revalidate = 60;
 
@@ -763,32 +764,7 @@ export default async function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-slate-900 text-slate-400 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-6 h-6 rounded-sm flex items-center justify-center"
-              style={{ backgroundColor: "#0d9488" }}
-            >
-              <ShieldCheck size={13} className="text-white" />
-            </div>
-            <span className="text-white font-bold">Alrena Group</span>
-          </div>
-          <p
-            className="text-sm"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            © {new Date().getFullYear()} Alrena Group. All rights reserved.
-          </p>
-          <Link
-            href="/login"
-            className="text-sm hover:text-white transition-colors"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Student Portal
-          </Link>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

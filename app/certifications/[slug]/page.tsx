@@ -9,6 +9,7 @@ import {
   Building2,
 } from "lucide-react";
 import ConsultForm from "@/app/components/ConsultForm";
+import Footer from "@/app/components/Footer";
 import { SITE_NAME, abs } from "@/lib/site";
 import {
   STANDARDS,
@@ -33,7 +34,9 @@ export async function generateMetadata({
   if (!standard) return {};
   const path = `/certifications/${standard.slug}`;
   return {
-    title: `${standard.metaTitle} | ${SITE_NAME}`,
+    // Plain string → the root layout's title template appends "| AMQMS" once.
+    // (Don't include the brand here or it double-brands.)
+    title: standard.metaTitle,
     description: standard.metaDescription,
     keywords: standard.keywords,
     alternates: { canonical: path },
@@ -479,29 +482,7 @@ export default async function CertificationPage({
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-slate-900 text-slate-400 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-6 h-6 rounded-sm flex items-center justify-center"
-              style={{ backgroundColor: "#0d9488" }}
-            >
-              <ShieldCheck size={13} className="text-white" />
-            </div>
-            <span className="text-white font-bold">Alrena Group</span>
-          </div>
-          <p className="text-sm" style={{ fontFamily: "system-ui, sans-serif" }}>
-            © {new Date().getFullYear()} Alrena Group. All rights reserved.
-          </p>
-          <Link
-            href="/"
-            className="text-sm hover:text-white transition-colors"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Home
-          </Link>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
