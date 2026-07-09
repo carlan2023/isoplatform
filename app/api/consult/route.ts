@@ -7,18 +7,29 @@ import {
 } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
-  const {
-    name,
-    company,
-    email,
-    phone,
-    standard,
-    message,
-  } = await req.json();
+  try {
+    let body: {
+      name?: string;
+      company?: string;
+      email?: string;
+      phone?: string;
+      standard?: string;
+      message?: string;
+    };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
 
-  if (!name || !email || !standard || !message) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
+    const { name, company, email, phone, standard, message } = body;
+
+    if (!name || !email || !standard || !message) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
+    }
 
   const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
   const safe = {
@@ -110,5 +121,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error("[consult]", e);
+    return NextResponse.json(
+      { error: "Could not send your enquiry. Please try again or use WhatsApp." },
+      { status: 500 },
+    );
+  }
 }

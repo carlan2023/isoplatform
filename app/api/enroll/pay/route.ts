@@ -20,16 +20,11 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { initiateCollection } from "@/lib/broracks";
 import { computePricing, isValidPayAmount } from "@/lib/pricing";
+import { escapeHtml, getResendFrom, sendResendEmail } from "@/lib/email";
 import {
-  escapeHtml,
-  getResendFrom,
-  getResendNotificationsFrom,
-  sendResendEmail,
-} from "@/lib/email";
-
-// Sentinel stored in the payment-reference column for cash/offline bookings so
-// the admin dashboard can tell them apart from a real BroRacks reference.
-const OFFLINE_REF = "OFFLINE-CASH";
+  OFFLINE_REF,
+  sendOfflineReservationEmails,
+} from "@/lib/enrollment-emails";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,16 +40,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const {
-      enrollmentId,
-      teamSize: rawTeamSize,
-      amount: rawAmount,
-      fullAmount: rawFullAmount,
-      momoPhone,
-      payerName,
-      method: rawMethod,
-    } = body as {
+    let body: {
       enrollmentId?: string;
       teamSize?: number;
       amount?: number;
@@ -63,6 +49,20 @@ export async function POST(req: NextRequest) {
       payerName?: string;
       method?: string;
     };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+    const {
+      enrollmentId,
+      teamSize: rawTeamSize,
+      amount: rawAmount,
+      fullAmount: rawFullAmount,
+      momoPhone,
+      payerName,
+      method: rawMethod,
+    } = body;
 
     const method = rawMethod === "offline" ? "offline" : "momo";
 
@@ -172,58 +172,32 @@ export async function POST(req: NextRequest) {
     // Offline / cash fallback — seat held, admin confirms once paid.
     // -----------------------------------------------------------------------
     if (method === "offline") {
-      await admin
+      const { error: offlineRefError } = await admin
         .from("enrollments")
         .update({ stripe_session_id: OFFLINE_REF })
         .eq("id", enrollmentId);
 
-      if (user.email) {
-        const mail = await sendResendEmail({
-          from: getResendFrom(),
-          to: user.email.trim(),
-          subject: `Seat reserved — pay to confirm — ${course.title}`,
-          html: `
-            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
-              <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
-                <h1 style="margin: 0; font-size: 22px;">Your seat is reserved</h1>
-                <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems</p>
-              </div>
-              <p style="font-family: system-ui, sans-serif; color: #475569;">${safeName ? `Dear ${safeName},` : "Hello,"}</p>
-              <p style="font-family: system-ui, sans-serif; color: #475569;">
-                We've held your seat for <strong>${safeTitle}</strong>. To confirm it, please
-                pay <strong>UGX ${amount.toLocaleString()}</strong> by cash or bank transfer.
-              </p>
-              <p style="font-family: system-ui, sans-serif; color: #475569;">
-                Contact us on WhatsApp at
-                <a href="https://wa.me/256707068533" style="color: #0d9488;">+256 707 068 533</a>
-                to arrange payment. Once we receive it, we'll confirm your seat by email.
-              </p>
-            </div>
-          `,
-        });
-        if (!mail.ok) {
-          console.error("[enroll:pay] offline learner email failed:", mail.error);
-        }
+      if (offlineRefError) {
+        console.error(
+          "[enroll:pay] could not mark booking offline:",
+          offlineRefError,
+        );
+        return NextResponse.json(
+          {
+            error:
+              "Your seat is held, but we hit a snag saving it. Contact us on WhatsApp to confirm.",
+          },
+          { status: 500 },
+        );
       }
 
-      const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
-      if (staffTo) {
-        await sendResendEmail({
-          from: getResendNotificationsFrom(),
-          to: staffTo,
-          subject: `Offline/cash enrollment to confirm — ${course.title}`,
-          html: `
-            <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
-              <h2 style="margin: 0 0 12px;">Cash / offline enrollment awaiting confirmation</h2>
-              <p style="color: #475569;">
-                <strong>${safeTitle}</strong> · seat ${seatNumber} · agreed UGX ${amount.toLocaleString()}<br/>
-                Learner: ${escapeHtml(user.email ?? "unknown")}
-              </p>
-              <p style="color: #475569;">Confirm it in the admin dashboard once payment is received.</p>
-            </div>
-          `,
-        });
-      }
+      await sendOfflineReservationEmails({
+        learnerEmail: user.email,
+        payerName,
+        courseTitle: course.title,
+        amount,
+        seatNumber,
+      });
 
       return NextResponse.json({ success: true, offline: true, amount });
     }

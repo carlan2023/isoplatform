@@ -21,6 +21,10 @@ type Step =
   | "offline"
   | "already";
 
+// How long to wait on the "check your phone" screen before offering a cash /
+// bank-transfer fallback, for learners who never receive the MTN/Airtel prompt.
+const CASH_FALLBACK_SECONDS = 60;
+
 export default function EnrollForm({
   courseId,
   courseTitle,
@@ -35,6 +39,8 @@ export default function EnrollForm({
   const [enrollmentId, setEnrollmentId] = useState("");
   const [reference, setReference] = useState("");
   const [alreadyStatus, setAlreadyStatus] = useState("");
+  const [cashFallbackReady, setCashFallbackReady] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(CASH_FALLBACK_SECONDS);
   const [form, setForm] = useState({
     full_name: "",
     company: "",
@@ -76,6 +82,26 @@ export default function EnrollForm({
       active = false;
     };
   }, []);
+
+  // Once the MoMo prompt has been sent, run a countdown; when it elapses, reveal
+  // the cash / bank-transfer fallback in case the prompt never arrived.
+  useEffect(() => {
+    if (step !== "pending") return;
+    setCashFallbackReady(false);
+    setSecondsLeft(CASH_FALLBACK_SECONDS);
+    const tick = setInterval(
+      () => setSecondsLeft((s) => Math.max(0, s - 1)),
+      1000,
+    );
+    const timer = setTimeout(
+      () => setCashFallbackReady(true),
+      CASH_FALLBACK_SECONDS * 1000,
+    );
+    return () => {
+      clearInterval(tick);
+      clearTimeout(timer);
+    };
+  }, [step]);
 
   const { fullAmount, minDeposit } = computePricing(
     parseInt(form.teamSize || "1"),
@@ -127,7 +153,8 @@ export default function EnrollForm({
         return;
       }
       setStep("payment");
-    } catch {
+    } catch (e) {
+      console.error("[enroll] submitDetails failed:", e);
       setErrorMsg("Network error. Please try again.");
     } finally {
       setSubmitting(false);
@@ -172,7 +199,8 @@ export default function EnrollForm({
       }
       setReference(data.reference);
       setStep("pending");
-    } catch {
+    } catch (e) {
+      console.error("[enroll] submitPayment failed:", e);
       setErrorMsg("Network error. Please try again.");
     } finally {
       setSubmitting(false);
@@ -211,7 +239,39 @@ export default function EnrollForm({
         return;
       }
       setStep("offline");
-    } catch {
+    } catch (e) {
+      console.error("[enroll] submitOffline failed:", e);
+      setErrorMsg("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // From the "check your phone" screen: the MoMo prompt never arrived, so switch
+  // the already-held seat to cash / bank transfer (no new seat is reserved).
+  const switchToOffline = async () => {
+    setSubmitting(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/enroll/switch-offline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enrollmentId }),
+      });
+      if (res.status === 401) {
+        setStep("signin");
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setErrorMsg(
+          data.error || "Could not switch to cash payment. Please try again.",
+        );
+        return;
+      }
+      setStep("offline");
+    } catch (e) {
+      console.error("[enroll] switchToOffline failed:", e);
       setErrorMsg("Network error. Please try again.");
     } finally {
       setSubmitting(false);
@@ -320,6 +380,40 @@ export default function EnrollForm({
           You&apos;ll get a confirmation email once payment is approved. Save
           your reference for follow-up.
         </p>
+
+        {/* Cash fallback for when the MTN/Airtel prompt never arrives. */}
+        {cashFallbackReady ? (
+          <div className="mt-6 border-t border-slate-100 pt-5 text-left">
+            <p className="text-sm text-slate-600 mb-3" style={sans}>
+              Didn&apos;t get the MTN or Airtel prompt? You can keep your seat and
+              pay by cash or bank transfer instead.
+            </p>
+            {errorMsg && (
+              <div
+                className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-3"
+                style={sans}
+              >
+                {errorMsg}
+              </div>
+            )}
+            <button
+              onClick={switchToOffline}
+              disabled={submitting}
+              className="w-full border border-slate-200 text-slate-700 text-sm font-medium py-3 rounded-lg transition-colors hover:bg-slate-50 disabled:opacity-50"
+              style={sans}
+            >
+              {submitting
+                ? "Switching..."
+                : "Pay by cash / bank transfer instead"}
+            </button>
+          </div>
+        ) : (
+          <p className="mt-5 text-xs text-slate-400" style={sans}>
+            Waiting for the prompt… a cash payment option will appear in{" "}
+            {secondsLeft}s if it doesn&apos;t arrive.
+          </p>
+        )}
+
         <button
           onClick={() => router.push("/dashboard")}
           className="mt-6 text-sm font-semibold underline"

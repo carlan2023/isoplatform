@@ -24,10 +24,16 @@ export async function POST(req: NextRequest) {
   }
 
   if (!verifyWebhookSignature({ secret, timestamp, rawBody, signature })) {
+    console.warn(
+      `[broracks webhook] rejected: invalid signature (timestamp=${timestamp || "none"}, signature=${signature ? "present" : "missing"})`,
+    );
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   if (!isFreshTimestamp(timestamp)) {
+    console.warn(
+      `[broracks webhook] rejected: stale/expired timestamp (${timestamp || "none"})`,
+    );
     return NextResponse.json({ error: "Webhook expired" }, { status: 401 });
   }
 
@@ -41,10 +47,12 @@ export async function POST(req: NextRequest) {
   };
   try {
     event = JSON.parse(rawBody);
-  } catch {
+  } catch (e) {
+    console.error("[broracks webhook] invalid JSON body:", e);
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  try {
   const admin = getSupabaseAdmin();
 
   if (event.event === "collection.success") {
@@ -100,10 +108,23 @@ export async function POST(req: NextRequest) {
     // The seat was already counted in seats_taken at reservation time, so we do
     // NOT increment again here — confirming a pending booking doesn't change how
     // many seats are held.
-    await admin
+    const { error: confirmError } = await admin
       .from("enrollments")
       .update({ status: "confirmed" })
       .eq("id", enrollment.id);
+
+    if (confirmError) {
+      // Return 500 so BroRacks retries the webhook — the payment succeeded and
+      // we must not lose the confirmation.
+      console.error(
+        `[broracks webhook] failed to confirm enrollment ${enrollment.id} for ref ${reference}:`,
+        confirmError,
+      );
+      return NextResponse.json(
+        { error: "Could not confirm enrollment" },
+        { status: 500 },
+      );
+    }
 
     const { data: userData, error: userErr } =
       await admin.auth.admin.getUserById(enrollment.user_id);
@@ -190,15 +211,25 @@ export async function POST(req: NextRequest) {
 
   if (event.event === "collection.failed") {
     const reference = event.data?.reference;
+    console.warn(
+      `[broracks webhook] collection.failed for ref ${reference ?? "none"}`,
+    );
     if (reference) {
       // Cancel the booking and release its held seat.
-      const { data: cancelled } = await admin
+      const { data: cancelled, error: cancelError } = await admin
         .from("enrollments")
         .update({ status: "cancelled" })
         .eq("stripe_session_id", reference)
         .neq("status", "cancelled")
         .select("course_id")
         .maybeSingle();
+
+      if (cancelError) {
+        console.error(
+          `[broracks webhook] could not cancel booking for ref ${reference}:`,
+          cancelError,
+        );
+      }
 
       if (cancelled?.course_id) {
         await admin.rpc("recompute_course_seats", {
@@ -208,5 +239,22 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (
+    event.event !== "collection.success" &&
+    event.event !== "collection.failed"
+  ) {
+    console.log(
+      `[broracks webhook] ignoring unhandled event type: ${event.event ?? "unknown"}`,
+    );
+  }
+
   return NextResponse.json({ received: true });
+  } catch (e) {
+    // Unexpected failure (DB down, etc.). Log the real error and return 500 so
+    // BroRacks retries rather than dropping a real payment event.
+    console.error("[broracks webhook] unhandled error:", e);
+    return NextResponse.json({ error: "Webhook processing failed" }, {
+      status: 500,
+    });
+  }
 }

@@ -25,22 +25,44 @@ async function getSessionToken(): Promise<string> {
     return cachedToken;
   }
 
-  const res = await fetch(`${BASE_URL}/v1/auth/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      public_key: process.env.BRORACKS_PUBLIC_KEY,
-      secret_key: process.env.BRORACKS_SECRET_KEY,
-    }),
-  });
+  if (!process.env.BRORACKS_PUBLIC_KEY || !process.env.BRORACKS_SECRET_KEY) {
+    console.error(
+      "[broracks] BRORACKS_PUBLIC_KEY / BRORACKS_SECRET_KEY not configured",
+    );
+    throw new Error("BroRacks is not configured");
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/v1/auth/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        public_key: process.env.BRORACKS_PUBLIC_KEY,
+        secret_key: process.env.BRORACKS_SECRET_KEY,
+      }),
+    });
+  } catch (e) {
+    // Network-level failure (DNS, timeout, connection refused).
+    console.error("[broracks] auth request network error:", e);
+    throw new Error("Could not reach BroRacks to authenticate");
+  }
 
   if (!res.ok) {
-    throw new Error(`BroRacks auth failed: ${res.status} ${res.statusText}`);
+    const body = await res.text().catch(() => "");
+    console.error(
+      `[broracks] auth failed: ${res.status} ${res.statusText} — ${body}`,
+    );
+    throw new Error(`BroRacks auth failed (${res.status})`);
   }
 
   const data = await res.json();
 
   if (!data?.data?.token) {
+    console.error(
+      "[broracks] auth response missing token:",
+      JSON.stringify(data),
+    );
     throw new Error("BroRacks auth response did not include a token");
   }
 
@@ -77,24 +99,34 @@ export async function initiateCollection(
 ): Promise<CollectionResult> {
   const token = await getSessionToken();
 
-  const res = await fetch(`${BASE_URL}/v1/collections/initiate`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": params.idempotencyKey,
-    },
-    body: JSON.stringify({
-      payer_name: params.payerName,
-      phone_number: params.phoneNumber,
-      amount: params.amount,
-      description: params.description,
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/v1/collections/initiate`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": params.idempotencyKey,
+      },
+      body: JSON.stringify({
+        payer_name: params.payerName,
+        phone_number: params.phoneNumber,
+        amount: params.amount,
+        description: params.description,
+      }),
+    });
+  } catch (e) {
+    console.error("[broracks] collection request network error:", e);
+    throw new Error("Could not reach BroRacks to start the payment");
+  }
 
   if (!res.ok) {
-    const errorBody = await res.text();
-    throw new Error(`BroRacks collection failed: ${res.status} — ${errorBody}`);
+    const errorBody = await res.text().catch(() => "");
+    // Full status + provider response so the cause is visible in the logs.
+    console.error(
+      `[broracks] collection initiate failed: ${res.status} ${res.statusText} — ${errorBody}`,
+    );
+    throw new Error(`BroRacks collection failed (${res.status})`);
   }
 
   return res.json();

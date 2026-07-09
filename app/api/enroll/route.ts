@@ -26,13 +26,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const { courseId, full_name, company, phone } = body as {
+    let body: {
       courseId?: string;
       full_name?: string;
       company?: string;
       phone?: string;
     };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+    const { courseId, full_name, company, phone } = body;
 
     if (!courseId || !full_name?.trim() || !phone?.trim()) {
       return NextResponse.json(
