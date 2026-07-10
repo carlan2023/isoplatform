@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
+import InstructorContact from "@/app/components/InstructorContact";
+import { nextClassStart, formatClassDate } from "@/lib/schedule";
 import {
   INDIVIDUAL_PRICE,
   TEAM_PRICE,
@@ -29,12 +31,8 @@ export default async function EnrollPage({
   if (!course) redirect("/");
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
-  const startDate = new Date(course.start_date).toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // Advertise the next cohort — first Monday of next month, computed live.
+  const startDate = formatClassDate(nextClassStart());
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -184,6 +182,10 @@ export default async function EnrollPage({
               seat. You&apos;ll get a prompt on your phone to approve.
             </p>
             <EnrollForm courseId={course.id} courseTitle={course.title} />
+          </div>
+
+          <div className="mt-6">
+            <InstructorContact courseTitle={course.title} />
           </div>
         </div>
       </div>

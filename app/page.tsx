@@ -17,6 +17,7 @@ import {
   formatUGX,
 } from "@/lib/pricing";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { nextClassStart, formatClassDateShort } from "@/lib/schedule";
 import { STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
 import Footer from "@/app/components/Footer";
@@ -609,11 +610,7 @@ export default async function HomePage() {
                       style={{ fontFamily: "system-ui, sans-serif" }}
                     >
                       <Calendar size={14} className="text-teal-600 shrink-0" />
-                      {new Date(course.start_date).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {formatClassDateShort(nextClassStart())}
                     </div>
                     <div
                       className="flex items-center gap-2 text-sm text-slate-500"

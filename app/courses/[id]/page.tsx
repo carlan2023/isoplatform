@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { SITE_NAME, abs } from "@/lib/site";
+import { nextClassStart, formatClassDate, toISODate } from "@/lib/schedule";
+import InstructorContact from "@/app/components/InstructorContact";
 import {
   INDIVIDUAL_PRICE,
   TEAM_PRICE,
@@ -88,12 +90,11 @@ export default async function CoursePage({
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
   const isVirtual = course.format === "virtual";
-  const startDate = new Date(course.start_date).toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // The next cohort always begins on the first Monday of next month, computed
+  // live so the advertised start date rolls forward automatically each month.
+  const nextStart = nextClassStart();
+  const startDate = formatClassDate(nextStart);
+  const startDateISO = toISODate(nextStart);
 
   const courseLd = {
     "@context": "https://schema.org",
@@ -108,7 +109,7 @@ export default async function CoursePage({
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: isVirtual ? "online" : "onsite",
-      startDate: course.start_date,
+      startDate: startDateISO,
       courseWorkload: `P${course.duration_days}D`,
       location: isVirtual
         ? undefined
@@ -298,6 +299,10 @@ export default async function CoursePage({
                 or in full via Mobile Money
               </div>
             </div>
+          </div>
+
+          <div className="mt-6">
+            <InstructorContact courseTitle={course.title} />
           </div>
         </div>
       </div>
