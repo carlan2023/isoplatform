@@ -159,8 +159,8 @@ export default async function HomePage() {
             </div>
             <h1 className="text-5xl font-bold text-slate-900 leading-tight mb-6">
               Helping businesses get{" "}
-              <span style={{ color: "#0d9488" }}>ISO certified</span> in Uganda &
-              East Africa
+              <span style={{ color: "#0d9488" }}>ISO certified</span> in Uganda
+              & East Africa
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"
@@ -205,28 +205,28 @@ export default async function HomePage() {
               className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
             />
             <div className="grid grid-cols-2 gap-4">
-            {[
-              { code: "ISO 9001", label: "Quality Management" },
-              { code: "ISO 14001", label: "Environmental" },
-              { code: "ISO 45001", label: "Health & Safety" },
-              { code: "ISO 22000", label: "Food Safety" },
-            ].map((s) => (
-              <Link
-                key={s.code}
-                href="/iso-certification-consulting"
-                className="group block border border-slate-200 rounded-lg p-6 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
-              >
-                <div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
-                  {s.code}
-                </div>
-                <div
-                  className="text-sm text-slate-500"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+              {[
+                { code: "ISO 9001", label: "Quality Management" },
+                { code: "ISO 14001", label: "Environmental" },
+                { code: "ISO 45001", label: "Health & Safety" },
+                { code: "ISO 22000", label: "Food Safety" },
+              ].map((s) => (
+                <Link
+                  key={s.code}
+                  href="/iso-certification-consulting"
+                  className="group block border border-slate-200 rounded-lg p-6 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
                 >
-                  {s.label}
-                </div>
-              </Link>
-            ))}
+                  <div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
+                    {s.code}
+                  </div>
+                  <div
+                    className="text-sm text-slate-500"
+                    style={{ fontFamily: "system-ui, sans-serif" }}
+                  >
+                    {s.label}
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
@@ -367,7 +367,8 @@ export default async function HomePage() {
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               Handling sensitive or payment data? We take organisations through
-              information-security and data-protection certification, end to end.
+              information-security and data-protection certification, end to
+              end.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -467,7 +468,7 @@ export default async function HomePage() {
           {/* Training visual + stats panel */}
           <div className="space-y-4">
             <Image
-              src={IMG.leadAuditorTraining.src}
+              src={IMG.implementationTraining.src}
               width={IMG.leadAuditorTraining.width}
               height={IMG.leadAuditorTraining.height}
               alt={IMG.leadAuditorTraining.alt}
@@ -475,27 +476,27 @@ export default async function HomePage() {
               className="w-full h-auto rounded-lg border border-slate-200 object-cover"
             />
             <div className="grid grid-cols-2 gap-4">
-            {[
-              { value: "500+", label: "Auditors Trained" },
-              { value: "10+", label: "Years Experience" },
-              { value: "3", label: "ISO Standards" },
-              { value: "98%", label: "Pass Rate" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="border border-slate-200 rounded-lg p-6"
-              >
-                <div className="text-3xl font-bold text-slate-900 mb-1">
-                  {stat.value}
-                </div>
+              {[
+                { value: "500+", label: "Auditors Trained" },
+                { value: "10+", label: "Years Experience" },
+                { value: "3", label: "ISO Standards" },
+                { value: "98%", label: "Pass Rate" },
+              ].map((stat) => (
                 <div
-                  className="text-sm text-slate-500"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  key={stat.label}
+                  className="border border-slate-200 rounded-lg p-6"
                 >
-                  {stat.label}
+                  <div className="text-3xl font-bold text-slate-900 mb-1">
+                    {stat.value}
+                  </div>
+                  <div
+                    className="text-sm text-slate-500"
+                    style={{ fontFamily: "system-ui, sans-serif" }}
+                  >
+                    {stat.label}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
             </div>
           </div>
         </div>
@@ -562,7 +563,8 @@ export default async function HomePage() {
               className="border border-slate-200 rounded-lg p-12 text-center text-slate-500"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              No upcoming courses are scheduled right now. Please check back soon.
+              No upcoming courses are scheduled right now. Please check back
+              soon.
             </div>
           )}
           <div className="grid md:grid-cols-3 gap-6">
