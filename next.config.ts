@@ -9,18 +9,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  // One canonical host. Google had indexed both www. and the bare domain,
-  // splitting ranking signals; send every www request to the bare domain.
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.amqualitysystems.com" }],
-        destination: "https://amqualitysystems.com/:path*",
-        permanent: true,
-      },
-    ];
-  },
 };
 
 export default nextConfig;
