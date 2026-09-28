@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Footer from "@/app/components/Footer";
+import SiteNav from "@/app/components/SiteNav";
 import { SITE_NAME, LEGAL_NAME, CONTACT } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -74,25 +74,7 @@ export default function TermsPage() {
       className="min-h-screen bg-white"
       style={{ fontFamily: "'Georgia', serif" }}
     >
-      {/* NAV */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <img
-              src="/nam-qms-logo.png"
-              alt={SITE_NAME}
-              className="h-12 w-auto"
-            />
-          </Link>
-          <Link
-            href="/"
-            className="text-sm text-slate-600 hover:text-teal-600 transition-colors"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Home
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       <section className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-4xl font-bold text-slate-900 mb-3">

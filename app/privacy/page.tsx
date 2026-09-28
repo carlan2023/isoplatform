@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Footer from "@/app/components/Footer";
+import SiteNav from "@/app/components/SiteNav";
 import { SITE_NAME, CONTACT } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ const SECTIONS = [
       "We collect information you provide directly to us, including:",
     ],
     list: [
-      "Contact details — name, email address, phone number and organisation, submitted through our enrolment or consultation forms.",
+      "Contact details — name, email address, phone number and organisation, submitted through our enrolment, certification application or consultation forms.",
       "Enrolment details — the course selected, participant information and billing details needed to reserve a place.",
       "Payment information — processed securely by our third-party payment provider; we do not store full card details on our systems.",
       "Technical data — basic analytics such as pages visited, collected to improve the site.",
@@ -34,7 +34,7 @@ const SECTIONS = [
     h: "3. How we use your information",
     p: ["We use the information we collect to:"],
     list: [
-      "Process course enrolments and consultation requests.",
+      "Process course enrolments, certification applications and consultation requests.",
       "Communicate with you about bookings, schedules and services you have requested.",
       "Provide, maintain and improve our website and services.",
       "Meet our legal, accounting and regulatory obligations.",
@@ -72,25 +72,7 @@ export default function PrivacyPage() {
       className="min-h-screen bg-white"
       style={{ fontFamily: "'Georgia', serif" }}
     >
-      {/* NAV */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <img
-              src="/nam-qms-logo.png"
-              alt={SITE_NAME}
-              className="h-12 w-auto"
-            />
-          </Link>
-          <Link
-            href="/"
-            className="text-sm text-slate-600 hover:text-teal-600 transition-colors"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Home
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       <section className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-4xl font-bold text-slate-900 mb-3">

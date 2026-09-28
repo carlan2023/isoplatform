@@ -15,6 +15,7 @@ const sans = { fontFamily: "system-ui, sans-serif" } as const;
 
 const QUICK_LINKS = [
   { label: "For Businesses", href: "/iso-certification-consulting" },
+  { label: "Apply for Certification", href: "/apply" },
   { label: "Lead Auditor Training", href: "/#training" },
   { label: "Upcoming Courses", href: "/#courses" },
   { label: "ISO 27001", href: "/certifications/iso-27001" },

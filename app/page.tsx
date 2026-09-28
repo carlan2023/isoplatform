@@ -16,12 +16,13 @@ import {
   TEAM_MIN_SIZE,
   formatUGX,
 } from "@/lib/pricing";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL, CONTACT } from "@/lib/site";
 import { nextClassStart, formatClassDateShort } from "@/lib/schedule";
 import { SECURITY_STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
 import { coursePath } from "@/lib/course-slug";
 import Footer from "@/app/components/Footer";
+import SiteNav from "@/app/components/SiteNav";
 
 export const revalidate = 60;
 
@@ -101,46 +102,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
       />
 
-      {/* NAV */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <img
-            src="/nam-qms-logo.png"
-            alt="NAM Quality Management Systems"
-            className="h-12 w-auto"
-          />
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
-            <Link
-              href="/iso-certification-consulting"
-              className="hover:text-teal-600 transition-colors font-semibold text-slate-800"
-            >
-              For Businesses
-            </Link>
-            <a
-              href="#courses"
-              className="hover:text-teal-600 transition-colors"
-            >
-              Training
-            </a>
-            <a href="#why" className="hover:text-teal-600 transition-colors">
-              Why Us
-            </a>
-            <a
-              href="#pricing"
-              className="hover:text-teal-600 transition-colors"
-            >
-              Pricing
-            </a>
-            <Link
-              href="/login"
-              className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm hover:bg-slate-700 transition-colors"
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              Student Portal
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* HERO */}
       <section className="bg-white border-b border-slate-100">
@@ -175,14 +137,21 @@ export default async function HomePage() {
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <Link
-                href="/iso-certification-consulting"
-                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
+                href="/apply"
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
                   fontFamily: "system-ui, sans-serif",
                 }}
               >
                 Get your business certified <ArrowRight size={16} />
+              </Link>
+              <Link
+                href="/iso-certification-consulting"
+                className="inline-flex items-center gap-2 border border-slate-300 text-slate-700 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-300 hover:text-teal-700"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                How it works
               </Link>
               <a
                 href="#training"
@@ -268,17 +237,24 @@ export default async function HomePage() {
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <Link
-                href="/iso-certification-consulting"
-                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
+                href="/apply"
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
                   fontFamily: "system-ui, sans-serif",
                 }}
               >
-                Explore ISO Certification Consulting <ArrowRight size={16} />
+                Apply for certification <ArrowRight size={16} />
+              </Link>
+              <Link
+                href="/iso-certification-consulting"
+                className="inline-flex items-center gap-2 bg-white border border-teal-200 text-teal-800 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-400"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                Explore consulting
               </Link>
               <a
-                href="https://wa.me/256707068533"
+                href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-600 text-sm underline underline-offset-4"
