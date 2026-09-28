@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getResendFrom,
   getResendNotificationsFrom,
+  getStaffInbox,
   sendResendEmail,
 } from "@/lib/email";
 import {
@@ -11,7 +12,6 @@ import {
   isHoneypotTripped,
   validateApplication,
 } from "@/lib/application";
-import { CONTACT } from "@/lib/site";
 
 // ---------------------------------------------------------------------------
 // POST /api/apply — ISO certification application.
@@ -99,13 +99,7 @@ export async function POST(req: NextRequest) {
     const data = result.data;
     const reference = generateReference();
 
-    let staffTo = process.env.NOTIFICATION_EMAIL?.trim();
-    if (!staffTo) {
-      console.warn(
-        `[apply] NOTIFICATION_EMAIL is not set — sending application to ${CONTACT.email}`,
-      );
-      staffTo = CONTACT.email;
-    }
+    const staffTo = getStaffInbox();
 
     const staffEmail = buildStaffEmail(data, reference);
     const staff = await sendResendEmail({

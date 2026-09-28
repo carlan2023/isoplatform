@@ -7,6 +7,7 @@
 //   escapeHtml(value)                 — escape user input before interpolation
 //   getResendFrom()                   — client-facing "From" address
 //   getResendNotificationsFrom()      — internal/staff-alert "From" address
+//   getStaffInbox()                   — staff inbox (NOTIFICATION_EMAIL)
 //   sendResendEmail({ from, to, ... })— send one email, returns { ok, ... }
 //
 // Configuration (see .env.example):
@@ -16,6 +17,7 @@
 // ---------------------------------------------------------------------------
 
 import { Resend } from "resend";
+import { CONTACT } from "./site";
 
 // ---------------------------------------------------------------------------
 // Lazy Resend client.
@@ -47,6 +49,20 @@ const DEFAULT_FROM = "info@amqualitysystems.com";
 /** Address client-facing emails are sent from (auto-replies, confirmations). */
 export function getResendFrom(): string {
   return process.env.RESEND_FROM?.trim() || DEFAULT_FROM;
+}
+
+/**
+ * Staff inbox that receives applications, enquiries and payment alerts.
+ * Falls back to the public contact address so a missing NOTIFICATION_EMAIL
+ * never silently drops a lead or a payment alert.
+ */
+export function getStaffInbox(): string {
+  const configured = process.env.NOTIFICATION_EMAIL?.trim();
+  if (configured) return configured;
+  console.warn(
+    `[email] NOTIFICATION_EMAIL is not set — using ${CONTACT.email} for staff emails`,
+  );
+  return CONTACT.email;
 }
 
 /** Address internal/staff notification emails are sent from. */

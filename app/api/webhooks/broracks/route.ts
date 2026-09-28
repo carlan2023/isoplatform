@@ -27,6 +27,7 @@ import {
   escapeHtml,
   getResendFrom,
   getResendNotificationsFrom,
+  getStaffInbox,
   sendResendEmail,
 } from "@/lib/email";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -45,11 +46,7 @@ type WebhookEvent = {
 
 /** Alert staff about a payment that needs a human (money may have moved). */
 async function alertStaff(subject: string, lines: Record<string, unknown>) {
-  const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
-  if (!staffTo) {
-    console.warn("[broracks webhook] NOTIFICATION_EMAIL not set — cannot alert staff");
-    return;
-  }
+  const staffTo = getStaffInbox();
   const rows = Object.entries(lines)
     .map(
       ([k, v]) =>
@@ -308,34 +305,28 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
   }
 
   // Notify the admin/internal inbox that a seat was confirmed.
-  const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
-  if (staffTo) {
-    const adminMail = await sendResendEmail({
-      from: getResendNotificationsFrom(),
-      to: staffTo,
-      subject: `Payment confirmed — ${courseTitle} · ref ${reference}`,
-      html: `
-        <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
-          <h2 style="margin: 0 0 16px;">Enrollment confirmed ✓</h2>
-          <p style="color: #475569;">A Mobile Money payment succeeded and the seat is now assigned.</p>
-          <table style="width: 100%; font-size: 14px; color: #475569;">
-            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 160px;">Course</td><td>${title}</td></tr>
-            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Learner email</td><td>${escapeHtml(customerEmail)}</td></tr>
-            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount</td><td>${amountEsc}</td></tr>
-            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Reference</td><td>${refEsc}</td></tr>
-          </table>
-        </div>
-      `,
-    });
-    if (!adminMail.ok) {
-      console.error(
-        "[broracks webhook] admin notification email failed:",
-        adminMail.error,
-      );
-    }
-  } else {
-    console.warn(
-      "[broracks webhook] NOTIFICATION_EMAIL not set — skipping admin email",
+  const staffTo = getStaffInbox();
+  const adminMail = await sendResendEmail({
+    from: getResendNotificationsFrom(),
+    to: staffTo,
+    subject: `Payment confirmed — ${courseTitle} · ref ${reference}`,
+    html: `
+      <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
+        <h2 style="margin: 0 0 16px;">Enrollment confirmed ✓</h2>
+        <p style="color: #475569;">A Mobile Money payment succeeded and the seat is now assigned.</p>
+        <table style="width: 100%; font-size: 14px; color: #475569;">
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 160px;">Course</td><td>${title}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Learner email</td><td>${escapeHtml(customerEmail)}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount</td><td>${amountEsc}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Reference</td><td>${refEsc}</td></tr>
+        </table>
+      </div>
+    `,
+  });
+  if (!adminMail.ok) {
+    console.error(
+      "[broracks webhook] admin notification email failed:",
+      adminMail.error,
     );
   }
 

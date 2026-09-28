@@ -12,6 +12,7 @@ import {
   escapeHtml,
   getResendFrom,
   getResendNotificationsFrom,
+  getStaffInbox,
   sendResendEmail,
 } from "@/lib/email";
 import { cleanString, isValidEmail, readJsonObject } from "@/lib/validation";
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
+    const staffTo = getStaffInbox();
     const safe = {
       name: escapeHtml(name),
       company: escapeHtml(company),
@@ -90,52 +91,39 @@ export async function POST(req: NextRequest) {
       ? `New Consulting Enquiry — ${oneLine(standard)} — ${oneLine(company)}`
       : `New Consulting Enquiry — ${oneLine(standard)}`;
 
-    if (staffTo) {
-      const staff = await sendResendEmail({
-        from: getResendNotificationsFrom(),
-        to: staffTo,
-        subject: staffSubject,
-        html: `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
-            <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
-              <h1 style="margin: 0; font-size: 22px;">New Consulting Enquiry</h1>
-              <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
-            </div>
-            <table style="width: 100%; font-family: system-ui, sans-serif; font-size: 14px; color: #475569;">
-              <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 140px;">Name</td><td>${safe.name}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Company</td><td>${safe.company}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Email</td><td>${safe.email}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Phone</td><td>${safe.phone}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">ISO Standard</td><td>${safe.standard}</td></tr>
-            </table>
-            <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-top: 20px;">
-              <p style="font-family: system-ui, sans-serif; font-size: 14px; color: #475569; margin: 0;">
-                <strong>Message:</strong><br/>${safe.message}
-              </p>
-            </div>
+    const staff = await sendResendEmail({
+      from: getResendNotificationsFrom(),
+      to: staffTo,
+      subject: staffSubject,
+      html: `
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
+          <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
+            <h1 style="margin: 0; font-size: 22px;">New Consulting Enquiry</h1>
+            <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
           </div>
-        `,
-      });
-      if (!staff.ok) {
-        console.error("[consult] staff email failed:", staff.error);
-        return NextResponse.json(
-          {
-            error:
-              "We couldn't send your enquiry just now. Please try again or message us on WhatsApp.",
-          },
-          { status: 502 },
-        );
-      }
-    } else {
-      // Without a staff inbox the enquiry would be lost — don't pretend it
-      // was received.
-      console.error("[consult] NOTIFICATION_EMAIL is not set — enquiry not delivered");
+          <table style="width: 100%; font-family: system-ui, sans-serif; font-size: 14px; color: #475569;">
+            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 140px;">Name</td><td>${safe.name}</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Company</td><td>${safe.company}</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Email</td><td>${safe.email}</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Phone</td><td>${safe.phone}</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">ISO Standard</td><td>${safe.standard}</td></tr>
+          </table>
+          <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-top: 20px;">
+            <p style="font-family: system-ui, sans-serif; font-size: 14px; color: #475569; margin: 0;">
+              <strong>Message:</strong><br/>${safe.message}
+            </p>
+          </div>
+        </div>
+      `,
+    });
+    if (!staff.ok) {
+      console.error("[consult] staff email failed:", staff.error);
       return NextResponse.json(
         {
           error:
-            "Our enquiry form is temporarily unavailable. Please message us on WhatsApp.",
+            "We couldn't send your enquiry just now. Please try again or message us on WhatsApp.",
         },
-        { status: 503 },
+        { status: 502 },
       );
     }
 

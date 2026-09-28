@@ -19,6 +19,7 @@ import {
   escapeHtml,
   getResendFrom,
   getResendNotificationsFrom,
+  getStaffInbox,
   sendResendEmail,
 } from "@/lib/email";
 import { isUuid, readJsonObject } from "@/lib/validation";
@@ -299,25 +300,23 @@ async function updateEnrollmentStatus(req: NextRequest) {
       }
     }
 
-    const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
-    if (staffTo) {
-      const staffMail = await sendResendEmail({
-        from: getResendNotificationsFrom(),
-        to: staffTo,
-        subject: `Enrollment confirmed (manual) — ${course?.title ?? ""}`,
-        html: `
-          <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
-            <h2 style="margin: 0 0 12px;">Enrollment confirmed manually</h2>
-            <p style="color: #475569;">${title} — learner ${escapeHtml(learnerEmail ?? "unknown")}.</p>
-          </div>
-        `,
-      });
-      if (!staffMail.ok) {
-        console.error(
-          "[admin/enrollments] staff confirmation email failed:",
-          staffMail.error,
-        );
-      }
+    const staffTo = getStaffInbox();
+    const staffMail = await sendResendEmail({
+      from: getResendNotificationsFrom(),
+      to: staffTo,
+      subject: `Enrollment confirmed (manual) — ${course?.title ?? ""}`,
+      html: `
+        <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
+          <h2 style="margin: 0 0 12px;">Enrollment confirmed manually</h2>
+          <p style="color: #475569;">${title} — learner ${escapeHtml(learnerEmail ?? "unknown")}.</p>
+        </div>
+      `,
+    });
+    if (!staffMail.ok) {
+      console.error(
+        "[admin/enrollments] staff confirmation email failed:",
+        staffMail.error,
+      );
     }
   }
 
