@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { safeRedirectPath } from "@/lib/redirect";
 
 type View = "login" | "register";
 
@@ -78,11 +79,18 @@ export default function LoginPage() {
   const canRegister =
     passwordValid && passwordsMatch && form.full_name.trim().length > 0;
 
+  // The ?redirect= target set by middleware / the enroll page, sanitised so a
+  // crafted link can't bounce users to another site after signing in.
+  const requestedRedirect = (): string | null => {
+    const raw = new URLSearchParams(window.location.search).get("redirect");
+    const safe = safeRedirectPath(raw, "");
+    return safe || null;
+  };
+
   // The URL Supabase should send email links back to. Goes through
   // /auth/callback so the one-time code is exchanged for a session.
   const callbackUrl = () => {
-    const params = new URLSearchParams(window.location.search);
-    const redirect = params.get("redirect") || "/dashboard";
+    const redirect = requestedRedirect() ?? "/dashboard";
     return `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(
       redirect,
     )}`;
@@ -92,33 +100,38 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email: form.email,
-      password: form.password,
-    });
-    if (error) {
-      setError(error.message);
+    try {
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email: form.email.trim(),
+        password: form.password,
+      });
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      // Honor an explicit (sanitised) ?redirect= target set by middleware;
+      // otherwise route by the app role stored on the profile. The auth user
+      // object has no app role, so we must read it from `profiles`.
+      let destination = requestedRedirect();
+
+      if (!destination) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        destination = profile?.role === "admin" ? "/admin" : "/dashboard";
+      }
+
+      router.replace(destination);
+      router.refresh();
+    } catch (err) {
+      console.error("[login] sign-in failed:", err);
+      setError("Network error — please check your connection and try again.");
       setLoading(false);
-      return;
     }
-
-    // Honor an explicit ?redirect= target (set by middleware); otherwise route
-    // by the app role stored on the profile. The auth user object has no app
-    // role, so we must read it from `profiles`. Redirect exactly once.
-    const params = new URLSearchParams(window.location.search);
-    let destination = params.get("redirect");
-
-    if (!destination) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-      destination = profile?.role === "admin" ? "/admin" : "/dashboard";
-    }
-
-    router.replace(destination);
-    router.refresh();
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -133,14 +146,23 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError("");
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        data: { full_name: form.full_name, phone: form.phone },
-        emailRedirectTo: callbackUrl(),
-      },
-    });
+    let data: Awaited<ReturnType<typeof supabase.auth.signUp>>["data"];
+    let error: Awaited<ReturnType<typeof supabase.auth.signUp>>["error"];
+    try {
+      ({ data, error } = await supabase.auth.signUp({
+        email: form.email.trim(),
+        password: form.password,
+        options: {
+          data: { full_name: form.full_name, phone: form.phone },
+          emailRedirectTo: callbackUrl(),
+        },
+      }));
+    } catch (err) {
+      console.error("[login] sign-up failed:", err);
+      setError("Network error — please check your connection and try again.");
+      setLoading(false);
+      return;
+    }
 
     if (error) {
       setError(error.message);
@@ -162,7 +184,7 @@ export default function LoginPage() {
     // session — send the user straight in rather than telling them to check
     // an inbox that will never receive anything.
     if (data.session) {
-      router.replace("/dashboard");
+      router.replace(requestedRedirect() ?? "/dashboard");
       router.refresh();
       return;
     }
@@ -179,10 +201,18 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: form.email,
-      options: { emailRedirectTo: callbackUrl() },
-    });
+    let error: { message: string } | null = null;
+    try {
+      ({ error } = await supabase.auth.signInWithOtp({
+        email: form.email.trim(),
+        options: { emailRedirectTo: callbackUrl() },
+      }));
+    } catch (err) {
+      console.error("[login] magic link failed:", err);
+      error = {
+        message: "Network error — please check your connection and try again.",
+      };
+    }
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -226,6 +256,7 @@ export default function LoginPage() {
         <div className="p-8">
           {error && (
             <div
+              role="alert"
               className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-4"
               style={sansFont}
             >
@@ -271,6 +302,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
                 <Mail
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -278,6 +310,7 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   placeholder="Email address"
+                  aria-label="Email address"
                   value={form.email}
                   onChange={handleChange}
                   required
@@ -287,6 +320,7 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <Lock
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -294,6 +328,7 @@ export default function LoginPage() {
                   name="password"
                   type={visible.login ? "text" : "password"}
                   placeholder="Password"
+                  aria-label="Password"
                   value={form.password}
                   onChange={handleChange}
                   required
@@ -355,6 +390,7 @@ export default function LoginPage() {
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="relative">
                 <User
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -362,6 +398,7 @@ export default function LoginPage() {
                   name="full_name"
                   type="text"
                   placeholder="Full Name"
+                  aria-label="Full Name"
                   value={form.full_name}
                   onChange={handleChange}
                   required
@@ -371,6 +408,7 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <Phone
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -378,6 +416,7 @@ export default function LoginPage() {
                   name="phone"
                   type="tel"
                   placeholder="Phone Number"
+                  aria-label="Phone Number"
                   value={form.phone}
                   onChange={handleChange}
                   className={inputBase}
@@ -386,6 +425,7 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <Mail
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -393,6 +433,7 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   placeholder="Email Address"
+                  aria-label="Email Address"
                   value={form.email}
                   onChange={handleChange}
                   required
@@ -402,6 +443,7 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <Lock
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -409,6 +451,7 @@ export default function LoginPage() {
                   name="password"
                   type={visible.register ? "text" : "password"}
                   placeholder="Password"
+                  aria-label="Password"
                   value={form.password}
                   onChange={handleChange}
                   required
@@ -450,6 +493,7 @@ export default function LoginPage() {
 
               <div className="relative">
                 <Lock
+                  aria-hidden="true"
                   size={15}
                   className="absolute left-3 top-3.5 text-slate-400"
                 />
@@ -457,6 +501,7 @@ export default function LoginPage() {
                   name="confirm_password"
                   type={visible.confirm ? "text" : "password"}
                   placeholder="Confirm Password"
+                  aria-label="Confirm Password"
                   value={form.confirm_password}
                   onChange={handleChange}
                   required

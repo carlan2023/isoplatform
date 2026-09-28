@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Smartphone, Loader2, Lock, CheckCircle2 } from "lucide-react";
+import { Smartphone, Loader2, Lock, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { normalizeUgandaMobile } from "@/lib/phone";
 import {
   computePricing,
   pricePerPerson,
@@ -19,11 +20,27 @@ type Step =
   | "payment"
   | "pending"
   | "offline"
+  | "failed"
   | "already";
 
 // How long to wait on the "check your phone" screen before offering a cash /
 // bank-transfer fallback, for learners who never receive the MTN/Airtel prompt.
 const CASH_FALLBACK_SECONDS = 60;
+
+// While on the "check your phone" screen, poll the enrollment so the learner
+// sees the real outcome (confirmed / failed) instead of waiting blind.
+const STATUS_POLL_MS = 5_000;
+const STATUS_POLL_MAX_MS = 15 * 60 * 1000;
+
+/** Parse a JSON response without throwing on an empty / HTML error body. */
+async function readJson(res: Response): Promise<Record<string, unknown>> {
+  try {
+    const data = await res.json();
+    return data && typeof data === "object" ? data : {};
+  } catch {
+    return {};
+  }
+}
 
 export default function EnrollForm({
   courseId,
@@ -55,28 +72,34 @@ export default function EnrollForm({
   useEffect(() => {
     let active = true;
     (async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!active) return;
-      if (!user) {
-        setStep("signin");
-        return;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!active) return;
+        if (!user) {
+          setStep("signin");
+          return;
+        }
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, phone, company")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (!active) return;
+        setForm((f) => ({
+          ...f,
+          full_name: profile?.full_name ?? "",
+          phone: profile?.phone ?? "",
+          company: profile?.company ?? "",
+          momoPhone: profile?.phone ?? "",
+        }));
+        setStep("details");
+      } catch (e) {
+        // Network hiccup — let them fill the form; the API re-checks auth.
+        console.error("[enroll] could not load session/profile:", e);
+        if (active) setStep("details");
       }
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, phone, company")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (!active) return;
-      setForm((f) => ({
-        ...f,
-        full_name: profile?.full_name ?? "",
-        phone: profile?.phone ?? "",
-        company: profile?.company ?? "",
-        momoPhone: profile?.phone ?? "",
-      }));
-      setStep("details");
     })();
     return () => {
       active = false;
@@ -103,6 +126,43 @@ export default function EnrollForm({
     };
   }, [step]);
 
+  // Poll the enrollment status while waiting for the phone approval.
+  useEffect(() => {
+    if (step !== "pending" || !enrollmentId) return;
+    const startedAt = Date.now();
+    let stopped = false;
+    const poll = setInterval(async () => {
+      if (stopped) return;
+      if (Date.now() - startedAt > STATUS_POLL_MAX_MS) {
+        clearInterval(poll);
+        return;
+      }
+      try {
+        const { data } = await supabase
+          .from("enrollments")
+          .select("status")
+          .eq("id", enrollmentId)
+          .maybeSingle();
+        if (stopped || !data) return;
+        if (data.status === "confirmed") {
+          stopped = true;
+          clearInterval(poll);
+          router.push(`/success?enrollment=${encodeURIComponent(enrollmentId)}`);
+        } else if (data.status === "cancelled") {
+          stopped = true;
+          clearInterval(poll);
+          setStep("failed");
+        }
+      } catch {
+        // Transient — try again on the next tick.
+      }
+    }, STATUS_POLL_MS);
+    return () => {
+      stopped = true;
+      clearInterval(poll);
+    };
+  }, [step, enrollmentId, router]);
+
   const { fullAmount, minDeposit } = computePricing(
     parseInt(form.teamSize || "1"),
   );
@@ -110,8 +170,16 @@ export default function EnrollForm({
     form.paymentType === "full"
       ? fullAmount
       : form.paymentType === "custom"
-        ? parseInt(form.customAmount || "0")
+        ? Math.round(Number(form.customAmount)) || 0
         : minDeposit;
+
+  // Client-side mirror of the server's range check (the server re-validates).
+  const amountError =
+    payAmount < minDeposit
+      ? `Minimum payment is UGX ${minDeposit.toLocaleString()}`
+      : payAmount > fullAmount
+        ? `Maximum payment is UGX ${fullAmount.toLocaleString()}`
+        : "";
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -141,14 +209,16 @@ export default function EnrollForm({
         setStep("signin");
         return;
       }
-      const data = await res.json();
-      if (!res.ok || !data.enrollmentId) {
-        setErrorMsg(data.error || "Could not start your enrollment.");
+      const data = await readJson(res);
+      if (!res.ok || typeof data.enrollmentId !== "string") {
+        setErrorMsg(
+          (data.error as string) || "Could not start your enrollment.",
+        );
         return;
       }
       setEnrollmentId(data.enrollmentId);
       if (data.alreadyEnrolled) {
-        setAlreadyStatus(data.status);
+        setAlreadyStatus(String(data.status ?? ""));
         setStep("already");
         return;
       }
@@ -166,15 +236,19 @@ export default function EnrollForm({
       setErrorMsg("Enter the Mobile Money number to charge.");
       return;
     }
-    if (form.paymentType === "custom" && payAmount < minDeposit) {
-      setErrorMsg(`Minimum payment is UGX ${minDeposit.toLocaleString()}`);
+    const momo = normalizeUgandaMobile(form.momoPhone);
+    if (!momo) {
+      setErrorMsg(
+        "Enter a valid MTN or Airtel Uganda number, e.g. 0771234567 or +256771234567.",
+      );
+      return;
+    }
+    if (amountError) {
+      setErrorMsg(amountError);
       return;
     }
     setSubmitting(true);
     setErrorMsg("");
-    const momo = form.momoPhone.startsWith("+")
-      ? form.momoPhone
-      : `+256${form.momoPhone.replace(/^0/, "")}`;
     try {
       const res = await fetch("/api/enroll/pay", {
         method: "POST",
@@ -192,12 +266,16 @@ export default function EnrollForm({
         setStep("signin");
         return;
       }
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok || !data.success) {
-        setErrorMsg(data.error || "Payment failed. Please try again.");
+        setErrorMsg(
+          (data.error as string) ||
+            "We couldn't start the payment. Please try again, or pay by cash / bank transfer below.",
+        );
         return;
       }
-      setReference(data.reference);
+      setReference(String(data.reference ?? ""));
+      setForm((f) => ({ ...f, momoPhone: momo }));
       setStep("pending");
     } catch (e) {
       console.error("[enroll] submitPayment failed:", e);
@@ -210,8 +288,8 @@ export default function EnrollForm({
   // Fallback when Mobile Money won't go through: reserve the seat and pay by
   // cash / bank transfer, to be confirmed by an admin.
   const submitOffline = async () => {
-    if (form.paymentType === "custom" && payAmount < minDeposit) {
-      setErrorMsg(`Minimum payment is UGX ${minDeposit.toLocaleString()}`);
+    if (amountError) {
+      setErrorMsg(amountError);
       return;
     }
     setSubmitting(true);
@@ -233,9 +311,12 @@ export default function EnrollForm({
         setStep("signin");
         return;
       }
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok || !data.success) {
-        setErrorMsg(data.error || "Could not reserve your seat. Please try again.");
+        setErrorMsg(
+          (data.error as string) ||
+            "Could not reserve your seat. Please try again.",
+        );
         return;
       }
       setStep("offline");
@@ -262,10 +343,11 @@ export default function EnrollForm({
         setStep("signin");
         return;
       }
-      const data = await res.json();
+      const data = await readJson(res);
       if (!res.ok || !data.success) {
         setErrorMsg(
-          data.error || "Could not switch to cash payment. Please try again.",
+          (data.error as string) ||
+            "Could not switch to cash payment. Please try again.",
         );
         return;
       }
@@ -425,6 +507,44 @@ export default function EnrollForm({
     );
   }
 
+  // -------------------------------------------------------------- payment failed
+  if (step === "failed") {
+    return (
+      <div className="text-center py-6" role="alert">
+        <XCircle size={40} className="mx-auto mb-4 text-red-500" />
+        <h3 className="font-bold text-slate-900 text-lg mb-2">
+          Payment didn&apos;t go through
+        </h3>
+        <p className="text-slate-500 text-sm mb-6" style={sans}>
+          The Mobile Money payment was declined, cancelled or timed out, so no
+          money was taken and your seat was released. You can try again, or pay
+          by cash / bank transfer.
+        </p>
+        <button
+          onClick={() => {
+            setErrorMsg("");
+            setReference("");
+            setEnrollmentId("");
+            setStep("details");
+          }}
+          className="w-full text-white text-sm font-bold py-3 rounded-lg"
+          style={{ backgroundColor: "#0d9488", ...sans }}
+        >
+          Try again
+        </button>
+        <a
+          href="https://wa.me/256707068533"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-block text-sm font-semibold underline"
+          style={{ color: "#0d9488", ...sans }}
+        >
+          Need help? Message us on WhatsApp
+        </a>
+      </div>
+    );
+  }
+
   // -------------------------------------------------------------- offline reserved
   if (step === "offline") {
     return (
@@ -494,6 +614,7 @@ export default function EnrollForm({
 
   const errorBanner = errorMsg && (
     <div
+      role="alert"
       className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-4"
       style={sans}
     >
@@ -508,10 +629,11 @@ export default function EnrollForm({
         {stepBadge}
         {errorBanner}
         <div>
-          <label className={labelCls} style={sans}>
+          <label htmlFor="enroll-full_name" className={labelCls} style={sans}>
             Full Name *
           </label>
           <input
+            id="enroll-full_name"
             name="full_name"
             value={form.full_name}
             onChange={handleChange}
@@ -521,10 +643,11 @@ export default function EnrollForm({
           />
         </div>
         <div>
-          <label className={labelCls} style={sans}>
+          <label htmlFor="enroll-phone" className={labelCls} style={sans}>
             Phone Number *
           </label>
           <input
+            id="enroll-phone"
             name="phone"
             value={form.phone}
             onChange={handleChange}
@@ -534,10 +657,11 @@ export default function EnrollForm({
           />
         </div>
         <div>
-          <label className={labelCls} style={sans}>
+          <label htmlFor="enroll-company" className={labelCls} style={sans}>
             Organisation / Company
           </label>
           <input
+            id="enroll-company"
             name="company"
             value={form.company}
             onChange={handleChange}
@@ -568,10 +692,11 @@ export default function EnrollForm({
       {errorBanner}
 
       <div>
-        <label className={labelCls} style={sans}>
+        <label htmlFor="enroll-teamSize" className={labelCls} style={sans}>
           Number of Participants
         </label>
         <select
+          id="enroll-teamSize"
           name="teamSize"
           value={form.teamSize}
           onChange={handleChange}
@@ -587,27 +712,36 @@ export default function EnrollForm({
       </div>
 
       <div>
-        <label className={labelCls} style={sans}>
+        <label htmlFor="enroll-momoPhone" className={labelCls} style={sans}>
           Mobile Money Number *
         </label>
         <input
+          id="enroll-momoPhone"
           name="momoPhone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          aria-describedby="enroll-momoPhone-hint"
           value={form.momoPhone}
           onChange={handleChange}
           className={inputCls}
           style={sans}
           placeholder="e.g. 0771234567 or +256771234567"
         />
-        <p className="text-xs text-slate-400 mt-1" style={sans}>
+        <p id="enroll-momoPhone-hint" className="text-xs text-slate-400 mt-1" style={sans}>
           MTN or Airtel Uganda number — you&apos;ll get the payment prompt here.
         </p>
       </div>
 
       <div>
-        <label className={labelCls} style={sans}>
+        <div className={labelCls} style={sans} id="enroll-amount-label">
           Payment Amount
-        </label>
-        <div className="space-y-2">
+        </div>
+        <div
+          className="space-y-2"
+          role="radiogroup"
+          aria-labelledby="enroll-amount-label"
+        >
           {[
             {
               value: "deposit",
@@ -657,6 +791,7 @@ export default function EnrollForm({
 
         {form.paymentType === "custom" && (
           <input
+            aria-label="Custom payment amount in UGX"
             name="customAmount"
             type="number"
             value={form.customAmount}

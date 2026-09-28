@@ -9,21 +9,25 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { safeRedirectPath } from "@/lib/redirect";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   // Only allow relative in-app redirects (avoid open-redirect via ?redirect=).
-  const rawRedirect = searchParams.get("redirect") || "/dashboard";
-  const redirect = rawRedirect.startsWith("/") ? rawRedirect : "/dashboard";
+  const redirect = safeRedirectPath(searchParams.get("redirect"), "/dashboard");
 
   if (code) {
-    const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      return NextResponse.redirect(`${origin}${redirect}`);
+    try {
+      const supabase = await createSupabaseServerClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) {
+        return NextResponse.redirect(`${origin}${redirect}`);
+      }
+      console.error("[auth/callback] exchange failed:", error.message);
+    } catch (e) {
+      console.error("[auth/callback] exchange threw:", e);
     }
-    console.error("[auth/callback] exchange failed:", error.message);
   }
 
   return NextResponse.redirect(

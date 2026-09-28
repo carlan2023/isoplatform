@@ -51,7 +51,10 @@ export async function middleware(request: NextRequest) {
   if (!user && needsAuth) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("redirect", pathname);
+    // Keep the original query string so the user lands exactly where they
+    // were headed. The login page sanitises this value (lib/redirect.ts).
+    url.search = "";
+    url.searchParams.set("redirect", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
 

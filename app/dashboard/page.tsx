@@ -63,6 +63,7 @@ export default function DashboardPage() {
   // Captured once at load so the "days until" countdown is stable across
   // re-renders (calling Date.now() during render is impure).
   const [loadedAt, setLoadedAt] = useState(0);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -87,16 +88,29 @@ export default function DashboardPage() {
         return;
       }
 
-      const { data: enrollments } = await supabase
+      const { data: enrollments, error: enrollError } = await supabase
         .from("enrollments")
         .select("*, courses(*)")
         .eq("user_id", user.id)
         .order("enrolled_at", { ascending: false });
+      if (enrollError) {
+        console.error("[dashboard] enrollments load failed:", enrollError);
+        setLoadError(
+          "We couldn't load your enrollments right now. Please reload the page.",
+        );
+      }
       setEnrollments((enrollments ?? []) as Enrollment[]);
       setLoadedAt(Date.now());
       setLoading(false);
     };
-    load();
+    load().catch((e) => {
+      // Never leave the learner on an endless spinner.
+      console.error("[dashboard] load failed:", e);
+      setLoadError(
+        "We couldn't load your dashboard — check your connection and reload.",
+      );
+      setLoading(false);
+    });
   }, [router]);
 
   const handleLogout = async () => {
@@ -186,12 +200,21 @@ export default function DashboardPage() {
             className="flex items-center gap-1 text-sm text-slate-400 hover:text-red-500 transition-colors"
             style={sans}
           >
-            <LogOut size={14} /> Sign out.
+            <LogOut size={14} aria-hidden="true" /> Sign out
           </button>
         </div>
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 py-10">
+        {loadError && (
+          <div
+            role="alert"
+            className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-6"
+            style={sans}
+          >
+            {loadError}
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-slate-900 mb-1">
           Welcome back{firstName ? `, ${firstName}` : ""}
         </h1>
