@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  images: {
+    // YouTube video thumbnails for the click-to-load video facade.
+    remotePatterns: [
+      { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },
+    ],
+  },
 };
 
 export default nextConfig;

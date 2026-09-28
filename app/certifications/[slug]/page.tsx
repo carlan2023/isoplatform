@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import ConsultForm from "@/app/components/ConsultForm";
 import Footer from "@/app/components/Footer";
-import { SITE_NAME, abs } from "@/lib/site";
+import SiteNav from "@/app/components/SiteNav";
+import { SITE_NAME, CONTACT, abs } from "@/lib/site";
 import {
   STANDARDS,
   getStandard,
@@ -60,6 +61,7 @@ export default async function CertificationPage({
   if (!standard) notFound();
 
   const path = `/certifications/${standard.slug}`;
+  const applyHref = `/apply?standard=${encodeURIComponent(standard.slug)}`;
   const related = STANDARDS.filter(
     (s) => s.slug !== standard.slug && s.category === standard.category,
   );
@@ -133,39 +135,7 @@ export default async function CertificationPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
-      {/* NAV */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <img
-              src="/nam-qms-logo.png"
-              alt="NAM Quality Management Systems"
-              className="h-12 w-auto"
-            />
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
-            <Link href="/" className="hover:text-teal-600 transition-colors">
-              Home
-            </Link>
-            <Link
-              href="/iso-certification-consulting"
-              className="hover:text-teal-600 transition-colors"
-            >
-              Consulting
-            </Link>
-            <a href="#enquiry" className="hover:text-teal-600 transition-colors">
-              Get a Quote
-            </a>
-            <Link
-              href="/login"
-              className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm hover:bg-slate-700 transition-colors"
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              Student Portal
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* HERO */}
       <section className="bg-white border-b border-slate-100">
@@ -208,18 +178,18 @@ export default async function CertificationPage({
               {standard.intro}
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <a
-                href="#enquiry"
-                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
+              <Link
+                href={applyHref}
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
                   fontFamily: "system-ui, sans-serif",
                 }}
               >
-                Get a free consultation <ArrowRight size={16} />
-              </a>
+                Apply for {standard.code} certification <ArrowRight size={16} />
+              </Link>
               <a
-                href="https://wa.me/256707068533"
+                href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-600 text-sm underline underline-offset-4"
@@ -347,50 +317,23 @@ export default async function CertificationPage({
         </div>
       </section>
 
-      {/* REQUEST A QUOTE */}
-      <section className="bg-white border-b border-slate-100">
-        <div className="max-w-4xl mx-auto px-6 py-20 text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">
-            Request a {standard.code} quote
-          </h2>
-          <p
-            className="text-slate-500 mb-10 max-w-2xl mx-auto"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Every engagement is fixed-scope — no open-ended billing. Because
-            cost depends on your size, systems and current maturity, we prepare
-            a tailored proposal after a short scoping call. Send us your details
-            and we&apos;ll get back to you within 24 hours.
-          </p>
-          <a
-            href="#enquiry"
-            className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-md font-medium transition-colors"
-            style={{
-              backgroundColor: "#0d9488",
-              fontFamily: "system-ui, sans-serif",
-            }}
-          >
-            Request a quote <ArrowRight size={16} />
-          </a>
-        </div>
-      </section>
-
-      {/* ENQUIRY */}
-      <section id="enquiry" className="bg-slate-50 border-b border-slate-100">
+      {/* APPLY + QUICK QUESTION */}
+      <section id="enquiry" className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-start">
           <div>
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Get a free {standard.code} consultation
+              Apply for {standard.code} certification
             </h2>
             <p
               className="text-slate-500 leading-relaxed mb-8"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              Tell us where your organisation is today and we&apos;ll get back to
-              you within 24 hours with a clear, practical next step — no
-              obligation.
+              Every engagement is fixed-scope — no open-ended billing. Because
+              cost depends on your size, systems and current maturity, we
+              prepare a tailored quotation from your application. Apply online
+              and we&apos;ll get back to you within 24 hours.
             </p>
-            <div className="space-y-3">
+            <div className="space-y-3 mb-8">
               {[
                 "Accredited consultants and practising auditors",
                 "Case studies from real East African industry",
@@ -407,17 +350,29 @@ export default async function CertificationPage({
                 </div>
               ))}
             </div>
+            <Link
+              href={applyHref}
+              className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-md font-medium transition-colors hover:bg-teal-700"
+              style={{
+                backgroundColor: "#0d9488",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              Apply &amp; get a {standard.code} quotation{" "}
+              <ArrowRight size={16} />
+            </Link>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-8">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-8">
             <h3 className="font-bold text-slate-900 text-lg mb-1">
-              Request a quote
+              Just have a quick question?
             </h3>
             <p
               className="text-slate-500 text-sm mb-6"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              We&apos;ll be in touch within 24 hours.
+              Not ready to apply yet? Send us a message and we&apos;ll be in
+              touch within 24 hours.
             </p>
             <ConsultForm defaultStandard={standard.enquiryLabel} />
           </div>
@@ -425,7 +380,7 @@ export default async function CertificationPage({
       </section>
 
       {/* RELATED */}
-      <section className="bg-white border-b border-slate-100">
+      <section className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2 className="text-2xl font-bold text-slate-900 mb-8">
             Related standards
@@ -435,7 +390,7 @@ export default async function CertificationPage({
               <Link
                 key={r.slug}
                 href={`/certifications/${r.slug}`}
-                className="border border-slate-200 rounded-lg p-6 hover:border-teal-300 hover:shadow-sm transition-all"
+                className="bg-white border border-slate-200 rounded-lg p-6 hover:border-teal-300 hover:shadow-sm transition-all"
               >
                 <div className="text-lg font-bold text-slate-900 mb-1">
                   {r.code}
@@ -459,7 +414,7 @@ export default async function CertificationPage({
       </section>
 
       {/* FAQ */}
-      <section className="bg-slate-50 border-b border-slate-100">
+      <section className="bg-white border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20">
           <h2 className="text-3xl font-bold text-slate-900 mb-12">
             {standard.code} — frequently asked questions
@@ -468,7 +423,7 @@ export default async function CertificationPage({
             {standard.faqs.map((f) => (
               <div
                 key={f.q}
-                className="bg-white border border-slate-200 rounded-lg p-6"
+                className="bg-slate-50 border border-slate-200 rounded-lg p-6"
               >
                 <h3 className="font-bold text-slate-900 mb-2">{f.q}</h3>
                 <p

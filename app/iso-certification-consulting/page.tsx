@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import ConsultForm from "@/app/components/ConsultForm";
 import Footer from "@/app/components/Footer";
+import SiteNav from "@/app/components/SiteNav";
+import YouTubeFacade from "@/app/components/YouTubeFacade";
 import {
   ShieldCheck,
   ArrowRight,
@@ -13,7 +15,7 @@ import {
   RefreshCw,
   Award,
 } from "lucide-react";
-import { SITE_NAME, abs } from "@/lib/site";
+import { SITE_NAME, CONTACT, abs } from "@/lib/site";
 import { MANAGEMENT_STANDARDS, SECURITY_STANDARDS } from "@/lib/standards";
 import {
   IMG,
@@ -130,6 +132,14 @@ const FAQS = [
   },
 ];
 
+function WhatsAppIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#25d366" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
+
 export default function ConsultingPage() {
   const serviceLd = {
     "@context": "https://schema.org",
@@ -219,39 +229,7 @@ export default function ConsultingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
-      {/* NAV */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <img
-              src="/nam-qms-logo.png"
-              alt="NAM Quality Management Systems"
-              className="h-12 w-auto"
-            />
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
-            <Link href="/" className="hover:text-teal-600 transition-colors">
-              Home
-            </Link>
-            <Link
-              href="/#courses"
-              className="hover:text-teal-600 transition-colors"
-            >
-              Training
-            </Link>
-            <a href="#enquiry" className="hover:text-teal-600 transition-colors">
-              Get a Quote
-            </a>
-            <Link
-              href="/login"
-              className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm hover:bg-slate-700 transition-colors"
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              Student Portal
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* HERO */}
       <section className="bg-white border-b border-slate-100">
@@ -284,18 +262,18 @@ export default function ConsultingPage() {
               business.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <a
-                href="#enquiry"
-                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
+              <Link
+                href="/apply"
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
                   fontFamily: "system-ui, sans-serif",
                 }}
               >
-                Get a free consultation <ArrowRight size={16} />
-              </a>
+                Apply for certification <ArrowRight size={16} />
+              </Link>
               <a
-                href="https://wa.me/256707068533"
+                href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-600 text-sm underline underline-offset-4"
@@ -315,36 +293,6 @@ export default function ConsultingPage() {
             sizes="(max-width: 768px) 100vw, 45vw"
             className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
           />
-        </div>
-      </section>
-
-      {/* VIDEO */}
-      <section className="bg-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 py-20">
-          <h2 className="text-3xl font-bold text-slate-900 mb-3">
-            See how we get your business ISO certified
-          </h2>
-          <p
-            className="text-slate-500 mb-10 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            A short walkthrough of our end-to-end approach — from gap analysis to
-            a valid certificate.
-          </p>
-          <div
-            className="relative w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm"
-            style={{ aspectRatio: "16 / 9" }}
-          >
-            <iframe
-              className="absolute inset-0 h-full w-full"
-              src={PRIMARY_VIDEO_EMBED_URL}
-              title={PRIMARY_VIDEO.name}
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
-          </div>
         </div>
       </section>
 
@@ -550,22 +498,43 @@ export default function ConsultingPage() {
         </div>
       </section>
 
-      {/* ENQUIRY */}
-      <section id="enquiry" className="bg-white border-b border-slate-100">
+      {/* VIDEO — click-to-load facade so the YouTube player never slows the page */}
+      <section id="video" className="bg-white border-b border-slate-100">
+        <div className="max-w-5xl mx-auto px-6 py-20">
+          <h2 className="text-3xl font-bold text-slate-900 mb-3">
+            See how we get your business ISO certified
+          </h2>
+          <p
+            className="text-slate-500 mb-10 max-w-2xl"
+            style={{ fontFamily: "system-ui, sans-serif" }}
+          >
+            A short walkthrough of our end-to-end approach — from gap analysis to
+            a valid certificate.
+          </p>
+          <YouTubeFacade
+            embedUrl={PRIMARY_VIDEO_EMBED_URL}
+            thumbnail={PRIMARY_VIDEO_THUMBNAIL}
+            title={PRIMARY_VIDEO.name}
+          />
+        </div>
+      </section>
+
+      {/* APPLY + QUICK QUESTION */}
+      <section id="enquiry" className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-start">
           <div>
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Get a free ISO certification consultation
+              Apply for ISO certification
             </h2>
             <p
               className="text-slate-500 leading-relaxed mb-8"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              Tell us where your organisation is in the certification journey and
-              we&apos;ll get back to you within 24 hours with a clear, practical
-              next step — no obligation.
+              Complete a short application with your organisation&apos;s details
+              and the standard you need. We&apos;ll review it and send you a
+              fixed-scope quotation within 24 hours — no obligation.
             </p>
-            <div className="space-y-3">
+            <div className="space-y-3 mb-8">
               {[
                 "Accredited consultants and practising auditors",
                 "Case studies from real East African industry",
@@ -582,55 +551,47 @@ export default function ConsultingPage() {
                 </div>
               ))}
             </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/apply"
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
+                style={{
+                  backgroundColor: "#0d9488",
+                  fontFamily: "system-ui, sans-serif",
+                }}
+              >
+                Apply &amp; get a quotation <ArrowRight size={16} />
+              </Link>
+              <a
+                href={CONTACT.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold"
+                style={{ color: "#128c4a", fontFamily: "system-ui, sans-serif" }}
+              >
+                <WhatsAppIcon /> Chat on WhatsApp
+              </a>
+            </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-8">
+          <div className="bg-white border border-slate-200 rounded-xl p-8">
             <h3 className="font-bold text-slate-900 text-lg mb-1">
-              Request a consultation
+              Just have a quick question?
             </h3>
             <p
               className="text-slate-500 text-sm mb-6"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              Tell us about your organisation and we&apos;ll be in touch within 24
-              hours.
+              Not ready to apply yet? Send us a message and we&apos;ll get back
+              to you within 24 hours.
             </p>
             <ConsultForm />
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center">
-                <span
-                  className="bg-slate-50 px-3 text-xs text-slate-400"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
-                >
-                  or reach us directly
-                </span>
-              </div>
-            </div>
-            <a
-              href="https://wa.me/256707068533"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 border-2 font-semibold py-3 rounded-lg transition-colors hover:bg-green-50 text-sm"
-              style={{
-                borderColor: "#25d366",
-                color: "#25d366",
-                fontFamily: "system-ui, sans-serif",
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#25d366">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              Chat on WhatsApp
-            </a>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="bg-slate-50 border-b border-slate-100">
+      <section className="bg-white border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20">
           <h2 className="text-3xl font-bold text-slate-900 mb-12">
             ISO certification — frequently asked questions
@@ -639,7 +600,7 @@ export default function ConsultingPage() {
             {FAQS.map((f) => (
               <div
                 key={f.q}
-                className="bg-white border border-slate-200 rounded-lg p-6"
+                className="bg-slate-50 border border-slate-200 rounded-lg p-6"
               >
                 <h3 className="font-bold text-slate-900 mb-2">{f.q}</h3>
                 <p
