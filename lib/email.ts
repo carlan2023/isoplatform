@@ -84,6 +84,10 @@ export interface SendResendEmailParams {
   to: string | string[];
   subject: string;
   html: string;
+  /** Optional plain-text alternative body. */
+  text?: string;
+  /** Optional Reply-To address(es), e.g. the applicant on a staff alert. */
+  replyTo?: string | string[];
 }
 
 export type SendResendEmailResult =
@@ -99,6 +103,8 @@ export async function sendResendEmail(
       to: params.to,
       subject: params.subject,
       html: params.html,
+      ...(params.text ? { text: params.text } : {}),
+      ...(params.replyTo ? { replyTo: params.replyTo } : {}),
     });
 
     if (error) {
