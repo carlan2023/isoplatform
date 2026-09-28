@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { SITE_NAME, abs } from "@/lib/site";
 import { courseSlug, coursePath, isUuid } from "@/lib/course-slug";
 import { nextClassStart, formatClassDate, toISODate } from "@/lib/schedule";
@@ -105,8 +106,9 @@ export default async function CoursePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const course = await getCourse(id);
-  if (!course) notFound();
+  const found = await getCourse(id);
+  if (!found) notFound();
+  const [course] = await withCurrentCohortSeats([found]);
   // Legacy /courses/<uuid> links: send visitors and Google to the slug URL.
   if (isUuid(id)) permanentRedirect(coursePath(course));
 

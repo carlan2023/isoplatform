@@ -140,6 +140,51 @@ export class BroRacksTimeoutError extends Error {
   }
 }
 
+/**
+ * Thrown when BroRacks answered but refused the collection (bad number,
+ * unsupported network, limits, auth/config problems…). `providerMessage` is
+ * BroRacks' own explanation, safe to show the learner.
+ */
+export class BroRacksRejectedError extends Error {
+  constructor(
+    message: string,
+    readonly providerMessage: string | null,
+    readonly status: number | null,
+  ) {
+    super(message);
+    this.name = "BroRacksRejectedError";
+  }
+}
+
+/** Pull a human-readable message out of a BroRacks JSON/text error body. */
+export function providerMessageFrom(body: unknown): string | null {
+  let parsed: unknown = body;
+  if (typeof body === "string") {
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      parsed = body;
+    }
+  }
+  const pick = (v: unknown): string | null =>
+    typeof v === "string" && v.trim() ? v.trim().slice(0, 200) : null;
+  if (typeof parsed === "string") {
+    // Plain text only — never echo an HTML error page.
+    return /<[a-z!]/i.test(parsed) ? null : pick(parsed);
+  }
+  if (parsed && typeof parsed === "object") {
+    const o = parsed as Record<string, unknown>;
+    const nested = (o.error ?? o.data) as Record<string, unknown> | string | undefined;
+    return (
+      pick(o.message) ??
+      pick(typeof nested === "string" ? nested : nested?.message) ??
+      pick(o.detail) ??
+      null
+    );
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Initiate a Mobile Money collection (sends a prompt to the payer's phone)
 // ---------------------------------------------------------------------------
@@ -190,7 +235,11 @@ export async function initiateCollection(
     console.error(
       `[broracks] collection initiate failed: ${res.status} ${res.statusText} — ${errorBody}`,
     );
-    throw new Error(`BroRacks collection failed (${res.status})`);
+    throw new BroRacksRejectedError(
+      `BroRacks collection failed (${res.status})`,
+      providerMessageFrom(errorBody),
+      res.status,
+    );
   }
 
   const data = (await res.json().catch(() => null)) as
@@ -205,8 +254,10 @@ export async function initiateCollection(
       "[broracks] collection initiate returned no usable reference:",
       JSON.stringify(data),
     );
-    throw new Error(
+    throw new BroRacksRejectedError(
       `BroRacks collection was not accepted${data?.message ? `: ${data.message}` : ""}`,
+      providerMessageFrom(data),
+      res.status,
     );
   }
 

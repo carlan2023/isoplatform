@@ -30,7 +30,7 @@ export const PRIMARY_VIDEO_EMBED_URL = `https://www.youtube-nocookie.com/embed/$
  * OG cards and click-through); falls back to YouTube's auto-generated frame.
  */
 export const PRIMARY_VIDEO_THUMBNAIL =
-  `https://i.ytimg.com/vi/${PRIMARY_VIDEO.youtubeId}/maxresdefault.jpg`;
+  `https://i.ytimg.com/vi/${PRIMARY_VIDEO.youtubeId}/hqdefault.jpg`;
 
 // ---------------------------------------------------------------------------
 // Marketing photos in /public/media. `width`/`height` are the real pixel sizes

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
 import InstructorContact from "@/app/components/InstructorContact";
@@ -22,13 +23,14 @@ export default async function EnrollPage({
   const { id } = await params;
 
   // Fetch course
-  const { data: course } = await getSupabaseAdmin()
+  const { data: found } = await getSupabaseAdmin()
     .from("courses")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (!course) redirect("/");
+  if (!found) redirect("/");
+  const [course] = await withCurrentCohortSeats([found]);
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
   // Advertise the next cohort — first Monday of next month, computed live.

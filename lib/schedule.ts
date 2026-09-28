@@ -27,6 +27,14 @@ export function nextClassStart(from: Date = new Date()): Date {
   return firstMondayOfNextMonth(from);
 }
 
+/**
+ * The cohort currently on sale, as a YYYY-MM-DD date. Enrollments store this
+ * in enrollments.cohort_start (see db/cohorts.sql, next_cohort_start()).
+ */
+export function currentCohortStart(from: Date = new Date()): string {
+  return toISODate(nextClassStart(from));
+}
+
 /** Human-friendly label, e.g. "Monday, 3 August 2026". */
 export function formatClassDate(d: Date): string {
   return d.toLocaleDateString("en-GB", {

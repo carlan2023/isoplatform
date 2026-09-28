@@ -30,6 +30,8 @@ type Enrollment = {
   status: string;
   amount_paid: number | null;
   enrolled_at?: string | null;
+  /** Class start date this enrollment is for (db/cohorts.sql). */
+  cohort_start?: string | null;
   course_id?: string | null;
   courses?: {
     id?: string | null;
@@ -99,7 +101,15 @@ export default function DashboardPage() {
           "We couldn't load your enrollments right now. Please reload the page.",
         );
       }
-      setEnrollments((enrollments ?? []) as Enrollment[]);
+      // Show each enrollment's own class date (its cohort), not the course's
+      // original start date, so past and upcoming intakes read correctly.
+      setEnrollments(
+        ((enrollments ?? []) as Enrollment[]).map((e) =>
+          e.cohort_start && e.courses
+            ? { ...e, courses: { ...e.courses, start_date: e.cohort_start } }
+            : e,
+        ),
+      );
       setLoadedAt(Date.now());
       setLoading(false);
     };

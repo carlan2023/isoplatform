@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -34,7 +35,7 @@ async function getCourses() {
       .select("*")
       .eq("is_active", true)
       .order("start_date");
-    return data || [];
+    return await withCurrentCohortSeats(data || []);
   } catch (err) {
     // A public marketing homepage should never fail the whole build/deploy
     // because a data fetch hiccupped or env vars were missing. Render with no

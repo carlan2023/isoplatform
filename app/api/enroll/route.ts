@@ -9,6 +9,7 @@
 // ---------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";
+import { currentCohortStart } from "@/lib/schedule";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
@@ -109,17 +110,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Reuse an existing non-cancelled enrollment for this course so a student
-    // who comes back doesn't stack duplicate rows.
-    const { data: existing, error: existingError } = await admin
+    // Reuse this learner's enrollment for the cohort currently on sale so a
+    // returning student doesn't stack duplicate rows. A paid enrollment for an
+    // EARLIER class (older cohort_start) does not block enrolling again; an
+    // unpaid (pending) one is reused and moved to the current cohort at payment
+    // time by reserve_seat_for_payment (db/cohorts.sql).
+    const { data: existingRows, error: existingError } = await admin
       .from("enrollments")
-      .select("id, status")
+      .select("*")
       .eq("user_id", user.id)
       .eq("course_id", courseId)
       .neq("status", "cancelled")
       .order("enrolled_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(10);
 
     if (existingError) {
       console.error("[enroll:create] existing lookup:", existingError);
@@ -128,6 +131,17 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       );
     }
+
+    const cohort = currentCohortStart();
+    const existing = (existingRows ?? []).find(
+      (e: { status: string; cohort_start?: string | null }) =>
+        e.status === "pending" ||
+        // Before db/cohorts.sql runs there is no cohort_start: keep the old
+        // behaviour (any held enrollment counts).
+        e.cohort_start === undefined ||
+        e.cohort_start === null ||
+        String(e.cohort_start).slice(0, 10) >= cohort,
+    ) as { id: string; status: string } | undefined;
 
     if (existing) {
       return NextResponse.json({

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  currentCohortStart,
   firstMondayOfNextMonth,
   formatClassDate,
   toISODate,
@@ -36,5 +37,14 @@ describe("firstMondayOfNextMonth", () => {
   it("formats a friendly label", () => {
     const d = new Date("2026-08-03T00:00:00Z");
     expect(formatClassDate(d)).toBe("Monday, 3 August 2026");
+  });
+});
+
+describe("currentCohortStart", () => {
+  it("is the next class start as YYYY-MM-DD", () => {
+    // 28 Sep 2026 -> first Monday of October 2026 is 5 Oct.
+    expect(currentCohortStart(new Date(Date.UTC(2026, 8, 28)))).toBe("2026-10-05");
+    // 1st of next month already a Monday: 15 May 2026 -> 1 Jun 2026.
+    expect(currentCohortStart(new Date(Date.UTC(2026, 4, 15)))).toBe("2026-06-01");
   });
 });

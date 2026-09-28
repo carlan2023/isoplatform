@@ -28,7 +28,11 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { BroRacksTimeoutError, initiateCollection } from "@/lib/broracks";
+import {
+  BroRacksRejectedError,
+  BroRacksTimeoutError,
+  initiateCollection,
+} from "@/lib/broracks";
 import { computePricing, isValidPayAmount, MAX_TEAM_SIZE } from "@/lib/pricing";
 import { normalizeUgandaMobile } from "@/lib/phone";
 import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
@@ -351,11 +355,23 @@ export async function POST(req: NextRequest) {
       console.error("[enroll:pay] collection initiate failed; seat released:", e);
 
       const timedOut = e instanceof BroRacksTimeoutError;
+      // BroRacks' own reason (e.g. "Invalid phone number") helps the learner
+      // fix the problem; config/auth failures (4xx 401/403, 5xx) stay generic.
+      const providerReason =
+        e instanceof BroRacksRejectedError &&
+        e.providerMessage &&
+        e.status !== 401 &&
+        e.status !== 403 &&
+        (e.status ?? 0) < 500
+          ? e.providerMessage
+          : null;
       return NextResponse.json(
         {
           error: timedOut
             ? "Mobile Money is taking too long to respond. If a payment prompt still reaches your phone, please decline it — then try again or pay by cash / bank transfer."
-            : "We couldn't start the Mobile Money payment. Check the number and try again, or pay by cash / bank transfer.",
+            : providerReason
+              ? `Mobile Money couldn't start the payment: ${providerReason}. Check the number and try again, or pay by cash / bank transfer.`
+              : "We couldn't start the Mobile Money payment. Check the number and try again, or pay by cash / bank transfer.",
           // Tell the client an offline fallback is available.
           canPayOffline: true,
         },
