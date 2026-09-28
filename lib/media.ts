@@ -13,7 +13,7 @@ export const PRIMARY_VIDEO = {
   youtubeId: "G8GABbVuvug",
   // Fill these in — they feed VideoObject structured data (all required by
   // Google for a video rich result). Keep them keyword-aligned with the page.
-  name: "How AM Quality Management Systems gets your business ISO certified",
+  name: "How NAM Quality Management Systems gets your business ISO certified",
   description:
     "A short walkthrough of how we take organisations across Uganda and East Africa from gap analysis to a valid ISO 9001, 14001, 45001 or 22000 certificate.",
   // ISO 8601 date the video was published on YouTube, e.g. "2026-07-09".
@@ -38,6 +38,13 @@ export const PRIMARY_VIDEO_THUMBNAIL =
 // `alt` doubles as keyword-aligned image-SEO text. One record per file.
 // ---------------------------------------------------------------------------
 export const IMG = {
+  /** Homepage hero: vector illustration (certificate, audit checklist, 4-step roadmap). */
+  heroRoadmap: {
+    src: "/media/iso-certification-roadmap-uganda.svg",
+    width: 640,
+    height: 468,
+    alt: "ISO certification in Uganda: certificate of registration, audit checklist and the four steps from gap analysis to certification",
+  },
   certifiedClients: {
     src: "/media/iso-certified-clients-uganda.webp",
     width: 624,

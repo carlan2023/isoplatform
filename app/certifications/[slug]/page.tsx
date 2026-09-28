@@ -34,7 +34,7 @@ export async function generateMetadata({
   if (!standard) return {};
   const path = `/certifications/${standard.slug}`;
   return {
-    // Plain string → the root layout's title template appends "| AMQMS" once.
+    // Plain string → the root layout's title template appends "| NAMQMS" once.
     // (Don't include the brand here or it double-brands.)
     title: standard.metaTitle,
     description: standard.metaDescription,
@@ -60,7 +60,9 @@ export default async function CertificationPage({
   if (!standard) notFound();
 
   const path = `/certifications/${standard.slug}`;
-  const related = STANDARDS.filter((s) => s.slug !== standard.slug);
+  const related = STANDARDS.filter(
+    (s) => s.slug !== standard.slug && s.category === standard.category,
+  );
 
   const serviceLd = {
     "@context": "https://schema.org",
@@ -136,8 +138,8 @@ export default async function CertificationPage({
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <img
-              src="/amqms-v4-transparent.png"
-              alt="AM Quality Management Systems"
+              src="/nam-qms-logo.png"
+              alt="NAM Quality Management Systems"
               className="h-12 w-auto"
             />
           </Link>

@@ -210,7 +210,7 @@ export default function LoginPage() {
               <ShieldCheck size={15} className="text-white" />
             </div>
             <span className="font-bold text-slate-900">
-              AM Quality Management Systems
+              NAM Quality Management Systems
             </span>
           </Link>
           <h1 className="text-2xl font-bold text-slate-900 mb-1">

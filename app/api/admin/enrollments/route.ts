@@ -208,12 +208,12 @@ export async function POST(req: NextRequest) {
       const learnerMail = await sendResendEmail({
         from: getResendFrom(),
         to: learnerEmail,
-        subject: `You're enrolled — ${course?.title ?? "AM QMS"}`,
+        subject: `You're enrolled — ${course?.title ?? "NAM QMS"}`,
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
             <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
               <h1 style="margin: 0; font-size: 22px;">You're enrolled ✓</h1>
-              <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems</p>
+              <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
             </div>
             <p style="font-family: system-ui, sans-serif; color: #475569;">
               Your payment has been confirmed and your seat in <strong>${title}</strong> is reserved.

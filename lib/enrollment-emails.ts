@@ -48,7 +48,7 @@ export async function sendOfflineReservationEmails(
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
           <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
             <h1 style="margin: 0; font-size: 22px;">Your seat is reserved</h1>
-            <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems</p>
+            <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
           </div>
           <p style="font-family: system-ui, sans-serif; color: #475569;">${safeName ? `Dear ${safeName},` : "Hello,"}</p>
           <p style="font-family: system-ui, sans-serif; color: #475569;">

@@ -11,7 +11,7 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://amqualitysystems.com"
 ).replace(/\/$/, "");
 
-export const SITE_NAME = "AM Quality Management Systems";
+export const SITE_NAME = "NAM Quality Management Systems";
 
 /** Legal entity that owns/operates the site (used in the copyright line). */
 export const LEGAL_NAME = "Alrena Group";

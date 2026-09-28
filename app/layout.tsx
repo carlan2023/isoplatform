@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "ISO Certification & Lead Auditor Training in Uganda | AMQMS",
-    template: `%s | AMQMS`,
+    default: "ISO Certification in Uganda & Lead Auditor Training | NAMQMS",
+    template: `%s | NAMQMS`,
   },
   description:
     "Get your business ISO 9001, 14001, 45001 & 22000 certified across Uganda & East Africa — gap analysis, documentation and audit prep, end to end.",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     url: SITE_URL,
     title:
-      "Helping Businesses Get ISO Certified in Uganda & East Africa | AM Quality Management Systems",
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM Quality Management Systems",
     description:
       "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
     images: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "Helping Businesses Get ISO Certified in Uganda & East Africa | AM Quality Management Systems",
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM Quality Management Systems",
     description:
       "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting across East Africa — plus internationally recognised Lead Auditor training.",
     images: [OG_IMAGE.src],
@@ -68,7 +68,7 @@ const organizationLd = {
   "@type": "Organization",
   name: SITE_NAME,
   url: SITE_URL,
-  logo: abs("/amqms-v4-transparent.png"),
+  logo: abs("/nam-qms-logo.png"),
   description:
     "ISO certification consulting and Lead Auditor training across Uganda and East Africa.",
   areaServed: ["Uganda", "East Africa"],

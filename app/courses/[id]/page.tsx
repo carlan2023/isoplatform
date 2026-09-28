@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { SITE_NAME, abs } from "@/lib/site";
+import { courseSlug, coursePath, isUuid } from "@/lib/course-slug";
 import { nextClassStart, formatClassDate, toISODate } from "@/lib/schedule";
 import InstructorContact from "@/app/components/InstructorContact";
 import {
@@ -39,14 +40,32 @@ type Course = {
   is_active: boolean;
 };
 
-async function getCourse(id: string): Promise<Course | null> {
+/**
+ * Resolve a course from its URL segment: a legacy UUID or a title slug.
+ * Slugs are matched against active courses (earliest start date wins if two
+ * titles ever collide).
+ */
+async function getCourse(param: string): Promise<Course | null> {
   try {
-    const { data } = await getSupabaseAdmin()
+    const supabase = getSupabaseAdmin();
+    if (isUuid(param)) {
+      const { data } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("id", param)
+        .single();
+      return (data as Course) ?? null;
+    }
+    const { data } = await supabase
       .from("courses")
       .select("*")
-      .eq("id", id)
-      .single();
-    return (data as Course) ?? null;
+      .eq("is_active", true)
+      .order("start_date");
+    return (
+      ((data as Course[] | null) ?? []).find(
+        (c) => courseSlug(c.title) === param,
+      ) ?? null
+    );
   } catch {
     return null;
   }
@@ -64,9 +83,10 @@ export async function generateMetadata({
   const description =
     course.description ??
     `${course.title}: internationally recognised ISO Lead Auditor training in East Africa.`;
-  const path = `/courses/${course.id}`;
+  const path = coursePath(course);
   return {
-    title: `${title} | ${SITE_NAME}`,
+    // The root layout's title template appends "| NAMQMS".
+    title,
     description,
     alternates: { canonical: path },
     openGraph: {
@@ -87,6 +107,8 @@ export default async function CoursePage({
   const { id } = await params;
   const course = await getCourse(id);
   if (!course) notFound();
+  // Legacy /courses/<uuid> links: send visitors and Google to the slug URL.
+  if (isUuid(id)) permanentRedirect(coursePath(course));
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
   const isVirtual = course.format === "virtual";
@@ -122,7 +144,7 @@ export default async function CoursePage({
           seatsLeft > 0
             ? "https://schema.org/InStock"
             : "https://schema.org/SoldOut",
-        url: abs(`/courses/${course.id}`),
+        url: abs(coursePath(course)),
       },
     },
   };
@@ -166,8 +188,8 @@ export default async function CoursePage({
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <img
-              src="/amqms-v4-transparent.png"
-              alt="AM Quality Management Systems"
+              src="/nam-qms-logo.png"
+              alt="NAM Quality Management Systems"
               className="h-10 w-auto"
             />
           </Link>

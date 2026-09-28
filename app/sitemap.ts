@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { abs } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
+import { coursePath } from "@/lib/course-slug";
 
 // Regenerate alongside the ISR pages so newly published courses appear.
 export const revalidate = 60;
@@ -44,10 +45,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = getSupabaseAdmin();
     const { data } = await supabase
       .from("courses")
-      .select("id")
+      .select("title")
       .eq("is_active", true);
     courseRoutes = (data || []).map((c) => ({
-      url: abs(`/courses/${c.id}`),
+      url: abs(coursePath(c)),
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,

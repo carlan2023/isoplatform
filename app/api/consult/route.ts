@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
         <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
           <h1 style="margin: 0; font-size: 22px;">New Consulting Enquiry</h1>
-          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems</p>
+          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
         </div>
         <table style="width: 100%; font-family: system-ui, sans-serif; font-size: 14px; color: #475569;">
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 140px;">Name</td><td>${safe.name}</td></tr>
@@ -86,12 +86,12 @@ export async function POST(req: NextRequest) {
   const reply = await sendResendEmail({
     from: getResendFrom(),
     to: String(email).trim(),
-    subject: `We received your enquiry — AM Quality Management Systems`,
+    subject: `We received your enquiry — NAM Quality Management Systems`,
     html: `
       <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
         <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
           <h1 style="margin: 0; font-size: 22px;">Thank you, ${safe.name}</h1>
-          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">AM Quality Management Systems</p>
+          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
         </div>
         <p style="font-family: system-ui, sans-serif; color: #475569;">
           We have received your enquiry regarding <strong>${safe.standard}</strong> certification support.
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         </p>
         <p style="font-family: system-ui, sans-serif; color: #475569;">
           Best regards,<br/>
-          <strong>AM Quality Management Systems</strong><br/>
+          <strong>NAM Quality Management Systems</strong><br/>
           A subsidiary of Alrena Group
         </p>
       </div>

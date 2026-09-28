@@ -41,8 +41,8 @@ export default async function EnrollPage({
         <div className="max-w-5xl mx-auto">
           <Link href="/" className="flex items-center">
             <img
-              src="/amqms-v4-transparent.png"
-              alt="AM Quality Management Systems"
+              src="/nam-qms-logo.png"
+              alt="NAM Quality Management Systems"
               className="h-10 w-auto"
             />
           </Link>

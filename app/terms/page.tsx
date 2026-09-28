@@ -79,7 +79,7 @@ export default function TermsPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <img
-              src="/amqms-v4-transparent.png"
+              src="/nam-qms-logo.png"
               alt={SITE_NAME}
               className="h-12 w-auto"
             />

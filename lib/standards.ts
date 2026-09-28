@@ -1,6 +1,10 @@
 // ---------------------------------------------------------------------------
-// Certification standards — single source of truth for the information-security
-// & data-protection consulting offer (ISO 27001, ISO 27701, PCI DSS).
+// Certification standards — single source of truth for the certification
+// consulting offer, in two clusters:
+//   - MANAGEMENT_CATEGORY: quality, environment, health & safety and food
+//     safety (ISO 9001, ISO 14001, ISO 45001, ISO 22000)
+//   - SECURITY_CATEGORY: information security & data protection
+//     (ISO 27001, ISO 27701, PCI DSS)
 //
 // Each entry drives its own SEO landing page at /certifications/<slug>, the
 // sitemap, JSON-LD, the homepage/consulting cross-links, and the enquiry form
@@ -72,7 +76,304 @@ const SHARED_PROCESS: StandardStep[] = [
   },
 ];
 
+/** Cluster labels (used for section grouping/labels). */
+export const MANAGEMENT_CATEGORY =
+  "Quality, Environment, Health & Safety and Food Safety";
+export const SECURITY_CATEGORY = "Information Security & Data Protection";
+
 export const STANDARDS: Standard[] = [
+  {
+    slug: "iso-9001",
+    code: "ISO 9001",
+    name: "Quality Management",
+    category: MANAGEMENT_CATEGORY,
+    enquiryLabel: "ISO 9001 — Quality Management",
+    tagline: "The world's most widely used standard for quality management.",
+    heading: "ISO 9001 certification in Uganda: quality management consulting",
+    intro:
+      "ISO 9001 is the international standard for a Quality Management System (QMS). We help Ugandan organisations build a practical QMS that fits how they already work: defined processes, clear responsibilities, customer focus and continual improvement. From gap analysis to internal audits and certification-audit preparation, we handle the groundwork so you are ready for the accredited certification body's audit and for tenders that ask for ISO 9001.",
+    metaTitle: "ISO 9001 Certification in Uganda | Cost & Timeline",
+    metaDescription:
+      "ISO 9001 certification consulting in Uganda: gap analysis, QMS documentation, internal audits and certification-audit preparation for tenders and growth.",
+    keywords: [
+      "ISO 9001 certification in Uganda",
+      "ISO 9001 Uganda",
+      "ISO certification in Uganda",
+      "quality management system Uganda",
+      "ISO 9001 consultants Kampala",
+      "ISO 9001 certification cost Uganda",
+      "ISO 9001 East Africa",
+    ],
+    whoFor:
+      "Any organisation that wants consistent, well-run operations: manufacturers, construction and engineering firms, suppliers and distributors, logistics companies, service providers, NGOs and public-sector suppliers, especially those bidding for tenders or contracts that ask for ISO 9001 certification.",
+    benefits: [
+      "Meet tender and supplier requirements that ask for ISO 9001",
+      "Deliver more consistent products and services with fewer errors and rework",
+      "Improve customer satisfaction and handle complaints systematically",
+      "Give management clear objectives, data and accountability",
+      "Build a base for adding ISO 14001, ISO 45001 or ISO 27001 later",
+    ],
+    services: [
+      {
+        title: "Gap analysis & QMS scoping",
+        desc: "We assess your current processes against ISO 9001, agree the scope of your QMS and deliver a prioritised action plan.",
+      },
+      {
+        title: "Process mapping & documentation",
+        desc: "We map your key processes and develop the quality policy, objectives, procedures and records the standard requires, kept lean and usable.",
+      },
+      {
+        title: "Risk, objectives & performance",
+        desc: "We set up risk and opportunity management, measurable quality objectives and the monitoring your management team needs.",
+      },
+      {
+        title: "Internal audit & management review",
+        desc: "We train your internal auditors, run the internal audit and facilitate your first management review.",
+      },
+      {
+        title: "Certification audit preparation",
+        desc: "We run a mock audit and support you through the certification body's Stage 1 and Stage 2 audits.",
+      },
+    ],
+    process: SHARED_PROCESS,
+    faqs: [
+      {
+        q: "How long does ISO 9001 certification take, and how much does it cost?",
+        a: "Most small to mid-sized organisations are ready for the certification audit in about 3 to 6 months, depending on how established their processes already are. Cost depends on your size, number of sites and the scope of the QMS, so we give you a fixed quote after a short scoping call.",
+      },
+      {
+        q: "Is ISO 9001 certification the same as UNBS certification?",
+        a: "No. The Uganda National Bureau of Standards (UNBS) certifies products against product standards, for example with the Q-Mark. ISO 9001 certifies your management system, and the certificate is issued by an accredited certification body after an independent audit. Many organisations hold both.",
+      },
+      {
+        q: "Do you issue the ISO 9001 certificate?",
+        a: "No. Certification is carried out by an independent, accredited certification body. Our role is to build your QMS, train your team and prepare you thoroughly so you pass the certification audit with confidence.",
+      },
+      {
+        q: "Can ISO 9001 be combined with ISO 14001 and ISO 45001?",
+        a: "Yes. The three standards share a common structure, so many organisations implement them together as an Integrated Management System (IMS). This reduces duplicated documentation and allows a combined certification audit.",
+      },
+    ],
+  },
+  {
+    slug: "iso-14001",
+    code: "ISO 14001",
+    name: "Environmental Management",
+    category: MANAGEMENT_CATEGORY,
+    enquiryLabel: "ISO 14001 — Environmental Management",
+    tagline: "The international standard for managing environmental impact.",
+    heading: "ISO 14001 certification in Uganda: environmental management consulting",
+    intro:
+      "ISO 14001 is the international standard for an Environmental Management System (EMS). We help Ugandan organisations identify their environmental aspects, keep track of their legal obligations, control their impacts and prepare for certification by an accredited certification body. A well-run EMS also makes it easier to demonstrate compliance with national environmental requirements overseen by NEMA.",
+    metaTitle: "ISO 14001 Certification in Uganda | Cost & Timeline",
+    metaDescription:
+      "ISO 14001 certification consulting in Uganda: environmental aspects, legal register, EMS documentation, internal audits and certification-audit preparation.",
+    keywords: [
+      "ISO 14001 certification in Uganda",
+      "ISO 14001 Uganda",
+      "environmental management system Uganda",
+      "EMS certification Uganda",
+      "ISO 14001 consultants Kampala",
+      "ISO 14001 certification cost Uganda",
+      "ISO 14001 East Africa",
+    ],
+    whoFor:
+      "Manufacturers, processors, construction and engineering firms, energy, oil and gas service companies, mining, agribusiness, logistics and waste management operators, and any organisation whose clients, financiers or tenders expect evidence of responsible environmental management.",
+    benefits: [
+      "Meet tender, client and financier environmental requirements",
+      "Stay on top of environmental legal obligations, including NEMA requirements",
+      "Reduce waste, energy and resource costs",
+      "Lower the risk of pollution incidents and their consequences",
+      "Strengthen your reputation with communities and partners",
+    ],
+    services: [
+      {
+        title: "Gap analysis & EMS scoping",
+        desc: "We assess your current environmental practices against ISO 14001 and define the scope of your EMS.",
+      },
+      {
+        title: "Aspects & impacts assessment",
+        desc: "We identify your environmental aspects and rank their impacts so effort goes where it matters most.",
+      },
+      {
+        title: "Legal & compliance register",
+        desc: "We build a register of the environmental laws, permits and obligations that apply to you and a process to evaluate compliance.",
+      },
+      {
+        title: "Operational controls & emergency preparedness",
+        desc: "We put in place controls for waste, emissions, effluent, chemicals and resource use, plus environmental emergency procedures.",
+      },
+      {
+        title: "Internal audit & certification preparation",
+        desc: "We train internal auditors, run the internal audit and management review, and support you through the certification body's audits.",
+      },
+    ],
+    process: SHARED_PROCESS,
+    faqs: [
+      {
+        q: "How long does ISO 14001 certification take, and how much does it cost?",
+        a: "Most organisations are ready for the certification audit in about 4 to 6 months, depending on the complexity of their operations and existing controls. Cost depends on your size, number of sites and scope, so we give you a fixed quote after a short scoping call.",
+      },
+      {
+        q: "Does ISO 14001 replace NEMA requirements?",
+        a: "No. ISO 14001 is voluntary and does not replace legal obligations such as environmental and social impact assessments or permits under NEMA. It gives you a structured system to identify those obligations, meet them and show evidence that you do.",
+      },
+      {
+        q: "Who issues the ISO 14001 certificate?",
+        a: "An independent, accredited certification body issues the certificate after a Stage 1 and Stage 2 audit. We prepare your EMS and your team so you are ready for that audit.",
+      },
+      {
+        q: "Can ISO 14001 be combined with ISO 9001 and ISO 45001?",
+        a: "Yes. The standards share a common structure and are often implemented together as an Integrated Management System, with one set of core procedures and a combined certification audit.",
+      },
+    ],
+  },
+  {
+    slug: "iso-45001",
+    code: "ISO 45001",
+    name: "Occupational Health & Safety",
+    category: MANAGEMENT_CATEGORY,
+    enquiryLabel: "ISO 45001 — Occupational Health & Safety",
+    tagline: "The international standard for workplace health and safety.",
+    heading: "ISO 45001 certification in Uganda: occupational health & safety consulting",
+    intro:
+      "ISO 45001 is the international standard for an Occupational Health and Safety (OH&S) Management System. We help Ugandan organisations identify hazards, assess and control risks, involve workers and prepare for certification by an accredited certification body. A working OH&S system also supports compliance with the Occupational Safety and Health Act, 2006.",
+    metaTitle: "ISO 45001 Certification in Uganda | Cost & Timeline",
+    metaDescription:
+      "ISO 45001 certification consulting in Uganda: hazard identification, risk assessment, OH&S documentation, internal audits and certification-audit preparation.",
+    keywords: [
+      "ISO 45001 certification in Uganda",
+      "ISO 45001 Uganda",
+      "occupational health and safety management system Uganda",
+      "OHS certification Uganda",
+      "ISO 45001 consultants Kampala",
+      "ISO 45001 certification cost Uganda",
+      "ISO 45001 East Africa",
+    ],
+    whoFor:
+      "Construction and engineering firms, manufacturers, oil and gas and energy contractors, mining, logistics and transport companies, security services, hospitals and any organisation with significant workplace hazards or clients and tenders that require a certified OH&S system.",
+    benefits: [
+      "Meet client and tender requirements for a certified OH&S system",
+      "Reduce workplace injuries, ill health and lost time",
+      "Support compliance with the Occupational Safety and Health Act, 2006",
+      "Show workers, clients and insurers that safety is managed systematically",
+      "Improve contractor and site safety management",
+    ],
+    services: [
+      {
+        title: "Gap analysis & OH&S scoping",
+        desc: "We assess your current safety practices against ISO 45001 and define the scope of your OH&S management system.",
+      },
+      {
+        title: "Hazard identification & risk assessment",
+        desc: "We identify workplace hazards, assess risks and set practical controls using the hierarchy of controls.",
+      },
+      {
+        title: "Legal register & worker participation",
+        desc: "We build your OH&S legal register and set up consultation and participation arrangements with workers.",
+      },
+      {
+        title: "Procedures, incidents & emergency preparedness",
+        desc: "We develop safe systems of work, incident reporting and investigation, contractor controls and emergency procedures.",
+      },
+      {
+        title: "Internal audit & certification preparation",
+        desc: "We train internal auditors, run the internal audit and management review, and support you through the certification body's audits.",
+      },
+    ],
+    process: SHARED_PROCESS,
+    faqs: [
+      {
+        q: "How long does ISO 45001 certification take, and how much does it cost?",
+        a: "Most organisations are ready for the certification audit in about 4 to 6 months, depending on the hazards involved and how mature existing safety practices are. Cost depends on your size, number of sites and scope, so we give you a fixed quote after a short scoping call.",
+      },
+      {
+        q: "Is ISO 45001 required by law in Uganda?",
+        a: "No. ISO 45001 is voluntary. The legal duties come from the Occupational Safety and Health Act, 2006 and related regulations. ISO 45001 gives you a structured way to meet those duties and prove it, which is why many clients and tenders ask for it.",
+      },
+      {
+        q: "Who issues the ISO 45001 certificate?",
+        a: "An independent, accredited certification body issues the certificate after a formal audit. We build your OH&S system and prepare your team so you are ready for that audit.",
+      },
+      {
+        q: "We are certified to OHSAS 18001. What changes with ISO 45001?",
+        a: "ISO 45001 replaced OHSAS 18001. It places more emphasis on leadership, worker participation and the context of the organisation, and shares the common structure of ISO 9001 and ISO 14001. We can run a gap analysis to plan the transition.",
+      },
+    ],
+  },
+  {
+    slug: "iso-22000",
+    code: "ISO 22000",
+    name: "Food Safety Management",
+    category: MANAGEMENT_CATEGORY,
+    enquiryLabel: "ISO 22000 — Food Safety",
+    tagline: "The international standard for food safety across the food chain.",
+    heading: "ISO 22000 certification in Uganda: food safety management consulting",
+    intro:
+      "ISO 22000 is the international standard for a Food Safety Management System (FSMS). It combines HACCP principles, prerequisite programmes and a management system approach. We help Ugandan food processors, manufacturers, packers and exporters build an FSMS that controls food safety hazards and prepares them for certification by an accredited certification body and for the expectations of buyers and export markets.",
+    metaTitle: "ISO 22000 Certification in Uganda | Cost & Timeline",
+    metaDescription:
+      "ISO 22000 certification consulting in Uganda: HACCP, prerequisite programmes, FSMS documentation, internal audits and audit preparation for food businesses.",
+    keywords: [
+      "ISO 22000 certification in Uganda",
+      "ISO 22000 Uganda",
+      "food safety management system Uganda",
+      "HACCP certification Uganda",
+      "ISO 22000 consultants Kampala",
+      "ISO 22000 certification cost Uganda",
+      "food safety certification East Africa",
+    ],
+    whoFor:
+      "Food and beverage processors and manufacturers, dairy, grain, coffee, honey, fish and fresh produce processors and exporters, packaging suppliers, caterers, hotels, storage and distribution businesses: any organisation in the food chain that must control food safety hazards or meet buyer and export requirements.",
+    benefits: [
+      "Meet buyer, supermarket and export market food safety requirements",
+      "Control food safety hazards systematically using HACCP principles",
+      "Reduce the risk of contamination, recalls and rejected consignments",
+      "Improve traceability and supplier control",
+      "Complement UNBS product certification with a certified management system",
+    ],
+    services: [
+      {
+        title: "Gap analysis & FSMS scoping",
+        desc: "We assess your facilities and practices against ISO 22000 and define the products, processes and sites in scope.",
+      },
+      {
+        title: "Prerequisite programmes",
+        desc: "We establish prerequisite programmes such as hygiene, cleaning, pest control, maintenance, water and supplier control.",
+      },
+      {
+        title: "Hazard analysis & HACCP plan",
+        desc: "We lead your food safety team through hazard analysis and build your HACCP plan, operational PRPs and monitoring.",
+      },
+      {
+        title: "Traceability, recall & verification",
+        desc: "We set up traceability, product withdrawal and recall, and verification activities, and test them before the audit.",
+      },
+      {
+        title: "Internal audit & certification preparation",
+        desc: "We train internal auditors, run the internal audit and management review, and support you through the certification body's audits.",
+      },
+    ],
+    process: SHARED_PROCESS,
+    faqs: [
+      {
+        q: "How long does ISO 22000 certification take, and how much does it cost?",
+        a: "Most food businesses are ready for the certification audit in about 4 to 8 months, depending on the state of their facilities, prerequisite programmes and product range. Cost depends on your size, number of sites and scope, so we give you a fixed quote after a short scoping call.",
+      },
+      {
+        q: "What is the difference between ISO 22000 and HACCP?",
+        a: "HACCP is a method for identifying and controlling food safety hazards. ISO 22000 includes HACCP principles and adds prerequisite programmes and a full management system: leadership, objectives, internal audit, management review and continual improvement.",
+      },
+      {
+        q: "Does ISO 22000 replace UNBS certification of our products?",
+        a: "No. UNBS certifies products against product standards, while ISO 22000 certifies your food safety management system through an accredited certification body. The two work together, and many processors hold both.",
+      },
+      {
+        q: "Is ISO 22000 the same as FSSC 22000?",
+        a: "FSSC 22000 is a certification scheme built on ISO 22000 plus sector-specific prerequisite programmes and additional requirements. Some international buyers ask for FSSC 22000 specifically. An ISO 22000 system is a strong foundation for it, and we can advise on which one your buyers need.",
+      },
+    ],
+  },
   {
     slug: "iso-27001",
     code: "ISO 27001",
@@ -302,8 +603,13 @@ export const STANDARDS: Standard[] = [
   },
 ];
 
-/** All standards in a single cluster (used for section grouping/labels). */
-export const SECURITY_CATEGORY = "Information Security & Data Protection";
+/** Standards grouped by cluster (used for section grouping/labels). */
+export const MANAGEMENT_STANDARDS = STANDARDS.filter(
+  (s) => s.category === MANAGEMENT_CATEGORY,
+);
+export const SECURITY_STANDARDS = STANDARDS.filter(
+  (s) => s.category === SECURITY_CATEGORY,
+);
 
 export function getStandard(slug: string): Standard | undefined {
   return STANDARDS.find((s) => s.slug === slug);

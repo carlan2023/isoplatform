@@ -14,7 +14,7 @@ import {
   Award,
 } from "lucide-react";
 import { SITE_NAME, abs } from "@/lib/site";
-import { STANDARDS as SECURITY_STANDARDS } from "@/lib/standards";
+import { MANAGEMENT_STANDARDS, SECURITY_STANDARDS } from "@/lib/standards";
 import {
   IMG,
   OG_IMAGE,
@@ -81,13 +81,6 @@ const SERVICES = [
     title: "Post-Certification Maintenance",
     desc: "We support you through surveillance audits and continual improvement so your certificate stays valid and adds value.",
   },
-];
-
-const STANDARDS = [
-  { code: "ISO 9001", name: "Quality Management" },
-  { code: "ISO 14001", name: "Environmental Management" },
-  { code: "ISO 45001", name: "Occupational Health & Safety" },
-  { code: "ISO 22000", name: "Food Safety Management" },
 ];
 
 const STEPS = [
@@ -231,8 +224,8 @@ export default function ConsultingPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <img
-              src="/amqms-v4-transparent.png"
-              alt="AM Quality Management Systems"
+              src="/nam-qms-logo.png"
+              alt="NAM Quality Management Systems"
               className="h-12 w-auto"
             />
           </Link>
@@ -370,10 +363,11 @@ export default function ConsultingPage() {
             covering several, we take you all the way to certification.
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
-            {STANDARDS.map((s) => (
-              <div
-                key={s.code}
-                className="bg-white border border-slate-200 rounded-lg p-6"
+            {MANAGEMENT_STANDARDS.map((s) => (
+              <Link
+                key={s.slug}
+                href={`/certifications/${s.slug}`}
+                className="bg-white border border-slate-200 rounded-lg p-6 hover:border-teal-300 hover:shadow-sm transition-all"
               >
                 <div className="text-xl font-bold text-slate-900 mb-1">
                   {s.code}
@@ -384,7 +378,7 @@ export default function ConsultingPage() {
                 >
                   {s.name}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
           </div>

@@ -18,8 +18,9 @@ import {
 } from "@/lib/pricing";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { nextClassStart, formatClassDateShort } from "@/lib/schedule";
-import { STANDARDS } from "@/lib/standards";
+import { SECURITY_STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
+import { coursePath } from "@/lib/course-slug";
 import Footer from "@/app/components/Footer";
 
 export const revalidate = 60;
@@ -104,8 +105,8 @@ export default async function HomePage() {
       <nav className="border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <img
-            src="./amqms-v4-transparent.png"
-            alt="AM Quality Management Systems"
+            src="/nam-qms-logo.png"
+            alt="NAM Quality Management Systems"
             className="h-12 w-auto"
           />
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
@@ -196,24 +197,24 @@ export default async function HomePage() {
           {/* Hero visual + standards panel — clickable cards into consulting */}
           <div className="space-y-4">
             <Image
-              src={IMG.certifiedClients.src}
-              width={IMG.certifiedClients.width}
-              height={IMG.certifiedClients.height}
-              alt={IMG.certifiedClients.alt}
+              src={IMG.heroRoadmap.src}
+              width={IMG.heroRoadmap.width}
+              height={IMG.heroRoadmap.height}
+              alt={IMG.heroRoadmap.alt}
               priority
-              sizes="(max-width: 768px) 100vw, 45vw"
-              className="w-full h-auto rounded-xl border border-slate-200 shadow-sm object-cover"
+              unoptimized
+              className="w-full h-auto rounded-xl border border-slate-200 shadow-sm"
             />
             <div className="grid grid-cols-2 gap-4">
               {[
-                { code: "ISO 9001", label: "Quality Management" },
-                { code: "ISO 14001", label: "Environmental" },
-                { code: "ISO 45001", label: "Health & Safety" },
-                { code: "ISO 22000", label: "Food Safety" },
+                { code: "ISO 9001", label: "Quality Management", slug: "iso-9001" },
+                { code: "ISO 14001", label: "Environmental", slug: "iso-14001" },
+                { code: "ISO 45001", label: "Health & Safety", slug: "iso-45001" },
+                { code: "ISO 22000", label: "Food Safety", slug: "iso-22000" },
               ].map((s) => (
                 <Link
                   key={s.code}
-                  href="/iso-certification-consulting"
+                  href={`/certifications/${s.slug}`}
                   className="group block border border-slate-200 rounded-lg p-6 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
                 >
                   <div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
@@ -372,7 +373,7 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {STANDARDS.map((s) => (
+            {SECURITY_STANDARDS.map((s) => (
               <Link
                 key={s.slug}
                 href={`/certifications/${s.slug}`}
@@ -506,7 +507,7 @@ export default async function HomePage() {
       <section id="why" className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">
-            Why work with AM Quality Management Systems?
+            Why work with NAM Quality Management Systems?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -576,7 +577,7 @@ export default async function HomePage() {
                 {/* Whole-card overlay link to the course description. Sits below
                     the Enroll button (which is z-10) so both are clickable. */}
                 <Link
-                  href={`/courses/${course.id}`}
+                  href={coursePath(course)}
                   className="absolute inset-0 z-0"
                   aria-label={`View ${course.title}`}
                 />

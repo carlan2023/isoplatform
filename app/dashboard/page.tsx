@@ -174,7 +174,7 @@ export default function DashboardPage() {
             <ShieldCheck size={15} className="text-white" />
           </div>
           <span className="font-bold text-slate-900">
-            AM Quality Management Systems
+            NAM Quality Management Systems
           </span>
         </Link>
         <div className="flex items-center gap-4">
