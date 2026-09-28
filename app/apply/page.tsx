@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, ClipboardList, FileText, MessageCircle, Rocket } from "lucide-react";
+import { ClipboardList, FileText, MessageCircle, Rocket } from "lucide-react";
 import ApplicationForm from "@/app/components/ApplicationForm";
 import Footer from "@/app/components/Footer";
+import SiteNav from "@/app/components/SiteNav";
 import { APPLICATION_OPTIONS, standardFromSlug } from "@/lib/application";
 import { CONTACT, SITE_NAME, abs } from "@/lib/site";
 import { OG_IMAGE } from "@/lib/media";
@@ -64,28 +63,7 @@ export default async function ApplyPage({
 
   return (
     <main className="min-h-screen bg-slate-50" style={{ fontFamily: "'Georgia', serif" }}>
-      {/* HEADER */}
-      <header className="border-b border-slate-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-          <Link href="/" aria-label={`${SITE_NAME} — home`}>
-            <Image
-              src="/nam-qms-logo.png"
-              alt={SITE_NAME}
-              width={1280}
-              height={646}
-              priority
-              className="h-11 w-auto"
-            />
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-teal-700 transition-colors"
-            style={sans}
-          >
-            <ArrowLeft size={16} aria-hidden="true" /> Back to home
-          </Link>
-        </div>
-      </header>
+      <SiteNav />
 
       {/* INTRO */}
       <section className="bg-white border-b border-slate-100">

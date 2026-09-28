@@ -68,16 +68,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    if (rateLimited(clientIp(req))) {
-      return NextResponse.json(
-        {
-          error:
-            "Too many applications from your connection. Please wait a few minutes or contact us on WhatsApp.",
-        },
-        { status: 429, headers: { "Retry-After": String(RATE_WINDOW_MS / 1000) } },
-      );
-    }
-
     // Bots fill the hidden honeypot — pretend success, send nothing.
     if (isHoneypotTripped(body)) {
       return NextResponse.json({ success: true, reference: generateReference() });
@@ -91,6 +81,18 @@ export async function POST(req: NextRequest) {
           fieldErrors: result.errors,
         },
         { status: 400 },
+      );
+    }
+
+    // Count only well-formed submissions, so correcting validation errors
+    // never locks a genuine applicant out.
+    if (rateLimited(clientIp(req))) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many applications from your connection. Please wait a few minutes or contact us on WhatsApp.",
+        },
+        { status: 429, headers: { "Retry-After": String(RATE_WINDOW_MS / 1000) } },
       );
     }
 
