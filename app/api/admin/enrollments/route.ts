@@ -21,6 +21,7 @@ import {
   getResendNotificationsFrom,
   sendResendEmail,
 } from "@/lib/email";
+import { isUuid, readJsonObject } from "@/lib/validation";
 
 const ALLOWED_STATUSES = [
   "pending",
@@ -82,6 +83,18 @@ async function buildEmailMap(
 }
 
 export async function GET() {
+  try {
+    return await listEnrollments();
+  } catch (e) {
+    console.error("[admin/enrollments] GET failed:", e);
+    return NextResponse.json(
+      { error: "Could not load enrollments" },
+      { status: 500 },
+    );
+  }
+}
+
+async function listEnrollments() {
   const auth = await requireAdmin();
   if ("response" in auth) return auth.response;
 
@@ -147,48 +160,104 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { enrollmentId?: string; status?: string };
   try {
-    body = await req.json();
-  } catch {
+    return await updateEnrollmentStatus(req);
+  } catch (e) {
+    console.error("[admin/enrollments] POST failed:", e);
+    return NextResponse.json(
+      { error: "Could not update enrollment" },
+      { status: 500 },
+    );
+  }
+}
+
+async function updateEnrollmentStatus(req: NextRequest) {
+  const auth = await requireAdmin();
+  if ("response" in auth) return auth.response;
+
+  const body = await readJsonObject(req);
+  if (!body) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const { enrollmentId, status } = body;
+  if (!isUuid(enrollmentId)) {
+    return NextResponse.json(
+      { error: "Missing or invalid enrollmentId" },
+      { status: 400 },
+    );
+  }
   if (
-    !enrollmentId ||
-    !status ||
+    typeof status !== "string" ||
     !ALLOWED_STATUSES.includes(status as EnrollmentStatus)
   ) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    return NextResponse.json(
+      { error: `status must be one of: ${ALLOWED_STATUSES.join(", ")}` },
+      { status: 400 },
+    );
   }
-
-  const auth = await requireAdmin();
-  if ("response" in auth) return auth.response;
 
   const admin = getSupabaseAdmin();
 
+  const { data: current, error: currentError } = await admin
+    .from("enrollments")
+    .select("id, status")
+    .eq("id", enrollmentId)
+    .maybeSingle();
+
+  if (currentError) {
+    console.error("[admin/enrollments] lookup failed:", currentError);
+    return NextResponse.json(
+      { error: "Could not load enrollment" },
+      { status: 500 },
+    );
+  }
+  if (!current) {
+    return NextResponse.json({ error: "Enrollment not found" }, { status: 404 });
+  }
+
+  // No-op: don't re-send confirmation emails for an already-confirmed booking
+  // (double click, two admins, a retry).
+  if (current.status === status) {
+    return NextResponse.json({ success: true, unchanged: true });
+  }
+
+  // Optimistic concurrency: only apply if nobody (webhook / another admin)
+  // changed the status since we read it.
   const { data: updated, error } = await admin
     .from("enrollments")
     .update({ status })
     .eq("id", enrollmentId)
+    .eq("status", current.status)
     .select("id, user_id, course_id, amount_paid, courses (title, standard)")
     .maybeSingle();
 
-  if (error || !updated) {
+  if (error) {
     console.error("[admin/enrollments] update failed:", error);
     return NextResponse.json(
       { error: "Could not update enrollment" },
       { status: 500 },
     );
   }
+  if (!updated) {
+    return NextResponse.json(
+      {
+        error:
+          "This enrollment changed while you were viewing it. Reload and try again.",
+      },
+      { status: 409 },
+    );
+  }
 
   // Keep seats_taken in sync — a manual status change can add or release a held
   // seat (held = awaiting_confirmation + confirmed).
   if (updated.course_id) {
-    await admin.rpc("recompute_course_seats", {
+    const { error: seatErr } = await admin.rpc("recompute_course_seats", {
       p_course_id: updated.course_id,
     });
+    if (seatErr) {
+      console.error("[admin/enrollments] recompute seats failed:", seatErr);
+    }
   }
 
   // On a manual confirmation, notify the learner and the admin inbox — mirrors
@@ -232,7 +301,7 @@ export async function POST(req: NextRequest) {
 
     const staffTo = process.env.NOTIFICATION_EMAIL?.trim();
     if (staffTo) {
-      await sendResendEmail({
+      const staffMail = await sendResendEmail({
         from: getResendNotificationsFrom(),
         to: staffTo,
         subject: `Enrollment confirmed (manual) — ${course?.title ?? ""}`,
@@ -243,6 +312,12 @@ export async function POST(req: NextRequest) {
           </div>
         `,
       });
+      if (!staffMail.ok) {
+        console.error(
+          "[admin/enrollments] staff confirmation email failed:",
+          staffMail.error,
+        );
+      }
     }
   }
 

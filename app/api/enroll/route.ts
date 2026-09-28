@@ -11,6 +11,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
+
+const MAX_NAME = 120;
+const MAX_COMPANY = 160;
+const MAX_PHONE = 30;
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,24 +31,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let body: {
-      courseId?: string;
-      full_name?: string;
-      company?: string;
-      phone?: string;
-    };
-    try {
-      body = await req.json();
-    } catch {
+    const body = await readJsonObject(req);
+    if (!body) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
-    const { courseId, full_name, company, phone } = body;
 
-    if (!courseId || !full_name?.trim() || !phone?.trim()) {
+    const courseId = body.courseId;
+    const full_name = cleanString(body.full_name, MAX_NAME);
+    const company = cleanString(body.company, MAX_COMPANY);
+    const phone = cleanString(body.phone, MAX_PHONE);
+
+    const missing: string[] = [];
+    if (!courseId) missing.push("course");
+    if (!full_name) missing.push("full name");
+    if (!phone) missing.push("phone number");
+    if (missing.length) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: `Missing required fields: ${missing.join(", ")}.` },
         { status: 400 },
       );
+    }
+    if (full_name === null || company === null || phone === null) {
+      return NextResponse.json(
+        {
+          error: `Please shorten your details (name ≤ ${MAX_NAME}, company ≤ ${MAX_COMPANY}, phone ≤ ${MAX_PHONE} characters).`,
+        },
+        { status: 400 },
+      );
+    }
+    if (!/^\+?[\d\s\-().]{7,}$/.test(phone)) {
+      return NextResponse.json(
+        { error: "Please enter a valid phone number." },
+        { status: 400 },
+      );
+    }
+    if (!isUuid(courseId)) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
     const admin = getSupabaseAdmin();
@@ -52,9 +75,16 @@ export async function POST(req: NextRequest) {
       .from("courses")
       .select("id, is_active")
       .eq("id", courseId)
-      .single();
+      .maybeSingle();
 
-    if (courseError || !course || !course.is_active) {
+    if (courseError) {
+      console.error("[enroll:create] course lookup:", courseError);
+      return NextResponse.json(
+        { error: "Could not load this course. Please try again." },
+        { status: 500 },
+      );
+    }
+    if (!course || !course.is_active) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
@@ -63,9 +93,9 @@ export async function POST(req: NextRequest) {
     const { error: profileError } = await admin.from("profiles").upsert(
       {
         id: user.id,
-        full_name: full_name.trim(),
-        company: company?.trim() || null,
-        phone: phone.trim(),
+        full_name,
+        company: company || null,
+        phone,
       },
       { onConflict: "id" },
     );
@@ -81,7 +111,7 @@ export async function POST(req: NextRequest) {
 
     // Reuse an existing non-cancelled enrollment for this course so a student
     // who comes back doesn't stack duplicate rows.
-    const { data: existing } = await admin
+    const { data: existing, error: existingError } = await admin
       .from("enrollments")
       .select("id, status")
       .eq("user_id", user.id)
@@ -90,6 +120,14 @@ export async function POST(req: NextRequest) {
       .order("enrolled_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+
+    if (existingError) {
+      console.error("[enroll:create] existing lookup:", existingError);
+      return NextResponse.json(
+        { error: "Could not start your enrollment. Please try again." },
+        { status: 500 },
+      );
+    }
 
     if (existing) {
       return NextResponse.json({

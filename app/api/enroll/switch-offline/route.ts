@@ -17,6 +17,7 @@ import {
   OFFLINE_REF,
   sendOfflineReservationEmails,
 } from "@/lib/enrollment-emails";
+import { isUuid, readJsonObject } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,17 +33,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let body: { enrollmentId?: string };
-    try {
-      body = await req.json();
-    } catch {
+    const body = await readJsonObject(req);
+    if (!body) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     const { enrollmentId } = body;
-    if (!enrollmentId) {
+    if (!isUuid(enrollmentId)) {
       return NextResponse.json(
-        { error: "Missing enrollment reference." },
+        { error: "Missing or invalid enrollment reference." },
         { status: 400 },
       );
     }
@@ -87,6 +86,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // The pay request is still talking to the provider (see the claim token in
+    // /api/enroll/pay) — switching now would orphan the reference it is about
+    // to store.
+    if (String(enrollment.stripe_session_id ?? "").startsWith("CLAIM-")) {
+      return NextResponse.json(
+        {
+          error:
+            "Your Mobile Money payment is still starting. Please wait a moment and try again.",
+        },
+        { status: 409 },
+      );
+    }
+
     const course = (
       Array.isArray(enrollment.courses)
         ? enrollment.courses[0]
@@ -96,10 +108,14 @@ export async function POST(req: NextRequest) {
 
     // Idempotent: if it's already marked offline, just re-send instructions.
     if (enrollment.stripe_session_id !== OFFLINE_REF) {
-      const { error: updateError } = await admin
+      // Conditional on the booking still awaiting confirmation, so we never
+      // touch one the MoMo webhook confirmed at the same moment.
+      const { data: switched, error: updateError } = await admin
         .from("enrollments")
         .update({ stripe_session_id: OFFLINE_REF })
-        .eq("id", enrollmentId);
+        .eq("id", enrollmentId)
+        .eq("status", "awaiting_confirmation")
+        .select("id");
 
       if (updateError) {
         console.error(
@@ -112,6 +128,16 @@ export async function POST(req: NextRequest) {
               "Your seat is still held, but we couldn't switch to cash. Contact us on WhatsApp.",
           },
           { status: 500 },
+        );
+      }
+
+      if (!switched || switched.length === 0) {
+        return NextResponse.json(
+          {
+            error:
+              "Your booking changed while switching — it may already be confirmed. Check your dashboard.",
+          },
+          { status: 409 },
         );
       }
     }

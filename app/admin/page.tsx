@@ -63,6 +63,7 @@ export default function AdminPage() {
   const [filter, setFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [busyId, setBusyId] = useState<string>("");
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -83,14 +84,25 @@ export default function AdminPage() {
         return;
       }
 
-      const res = await fetch("/api/admin/enrollments");
-      if (res.ok) {
-        const data = await res.json();
-        setEnrollments((data.enrollments ?? []) as AdminEnrollment[]);
+      try {
+        const res = await fetch("/api/admin/enrollments");
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          setEnrollments((data.enrollments ?? []) as AdminEnrollment[]);
+        } else {
+          setLoadError(data.error || "Could not load enrollments.");
+        }
+      } catch (e) {
+        console.error("[admin] load failed:", e);
+        setLoadError("Network error — could not load enrollments. Reload to retry.");
       }
       setLoading(false);
     };
-    load();
+    load().catch((e) => {
+      console.error("[admin] load failed:", e);
+      setLoadError("Could not load the admin dashboard. Reload to retry.");
+      setLoading(false);
+    });
   }, [router]);
 
   const stats = useMemo(() => {
@@ -129,14 +141,23 @@ export default function AdminPage() {
 
   const updateStatus = async (id: string, status: string) => {
     setBusyId(id);
-    const res = await fetch("/api/admin/enrollments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enrollmentId: id, status }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/admin/enrollments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enrollmentId: id, status }),
+      });
+    } catch (e) {
+      console.error("[admin] update failed:", e);
+      setBusyId("");
+      alert("Network error — could not update enrollment. Please try again.");
+      return;
+    }
     setBusyId("");
     if (!res.ok) {
-      alert("Could not update enrollment. Please try again.");
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Could not update enrollment. Please try again.");
       return;
     }
     setEnrollments((prev) =>
@@ -187,6 +208,15 @@ export default function AdminPage() {
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 py-10">
+        {loadError && (
+          <div
+            role="alert"
+            className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-4"
+            style={sans}
+          >
+            {loadError}
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-slate-900 mb-1">
           Enrollment management
         </h1>

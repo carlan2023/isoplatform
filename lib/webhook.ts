@@ -56,17 +56,50 @@ export function isFreshTimestamp(
 }
 
 /**
+ * Coerce a provider-reported amount to a number. Providers sometimes send
+ * amounts as numeric strings ("300000" / "300000.00"). Returns null when the
+ * value is absent or not a finite number.
+ */
+export function parseAmount(value: unknown): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string" && /^\s*\d+(\.\d+)?\s*$/.test(value)) {
+    return Number(value);
+  }
+  return null;
+}
+
+/** The only currency courses are priced and charged in. */
+export const EXPECTED_CURRENCY = "UGX";
+
+/**
  * Whether a successful collection should confirm the enrollment. Confirms when
- * the collected amount equals what was owed. If the amount is absent/unknown it
- * cannot be checked, so we allow confirmation (the collection already
- * succeeded). A known mismatch (e.g. underpayment) blocks auto-confirmation.
+ * the collected amount equals what was owed (the server-computed amount stored
+ * on the enrollment at reservation time — never a client-sent value). If the
+ * amount is absent it cannot be checked, so we allow confirmation (the
+ * collection already succeeded). A known mismatch (e.g. underpayment), an
+ * unparseable amount, or a currency other than UGX blocks auto-confirmation.
  */
 export function shouldConfirmPayment(
   collectedAmount: unknown,
   expectedAmount: number,
+  currency?: unknown,
 ): boolean {
-  if (typeof collectedAmount !== "number" || !Number.isFinite(collectedAmount)) {
-    return true;
+  if (
+    currency !== undefined &&
+    currency !== null &&
+    String(currency).trim().toUpperCase() !== EXPECTED_CURRENCY
+  ) {
+    return false;
   }
-  return collectedAmount === expectedAmount;
+  if (collectedAmount === undefined || collectedAmount === null) return true;
+  const collected = parseAmount(collectedAmount);
+  if (collected === null) return false;
+  return Math.round(collected) === Math.round(Number(expectedAmount));
 }
+
+/** Webhook event types that mean the Mobile Money collection did not happen. */
+export const FAILED_COLLECTION_EVENTS = new Set([
+  "collection.failed",
+  "collection.cancelled",
+  "collection.expired",
+]);
