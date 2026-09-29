@@ -17,7 +17,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  verifyWebhookSignature,
+  verifyWebhookSignatureAny,
+  getWebhookSecrets,
   isFreshTimestamp,
   shouldConfirmPayment,
   parseAmount,
@@ -75,13 +76,14 @@ export async function POST(req: NextRequest) {
   const timestamp = req.headers.get("X-BroRacks-Timestamp") || "";
   const signature = req.headers.get("X-BroRacks-Signature") || "";
 
-  const secret = process.env.BRORACKS_WEBHOOK_SECRET;
-  if (!secret) {
+  if (!process.env.BRORACKS_WEBHOOK_SECRET?.trim()) {
     console.error("[broracks webhook] BRORACKS_WEBHOOK_SECRET missing");
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
-  if (!verifyWebhookSignature({ secret, timestamp, rawBody, signature })) {
+  // Current secret, plus the previous one during an account/secret rotation.
+  const secrets = getWebhookSecrets();
+  if (!verifyWebhookSignatureAny({ secrets, timestamp, rawBody, signature })) {
     console.warn(
       `[broracks webhook] rejected: invalid signature (timestamp=${timestamp || "none"}, signature=${signature ? "present" : "missing"})`,
     );
