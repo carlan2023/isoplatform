@@ -42,6 +42,35 @@ export function verifyWebhookSignature({
 }
 
 /**
+ * Verify against any of several secrets (current + previous during an account
+ * or secret rotation). Secrets are trimmed; blank/missing ones are skipped.
+ */
+export function verifyWebhookSignatureAny({
+  secrets,
+  ...rest
+}: Omit<VerifySignatureInput, "secret"> & {
+  secrets: (string | null | undefined)[];
+}): boolean {
+  return secrets.some((s) => {
+    const secret = s?.trim();
+    return !!secret && verifyWebhookSignature({ secret, ...rest });
+  });
+}
+
+/**
+ * The webhook secrets to accept: BRORACKS_WEBHOOK_SECRET, plus the optional
+ * BRORACKS_WEBHOOK_SECRET_PREVIOUS so deliveries for payments started on the
+ * old account still verify during a cutover. Trimmed; blanks dropped.
+ */
+export function getWebhookSecrets(
+  env: Record<string, string | undefined> = process.env,
+): string[] {
+  return [env.BRORACKS_WEBHOOK_SECRET, env.BRORACKS_WEBHOOK_SECRET_PREVIOUS]
+    .map((s) => s?.trim() ?? "")
+    .filter(Boolean);
+}
+
+/**
  * Whether the webhook timestamp is within tolerance of now (default 5 minutes),
  * guarding against replayed deliveries.
  */

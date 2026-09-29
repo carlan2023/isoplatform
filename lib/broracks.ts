@@ -5,13 +5,30 @@
 //   1. getSessionToken()      — authenticates and caches the bearer token
 //   2. initiateCollection()   — sends a Mobile Money prompt to a payer's phone
 //   3. verifyPhone()          — checks if a number is a valid Mobile Money number
+//   4. checkBroRacksAuth()    — admin health check: can we get a token?
 //
 // Every request to the provider has a hard timeout so a hung BroRacks API can
 // never hold a serverless function (and the learner's spinner) open
 // indefinitely.
 // ---------------------------------------------------------------------------
 
-const BASE_URL = "https://api.broracks.online";
+const DEFAULT_API_URL = "https://api.broracks.online";
+
+/** API origin. BRORACKS_API_URL overrides it; read per call, not at load. */
+export function getBroRacksApiUrl(): string {
+  return (process.env.BRORACKS_API_URL?.trim() || DEFAULT_API_URL).replace(
+    /\/+$/,
+    "",
+  );
+}
+
+/** Keys, trimmed — values pasted into Vercel often carry stray whitespace. */
+function getCredentials(): { publicKey: string; secretKey: string } {
+  return {
+    publicKey: process.env.BRORACKS_PUBLIC_KEY?.trim() ?? "",
+    secretKey: process.env.BRORACKS_SECRET_KEY?.trim() ?? "",
+  };
+}
 
 // Serverless functions on Vercel default to a 10–60s budget; stay well inside.
 const AUTH_TIMEOUT_MS = 10_000;
@@ -38,26 +55,46 @@ function isAbortError(e: unknown): boolean {
 
 // ---------------------------------------------------------------------------
 // Token cache — avoids a fresh auth round-trip on every payment request.
-// The token is reused until 5 minutes before it expires.
+// The token is reused until 5 minutes before it expires, and only for the
+// public key it was issued to, so a key change in a warm lambda never reuses
+// a token from the old account.
 // ---------------------------------------------------------------------------
 let cachedToken: string | null = null;
+let cachedTokenKey: string | null = null; // public key the token belongs to
 let tokenExpiresAt: number = 0; // Unix timestamp in milliseconds
 
-function clearTokenCache() {
+export function clearTokenCache() {
   cachedToken = null;
+  cachedTokenKey = null;
   tokenExpiresAt = 0;
+}
+
+/** Thrown when BroRacks rejects our credentials (carries the HTTP status). */
+export class BroRacksAuthError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "BroRacksAuthError";
+  }
 }
 
 async function getSessionToken(): Promise<string> {
   const now = Date.now();
   const fiveMinutes = 5 * 60 * 1000;
+  const { publicKey, secretKey } = getCredentials();
 
-  // Return cached token if it's still valid
-  if (cachedToken && now < tokenExpiresAt - fiveMinutes) {
+  // Return cached token if it's still valid for the current key
+  if (
+    cachedToken &&
+    cachedTokenKey === publicKey &&
+    now < tokenExpiresAt - fiveMinutes
+  ) {
     return cachedToken;
   }
 
-  if (!process.env.BRORACKS_PUBLIC_KEY || !process.env.BRORACKS_SECRET_KEY) {
+  if (!publicKey || !secretKey) {
     console.error(
       "[broracks] BRORACKS_PUBLIC_KEY / BRORACKS_SECRET_KEY not configured",
     );
@@ -67,14 +104,11 @@ async function getSessionToken(): Promise<string> {
   let res: Response;
   try {
     res = await fetchWithTimeout(
-      `${BASE_URL}/v1/auth/token`,
+      `${getBroRacksApiUrl()}/v1/auth/token`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          public_key: process.env.BRORACKS_PUBLIC_KEY,
-          secret_key: process.env.BRORACKS_SECRET_KEY,
-        }),
+        body: JSON.stringify({ public_key: publicKey, secret_key: secretKey }),
       },
       AUTH_TIMEOUT_MS,
     );
@@ -92,7 +126,7 @@ async function getSessionToken(): Promise<string> {
     console.error(
       `[broracks] auth failed: ${res.status} ${res.statusText} — ${body}`,
     );
-    throw new Error(`BroRacks auth failed (${res.status})`);
+    throw new BroRacksAuthError(`BroRacks auth failed (${res.status})`, res.status);
   }
 
   const data = await res.json().catch(() => null);
@@ -105,9 +139,67 @@ async function getSessionToken(): Promise<string> {
 
   // Cache the token. BroRacks tokens typically last 1 hour — adjust if different.
   cachedToken = data.data.token as string;
+  cachedTokenKey = publicKey;
   tokenExpiresAt = now + 60 * 60 * 1000; // 1 hour from now
 
   return cachedToken;
+}
+
+export interface AuthCheckResult {
+  ok: boolean;
+  status?: number;
+  error?: string;
+}
+
+/**
+ * Admin health check: performs a fresh token request with the configured
+ * keys. Never returns the token or the keys — only whether it worked.
+ */
+export async function checkBroRacksAuth(): Promise<AuthCheckResult> {
+  clearTokenCache();
+  try {
+    await getSessionToken();
+    return { ok: true };
+  } catch (e) {
+    return {
+      ok: false,
+      ...(e instanceof BroRacksAuthError ? { status: e.status } : {}),
+      error: e instanceof Error ? e.message : "Unknown error",
+    };
+  }
+}
+
+export interface BroRacksHealth {
+  configured: {
+    publicKey: boolean;
+    secretKey: boolean;
+    webhookSecret: boolean;
+    previousWebhookSecret: boolean;
+  };
+  apiUrl: string;
+  auth: AuthCheckResult;
+  webhookUrl?: string;
+}
+
+/**
+ * Connection report for GET /api/admin/payments/health. Reports only whether
+ * each value is set — never the values themselves.
+ */
+export async function getBroRacksHealth(): Promise<BroRacksHealth> {
+  const { publicKey, secretKey } = getCredentials();
+  const site = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "");
+  return {
+    configured: {
+      publicKey: !!publicKey,
+      secretKey: !!secretKey,
+      webhookSecret: !!process.env.BRORACKS_WEBHOOK_SECRET?.trim(),
+      previousWebhookSecret:
+        !!process.env.BRORACKS_WEBHOOK_SECRET_PREVIOUS?.trim(),
+    },
+    apiUrl: getBroRacksApiUrl(),
+    auth: await checkBroRacksAuth(),
+    ...(site ? { webhookUrl: `${site}/api/webhooks/broracks` } : {}),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +286,7 @@ export async function initiateCollection(
   const send = async (token: string): Promise<Response> => {
     try {
       return await fetchWithTimeout(
-        `${BASE_URL}/v1/collections/initiate`,
+        `${getBroRacksApiUrl()}/v1/collections/initiate`,
         {
           method: "POST",
           headers: {
@@ -273,7 +365,7 @@ export async function verifyPhone(phoneNumber: string) {
   let res: Response;
   try {
     res = await fetchWithTimeout(
-      `${BASE_URL}/v1/verify/phone`,
+      `${getBroRacksApiUrl()}/v1/verify/phone`,
       {
         method: "POST",
         headers: {

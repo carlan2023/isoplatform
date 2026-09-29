@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import crypto from "node:crypto";
 import {
   verifyWebhookSignature,
+  verifyWebhookSignatureAny,
+  getWebhookSecrets,
   isFreshTimestamp,
   shouldConfirmPayment,
   parseAmount,
@@ -57,6 +59,110 @@ describe("verifyWebhookSignature", () => {
     expect(
       verifyWebhookSignature({ secret, timestamp, rawBody, signature: "" }),
     ).toBe(false);
+  });
+});
+
+describe("verifyWebhookSignatureAny (secret rotation)", () => {
+  const current = "whsec_new_account";
+  const previous = "whsec_old_account";
+
+  it("accepts a signature from the current secret", () => {
+    expect(
+      verifyWebhookSignatureAny({
+        secrets: [current, previous],
+        timestamp,
+        rawBody,
+        signature: sign(current, timestamp, rawBody),
+      }),
+    ).toBe(true);
+  });
+
+  it("accepts a signature from the previous secret", () => {
+    expect(
+      verifyWebhookSignatureAny({
+        secrets: [current, previous],
+        timestamp,
+        rawBody,
+        signature: sign(previous, timestamp, rawBody),
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects a signature from any other secret", () => {
+    expect(
+      verifyWebhookSignatureAny({
+        secrets: [current, previous],
+        timestamp,
+        rawBody,
+        signature: sign("whsec_attacker", timestamp, rawBody),
+      }),
+    ).toBe(false);
+  });
+
+  it("trims secrets and skips blank/missing ones", () => {
+    expect(
+      verifyWebhookSignatureAny({
+        secrets: [undefined, "", "   ", ` ${current}\n`],
+        timestamp,
+        rawBody,
+        signature: sign(current, timestamp, rawBody),
+      }),
+    ).toBe(true);
+    // An empty secret must never match an HMAC made with an empty key.
+    expect(
+      verifyWebhookSignatureAny({
+        secrets: ["", "  "],
+        timestamp,
+        rawBody,
+        signature: sign("", timestamp, rawBody),
+      }),
+    ).toBe(false);
+    expect(
+      verifyWebhookSignatureAny({ secrets: [], timestamp, rawBody, signature: "" }),
+    ).toBe(false);
+  });
+});
+
+describe("getWebhookSecrets", () => {
+  it("returns the current then previous secret, trimmed", () => {
+    expect(
+      getWebhookSecrets({
+        BRORACKS_WEBHOOK_SECRET: " new \n",
+        BRORACKS_WEBHOOK_SECRET_PREVIOUS: "old ",
+      }),
+    ).toEqual(["new", "old"]);
+  });
+
+  it("drops unset and blank values", () => {
+    expect(getWebhookSecrets({ BRORACKS_WEBHOOK_SECRET: "new" })).toEqual([
+      "new",
+    ]);
+    expect(
+      getWebhookSecrets({
+        BRORACKS_WEBHOOK_SECRET: "  ",
+        BRORACKS_WEBHOOK_SECRET_PREVIOUS: "",
+      }),
+    ).toEqual([]);
+  });
+
+  it("reads process.env by default", () => {
+    const saved = {
+      cur: process.env.BRORACKS_WEBHOOK_SECRET,
+      prev: process.env.BRORACKS_WEBHOOK_SECRET_PREVIOUS,
+    };
+    process.env.BRORACKS_WEBHOOK_SECRET = "cur";
+    process.env.BRORACKS_WEBHOOK_SECRET_PREVIOUS = "prev";
+    try {
+      expect(getWebhookSecrets()).toEqual(["cur", "prev"]);
+    } finally {
+      for (const [k, v] of [
+        ["BRORACKS_WEBHOOK_SECRET", saved.cur],
+        ["BRORACKS_WEBHOOK_SECRET_PREVIOUS", saved.prev],
+      ] as const) {
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
+      }
+    }
   });
 });
 
