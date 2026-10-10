@@ -62,7 +62,7 @@ export default function SiteNav() {
             src="/nam-qms-logo.png"
             alt={SITE_NAME}
             width={1280}
-            height={646}
+            height={586}
             priority
             sizes="96px"
             className="h-12 w-auto"

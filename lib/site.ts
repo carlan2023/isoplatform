@@ -14,7 +14,7 @@ export const SITE_URL = (
 export const SITE_NAME = "NAM Quality Management Systems";
 
 /** Legal entity that owns/operates the site (used in the copyright line). */
-export const LEGAL_NAME = "Alrena Group";
+export const LEGAL_NAME = SITE_NAME;
 
 /** Primary contact details, surfaced in the footer and contact points. */
 export const CONTACT = {

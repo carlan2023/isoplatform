@@ -147,8 +147,7 @@ export async function POST(req: NextRequest) {
           </p>
           <p style="font-family: system-ui, sans-serif; color: #475569;">
             Best regards,<br/>
-            <strong>NAM Quality Management Systems</strong><br/>
-            A subsidiary of Alrena Group
+            <strong>NAM Quality Management Systems</strong>
           </p>
         </div>
       `,

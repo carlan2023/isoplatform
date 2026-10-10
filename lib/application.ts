@@ -17,7 +17,7 @@
 // ---------------------------------------------------------------------------
 
 import { escapeHtml } from "./email";
-import { CONTACT, SITE_NAME, LEGAL_NAME } from "./site";
+import { CONTACT, SITE_NAME } from "./site";
 import { STANDARDS } from "./standards";
 
 // ---------------------------------------------------------------------------
@@ -537,7 +537,7 @@ export function buildApplicantEmail(data: IsoApplication, reference: string): Bu
       `<h2 style="${SANS} font-size: 16px; color: #1e293b; margin: 28px 0 0;">Your application summary</h2>` +
       sections.map(sectionTableHtml).join("") +
       p(
-        `Best regards,<br/><strong>${escapeHtml(SITE_NAME)}</strong><br/>A subsidiary of ${escapeHtml(LEGAL_NAME)}`,
+        `Best regards,<br/><strong>${escapeHtml(SITE_NAME)}</strong>`,
       ),
   );
 
@@ -550,7 +550,7 @@ export function buildApplicantEmail(data: IsoApplication, reference: string): Bu
     `  3. Once you accept, we agree a plan and kick off your certification project.\n\n` +
     `Questions? Reply to this email or WhatsApp us at ${CONTACT.phoneDisplay} (${CONTACT.whatsapp}).\n\n` +
     `YOUR APPLICATION SUMMARY\n\n${sectionsText(sections)}\n\n` +
-    `Best regards,\n${SITE_NAME}\nA subsidiary of ${LEGAL_NAME}\n`;
+    `Best regards,\n${SITE_NAME}\n`;
 
   return { subject, html, text };
 }
