@@ -21,7 +21,7 @@ export default function RouteError({
     console.error("[app error boundary]", error);
   }, [error]);
 
-  const sans = { fontFamily: "system-ui, sans-serif" };
+  const sans = { fontFamily: "var(--font-geist-sans), sans-serif" };
 
   return (
     <div className="min-h-[70vh] bg-slate-50 flex items-center justify-center px-4 py-16">

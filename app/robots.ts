@@ -7,7 +7,15 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Keep authenticated / transactional areas out of the index.
-      disallow: ["/admin", "/dashboard", "/login", "/success", "/api"],
+      disallow: [
+        "/admin",
+        "/dashboard",
+        "/login",
+        "/forgot-password",
+        "/reset-password",
+        "/success",
+        "/api",
+      ],
     },
     sitemap: abs("/sitemap.xml"),
     host: abs("/"),
