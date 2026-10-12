@@ -29,12 +29,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import {
-  BroRacksRejectedError,
   BroRacksTimeoutError,
+  describeBroRacksFailure,
   initiateCollection,
+  isMomoNumberFailure,
+  userMessageForCollectionFailure,
 } from "@/lib/broracks";
 import { computePricing, isValidPayAmount, MAX_TEAM_SIZE } from "@/lib/pricing";
-import { normalizeUgandaMobile } from "@/lib/phone";
+import { inspectMomoPhone } from "@/lib/phone";
 import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
 import { escapeHtml, getResendFrom, sendResendEmail } from "@/lib/email";
 import {
@@ -43,6 +45,22 @@ import {
 } from "@/lib/enrollment-emails";
 
 const CLAIM_PREFIX = "CLAIM-";
+
+/** Stamp held_at when the column exists (db/payment-holds.sql). Retry without it otherwise. */
+async function updateEnrollment(
+  run: (fields: Record<string, unknown>) => PromiseLike<{
+    data: { id: string }[] | null;
+    error: { message?: string } | null;
+  }>,
+  fields: Record<string, unknown>,
+) {
+  const stamped = { ...fields, held_at: new Date().toISOString() };
+  const first = await run(stamped);
+  if (first.error && /held_at/i.test(first.error.message ?? "")) {
+    return run(fields);
+  }
+  return first;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -89,11 +107,13 @@ export async function POST(req: NextRequest) {
           { status: 400 },
         );
       }
-      momoPhone = normalizeUgandaMobile(rawPhone);
+      const phone = inspectMomoPhone(rawPhone);
+      momoPhone = phone.e164;
       if (!momoPhone) {
         return NextResponse.json(
           {
             error:
+              phone.error ??
               "Enter a valid MTN or Airtel Uganda number, e.g. 0771234567 or +256771234567.",
           },
           { status: 400 },
@@ -208,12 +228,16 @@ export async function POST(req: NextRequest) {
 
     // Claim the enrollment for this request (see header comment).
     const claimToken = `${CLAIM_PREFIX}${randomUUID()}`;
-    const { data: claimed, error: claimError } = await admin
-      .from("enrollments")
-      .update({ stripe_session_id: claimToken })
-      .eq("id", enrollmentId)
-      .eq("status", "pending")
-      .select("id");
+    const { data: claimed, error: claimError } = await updateEnrollment(
+      (fields) =>
+        admin
+          .from("enrollments")
+          .update(fields)
+          .eq("id", enrollmentId)
+          .eq("status", "pending")
+          .select("id"),
+      { stripe_session_id: claimToken },
+    );
 
     if (claimError) {
       console.error("[enroll:pay] claim failed:", claimError);
@@ -352,40 +376,35 @@ export async function POST(req: NextRequest) {
       await admin.rpc("recompute_course_seats", {
         p_course_id: enrollment.course_id,
       });
-      console.error("[enroll:pay] collection initiate failed; seat released:", e);
+      const failure = describeBroRacksFailure(e);
+      console.error(
+        `[enroll:pay] collection initiate failed; seat released: status=${failure.status ?? "none"} code=${failure.code ?? "none"} message=${failure.message}`,
+      );
 
       const timedOut = e instanceof BroRacksTimeoutError;
-      // BroRacks' own reason (e.g. "Invalid phone number") helps the learner
-      // fix the problem; config/auth failures (4xx 401/403, 5xx) stay generic.
-      const providerReason =
-        e instanceof BroRacksRejectedError &&
-        e.providerMessage &&
-        e.status !== 401 &&
-        e.status !== 403 &&
-        (e.status ?? 0) < 500
-          ? e.providerMessage
-          : null;
+      // Auth failures (401 INVALID_CREDENTIALS) and other server faults must
+      // not be described as a bad phone number. Number copy is only for a
+      // real phone-validation failure.
       return NextResponse.json(
         {
-          error: timedOut
-            ? "Mobile Money is taking too long to respond. If a payment prompt still reaches your phone, please decline it — then try again or pay by cash / bank transfer."
-            : providerReason
-              ? `Mobile Money couldn't start the payment: ${providerReason}. Check the number and try again, or pay by cash / bank transfer.`
-              : "We couldn't start the Mobile Money payment. Check the number and try again, or pay by cash / bank transfer.",
-          // Tell the client an offline fallback is available.
+          error: userMessageForCollectionFailure(e),
           canPayOffline: true,
         },
-        { status: timedOut ? 504 : 502 },
+        { status: timedOut ? 504 : isMomoNumberFailure(e) ? 400 : 502 },
       );
     }
 
     // Link the payment reference so the webhook can match and confirm it.
-    const { data: linked, error: refError } = await admin
-      .from("enrollments")
-      .update({ stripe_session_id: reference })
-      .eq("id", enrollmentId)
-      .eq("stripe_session_id", claimToken)
-      .select("id");
+    const { data: linked, error: refError } = await updateEnrollment(
+      (fields) =>
+        admin
+          .from("enrollments")
+          .update(fields)
+          .eq("id", enrollmentId)
+          .eq("stripe_session_id", claimToken)
+          .select("id"),
+      { stripe_session_id: reference },
+    );
 
     if (refError || !linked || linked.length === 0) {
       console.error(
