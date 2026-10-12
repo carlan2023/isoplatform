@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/roll-course-dates",
       "schedule": "5 0 * * *"
+    },
+    {
+      "path": "/api/cron/payment-holds",
+      "schedule": "20 0 * * *"
     }
   ]
 }
