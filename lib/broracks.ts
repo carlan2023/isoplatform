@@ -17,6 +17,7 @@ import {
   parseProviderPaymentState,
   type ProviderPaymentState,
 } from "./collection-status";
+import { canonicalSiteUrl } from "./site";
 
 const DEFAULT_API_URL = "https://api.broracks.online";
 
@@ -236,7 +237,8 @@ export interface BroRacksHealth {
  */
 export async function getBroRacksHealth(): Promise<BroRacksHealth> {
   const { publicKey, secretKey } = getCredentials();
-  const site = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "");
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const site = configured ? canonicalSiteUrl(configured) : "";
   return {
     configured: {
       publicKey: !!publicKey,

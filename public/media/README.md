@@ -2,7 +2,7 @@
 
 Drop images for the marketing site here. Files in `public/` are served from the
 site root, so `public/media/foo.jpg` is reachable at
-`https://amqualitysystems.com/media/foo.jpg` and referenced in code as
+`https://www.amqualitysystems.com/media/foo.jpg` and referenced in code as
 `/media/foo.jpg`.
 
 ## Naming (matters for image SEO)
@@ -18,7 +18,7 @@ ranking signal for Google Images.
 
 | Purpose                     | Suggested filename                         | Size / ratio        |
 | --------------------------- | ------------------------------------------ | ------------------- |
-| Social share / OG card      | `og-cover.jpg`                             | 1200×630 (1.91:1)   |
+| Social share / OG card      | `/og-image.png` (in `public/`, not this folder) | 1200×630 (1.91:1)   |
 | Video thumbnail (custom)    | `video-thumbnail.jpg`                      | 1280×720 (16:9)     |
 | Homepage hero               | `iso-certification-consulting-hero.jpg`    | ~1600×1000          |
 | Consulting page supporting  | `iso-audit-team-east-africa.jpg`           | any, keep <300 KB   |

@@ -41,6 +41,7 @@ import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
 import { escapeHtml, getResendFrom, sendResendEmail } from "@/lib/email";
 import {
   OFFLINE_REF,
+  classStartEmailHtml,
   sendOfflineReservationEmails,
 } from "@/lib/enrollment-emails";
 
@@ -216,6 +217,7 @@ export async function POST(req: NextRequest) {
       id: string;
       title: string;
       standard: string | null;
+      start_date?: string | null;
       is_active?: boolean | null;
     } | null;
 
@@ -342,6 +344,7 @@ export async function POST(req: NextRequest) {
         courseTitle: course.title,
         amount,
         seatNumber,
+        startDate: course.start_date,
       });
 
       return NextResponse.json({ success: true, offline: true, amount });
@@ -438,6 +441,7 @@ export async function POST(req: NextRequest) {
               for <strong>${safeTitle}</strong>. Please approve the prompt on your phone.
               Your payment reference is <strong>${escapeHtml(reference)}</strong>.
             </p>
+            ${classStartEmailHtml(course.start_date)}
             <p style="font-family: system-ui, sans-serif; color: #475569;">
               Once the payment is confirmed, we'll email you and your seat will be reserved.
             </p>

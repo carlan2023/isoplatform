@@ -33,6 +33,8 @@ import {
   sendResendEmail,
 } from "@/lib/email";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { classStartEmailHtml } from "@/lib/enrollment-emails";
+import { classStartLabel } from "@/lib/schedule";
 
 type WebhookEvent = {
   event?: string;
@@ -162,7 +164,9 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
 
   const { data: enrollment, error: enrollErr } = await admin
     .from("enrollments")
-    .select("id, user_id, status, amount_paid, course_id, stripe_session_id, courses (id, title)")
+    .select(
+      "id, user_id, status, amount_paid, course_id, stripe_session_id, courses (id, title, start_date)",
+    )
     .in("stripe_session_id", references)
     .limit(1)
     .maybeSingle();
@@ -206,7 +210,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
 
   const course = (
     Array.isArray(enrollment.courses) ? enrollment.courses[0] : enrollment.courses
-  ) as { id: string; title: string } | null;
+  ) as { id: string; title: string; start_date?: string | null } | null;
   const courseTitle = course?.title ?? "your course";
 
   if (enrollment.status !== "awaiting_confirmation") {
@@ -312,6 +316,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
           Your payment of <strong>${amountEsc}</strong> was received successfully.
           You are now enrolled in <strong>${title}</strong>.
         </p>
+        ${classStartEmailHtml(course?.start_date)}
         <p style="font-family: system-ui, sans-serif; color: #475569;">
           We will be in touch with joining instructions. Reference: <strong>${refEsc}</strong>
         </p>
@@ -335,6 +340,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
         <p style="color: #475569;">A Mobile Money payment succeeded and the seat is now assigned.</p>
         <table style="width: 100%; font-size: 14px; color: #475569;">
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 160px;">Course</td><td>${title}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Class start</td><td>${escapeHtml(classStartLabel(course?.start_date))}</td></tr>
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Learner email</td><td>${escapeHtml(customerEmail)}</td></tr>
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount</td><td>${amountEsc}</td></tr>
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Reference</td><td>${refEsc}</td></tr>

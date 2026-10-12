@@ -82,7 +82,7 @@ export default function TermsPage() {
         </h1>
         <p
           className="text-sm text-slate-500 mb-10"
-          style={{ fontFamily: "system-ui, sans-serif" }}
+          style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
         >
           Last updated {LAST_UPDATED}
         </p>
@@ -95,7 +95,7 @@ export default function TermsPage() {
                 <p
                   key={para}
                   className="text-slate-600 leading-relaxed mb-3"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {para}
                 </p>

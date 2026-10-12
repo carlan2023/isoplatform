@@ -10,7 +10,8 @@
 --
 -- What changes:
 --   * enrollments.cohort_start — the class start date the enrollment is for
---     (first Monday of the month after enrolling, matching lib/schedule.ts).
+--     (the first Monday on or after the Africa/Kampala date, matching
+--     nextFirstMonday() / advertisedCourseStart() in lib/schedule.ts).
 --   * Seats are counted PER COHORT. courses.seats_taken now means "seats held
 --     in the cohort currently being sold".
 --   * A pending (unpaid) enrollment from an earlier month is moved onto the
@@ -18,18 +19,52 @@
 -- ===========================================================================
 
 -- ---------------------------------------------------------------------------
--- 1) next_cohort_start — first Monday of the month after p_at (UTC).
---    Must stay in sync with firstMondayOfNextMonth() in lib/schedule.ts.
+-- 1) next_cohort_start — first Monday on or after the Africa/Kampala calendar
+--    date of p_at. If that date is itself the first Monday, it is returned.
+--    Must stay in sync with nextFirstMonday() in lib/schedule.ts.
+--
+--    Re-run this file in the Supabase SQL editor after pulling the change.
+--    Existing enrollment rows are not rewritten (history stays on cohort_start).
 -- ---------------------------------------------------------------------------
 create or replace function public.next_cohort_start(p_at timestamptz default now())
 returns date
 language sql
 stable
 as $$
-  select d + ((8 - extract(isodow from d)::int) % 7)
+  select case
+    when d <= monday then monday
+    else next_month + ((8 - extract(isodow from next_month)::int) % 7)
+  end
   from (
-    select (date_trunc('month', p_at at time zone 'UTC') + interval '1 month')::date as d
-  ) s;
+    select
+      d,
+      month_start + ((8 - extract(isodow from month_start)::int) % 7) as monday,
+      (month_start + interval '1 month')::date as next_month
+    from (
+      select
+        (p_at at time zone 'Africa/Kampala')::date as d,
+        date_trunc('month', p_at at time zone 'Africa/Kampala')::date as month_start
+    ) raw
+  ) calc;
+$$;
+
+-- The date a course should sell: its stored start_date when that day is still
+-- today or later (snapped to a first Monday), otherwise next_cohort_start().
+-- Matches advertisedCourseStart() in lib/schedule.ts.
+create or replace function public.effective_course_start(
+  p_start date,
+  p_at timestamptz default now()
+)
+returns date
+language sql
+stable
+as $$
+  select case
+    when p_start is not null
+     and p_start >= (p_at at time zone 'Africa/Kampala')::date
+    then public.next_cohort_start((p_start::timestamp at time zone 'Africa/Kampala'))
+    else public.next_cohort_start(p_at)
+  end;
 $$;
 
 -- ---------------------------------------------------------------------------
@@ -62,7 +97,9 @@ as $$
     select count(*)
     from public.enrollments
     where course_id = p_course_id
-      and cohort_start = public.next_cohort_start()
+      and cohort_start = public.effective_course_start(
+        (select start_date from public.courses where id = p_course_id)
+      )
       and status in ('awaiting_confirmation', 'confirmed')
   )
   where id = p_course_id;
@@ -116,9 +153,8 @@ begin
     raise exception 'ENROLLMENT_NOT_PENDING';
   end if;
 
-  v_cohort := public.next_cohort_start();
-
-  select seats_total into v_seats_total
+  select public.effective_course_start(start_date), seats_total
+    into v_cohort, v_seats_total
   from public.courses
   where id = v_course_id
   for update;
@@ -167,7 +203,7 @@ set seats_taken = (
   select count(*)
   from public.enrollments e
   where e.course_id = c.id
-    and e.cohort_start = public.next_cohort_start()
+    and e.cohort_start = public.effective_course_start(c.start_date)
     and e.status in ('awaiting_confirmation', 'confirmed')
 );
 -- ===========================================================================

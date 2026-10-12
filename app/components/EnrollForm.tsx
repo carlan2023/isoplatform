@@ -363,7 +363,7 @@ export default function EnrollForm({
     }
   };
 
-  const sans = { fontFamily: "system-ui, sans-serif" as const };
+  const sans = { fontFamily: "var(--font-geist-sans), sans-serif" as const };
   const inputCls =
     "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500";
   const labelCls =

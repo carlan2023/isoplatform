@@ -23,6 +23,8 @@ import {
   sendResendEmail,
 } from "@/lib/email";
 import { isUuid, readJsonObject } from "@/lib/validation";
+import { classStartEmailHtml } from "@/lib/enrollment-emails";
+import { classStartLabel } from "@/lib/schedule";
 
 const ALLOWED_STATUSES = [
   "pending",
@@ -203,7 +205,9 @@ async function updateEnrollmentStatus(req: NextRequest) {
     .update({ status })
     .eq("id", enrollmentId)
     .eq("status", current.status)
-    .select("id, user_id, course_id, amount_paid, courses (title, standard)")
+    .select(
+      "id, user_id, course_id, amount_paid, courses (title, standard, start_date)",
+    )
     .maybeSingle();
 
   if (error) {
@@ -262,6 +266,7 @@ async function updateEnrollmentStatus(req: NextRequest) {
               Your payment has been confirmed and your seat in <strong>${title}</strong> is reserved.
               We'll be in touch with joining instructions.
             </p>
+            ${classStartEmailHtml(course?.start_date)}
           </div>
         `,
       });
@@ -281,7 +286,7 @@ async function updateEnrollmentStatus(req: NextRequest) {
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
           <h2 style="margin: 0 0 12px;">Enrollment confirmed manually</h2>
-          <p style="color: #475569;">${title} — learner ${escapeHtml(learnerEmail ?? "unknown")}.</p>
+          <p style="color: #475569;">${title} — starts ${escapeHtml(classStartLabel(course?.start_date))} — learner ${escapeHtml(learnerEmail ?? "unknown")}.</p>
         </div>
       `,
     });
