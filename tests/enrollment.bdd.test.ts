@@ -23,6 +23,21 @@ describe("Feature: Course enrollment and Mobile Money payment", () => {
     });
   });
 
+  describe("Scenario: Internal Auditor Courses groups of five or more pay half", () => {
+    it("When 4 participants enroll, Then the total is UGX 1,600,000 due in full", () => {
+      const { fullAmount, minDeposit, perPerson } = computePricing(4, "internal-auditor");
+      expect(perPerson).toBe(400_000);
+      expect(formatUGX(fullAmount)).toBe("UGX 1,600,000");
+      expect(minDeposit).toBe(fullAmount);
+    });
+
+    it("When 5 participants enroll, Then each person is UGX 200,000 and the total is UGX 1,000,000", () => {
+      const { fullAmount, perPerson } = computePricing(5, "internal-auditor");
+      expect(perPerson).toBe(200_000);
+      expect(formatUGX(fullAmount)).toBe("UGX 1,000,000");
+    });
+  });
+
   describe("Scenario: A deposit is an acceptable first payment", () => {
     const full = 1_000_000;
     const deposit = 300_000;

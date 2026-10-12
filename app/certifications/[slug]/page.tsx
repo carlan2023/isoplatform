@@ -12,6 +12,7 @@ import ConsultForm from "@/app/components/ConsultForm";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 import { SITE_NAME, CONTACT, abs } from "@/lib/site";
+import { ogImageMetadata } from "@/lib/media";
 import {
   STANDARDS,
   getStandard,
@@ -47,6 +48,7 @@ export async function generateMetadata({
       url: abs(path),
       siteName: SITE_NAME,
       type: "website",
+      images: [ogImageMetadata],
     },
   };
 }
@@ -142,7 +144,7 @@ export default async function CertificationPage({
         <div className="max-w-6xl mx-auto px-6 py-24">
           <div
             className="text-xs text-slate-400 mb-6"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             <Link href="/" className="hover:text-teal-600">
               Home
@@ -163,7 +165,7 @@ export default async function CertificationPage({
                 backgroundColor: "#f0fdfa",
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               <ShieldCheck size={12} /> {standard.category}
@@ -173,7 +175,7 @@ export default async function CertificationPage({
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               {standard.intro}
             </p>
@@ -183,7 +185,7 @@ export default async function CertificationPage({
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Apply for {standard.code} certification <ArrowRight size={16} />
@@ -193,7 +195,7 @@ export default async function CertificationPage({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-600 text-sm underline underline-offset-4"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 Or chat with us on WhatsApp
               </a>
@@ -214,7 +216,7 @@ export default async function CertificationPage({
             </div>
             <p
               className="text-slate-600 leading-relaxed"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               {standard.whoFor}
             </p>
@@ -232,7 +234,7 @@ export default async function CertificationPage({
                   />
                   <span
                     className="text-sm text-slate-600"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {b}
                   </span>
@@ -251,7 +253,7 @@ export default async function CertificationPage({
           </h2>
           <p
             className="text-slate-500 mb-12 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             A complete engagement — from the first gap analysis to keeping you
             compliant year after year.
@@ -266,7 +268,7 @@ export default async function CertificationPage({
                 <h3 className="font-bold text-slate-900 mb-2">{s.title}</h3>
                 <p
                   className="text-sm text-slate-500 leading-relaxed"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.desc}
                 </p>
@@ -284,7 +286,7 @@ export default async function CertificationPage({
           </h2>
           <p
             className="text-slate-500 mb-12 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             A clear, five-stage path. We stay with you through every stage.
           </p>
@@ -306,7 +308,7 @@ export default async function CertificationPage({
                   </h3>
                   <p
                     className="text-sm text-slate-500 leading-relaxed"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {step.desc}
                   </p>
@@ -326,7 +328,7 @@ export default async function CertificationPage({
             </h2>
             <p
               className="text-slate-500 leading-relaxed mb-8"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Every engagement is fixed-scope — no open-ended billing. Because
               cost depends on your size, systems and current maturity, we
@@ -343,7 +345,7 @@ export default async function CertificationPage({
                   <Award size={16} className="text-teal-600 shrink-0" />
                   <span
                     className="text-sm text-slate-600"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {point}
                   </span>
@@ -355,7 +357,7 @@ export default async function CertificationPage({
               className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-md font-medium transition-colors hover:bg-teal-700"
               style={{
                 backgroundColor: "#0d9488",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               Apply &amp; get a {standard.code} quotation{" "}
@@ -369,7 +371,7 @@ export default async function CertificationPage({
             </h3>
             <p
               className="text-slate-500 text-sm mb-6"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Not ready to apply yet? Send us a message and we&apos;ll be in
               touch within 24 hours.
@@ -397,13 +399,13 @@ export default async function CertificationPage({
                 </div>
                 <div
                   className="text-sm text-slate-500 mb-3"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {r.name}
                 </div>
                 <span
                   className="inline-flex items-center gap-1 text-sm text-teal-600 font-medium"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   Learn more <ArrowRight size={14} />
                 </span>
@@ -428,7 +430,7 @@ export default async function CertificationPage({
                 <h3 className="font-bold text-slate-900 mb-2">{f.q}</h3>
                 <p
                   className="text-sm text-slate-500 leading-relaxed"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {f.a}
                 </p>

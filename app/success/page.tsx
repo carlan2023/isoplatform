@@ -167,7 +167,7 @@ export default async function SuccessPage({
   }
 
   const Icon = view.icon;
-  const sans = { fontFamily: "system-ui, sans-serif" };
+  const sans = { fontFamily: "var(--font-geist-sans), sans-serif" };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">

@@ -12,4 +12,7 @@ export type {
   Profile,
   Enrollment,
   EnrollmentStatus,
+  GroupEnrollment,
+  GroupEnrollmentParticipant,
+  GroupEnrollmentStatus,
 } from "./supabase/types";

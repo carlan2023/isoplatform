@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { INTERNAL_AUDITOR_ENROLL_PATH } from "@/lib/group-enrollment";
 import { abs } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
 import { coursePath } from "@/lib/course-slug";
@@ -44,6 +45,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "yearly",
       priority: 0.2,
+    },
+    {
+      url: abs(INTERNAL_AUDITOR_ENROLL_PATH),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
     },
   ];
 

@@ -53,7 +53,7 @@ const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
   pending: { cls: "bg-amber-100 text-amber-700", label: "Awaiting payment" },
 };
 
-const sans = { fontFamily: "system-ui, sans-serif" as const };
+const sans = { fontFamily: "var(--font-geist-sans), sans-serif" as const };
 
 export default function DashboardPage() {
   const router = useRouter();

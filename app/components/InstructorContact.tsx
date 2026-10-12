@@ -47,7 +47,7 @@ export default function InstructorContact({
       </h3>
       <p
         className="text-sm text-slate-500 mb-4"
-        style={{ fontFamily: "system-ui, sans-serif" }}
+        style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
       >
         Talk to the instructor directly — we usually reply within a few hours.
       </p>
@@ -60,7 +60,7 @@ export default function InstructorContact({
               ? { target: "_blank", rel: "noopener noreferrer" }
               : {})}
             className="flex items-center gap-3 w-full border border-slate-200 rounded-lg px-4 py-3 text-sm font-semibold text-slate-700 hover:border-teal-300 hover:bg-teal-50 transition-colors"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             <span
               className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"

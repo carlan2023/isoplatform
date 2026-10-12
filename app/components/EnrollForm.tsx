@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Smartphone, Loader2, Lock, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { normalizeUgandaMobile } from "@/lib/phone";
+import { inspectMomoPhone } from "@/lib/phone";
+import MomoPhoneField from "@/app/components/MomoPhoneField";
 import {
   computePricing,
   pricePerPerson,
@@ -58,6 +59,7 @@ export default function EnrollForm({
   const [alreadyStatus, setAlreadyStatus] = useState("");
   const [cashFallbackReady, setCashFallbackReady] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(CASH_FALLBACK_SECONDS);
+  const [momoAttempted, setMomoAttempted] = useState(false);
   const [form, setForm] = useState({
     full_name: "",
     company: "",
@@ -138,17 +140,18 @@ export default function EnrollForm({
         return;
       }
       try {
-        const { data } = await supabase
-          .from("enrollments")
-          .select("status")
-          .eq("id", enrollmentId)
-          .maybeSingle();
-        if (stopped || !data) return;
-        if (data.status === "confirmed") {
+        const res = await fetch(
+          `/api/enroll/pay/status?enrollmentId=${encodeURIComponent(enrollmentId)}`,
+        );
+        const data = await readJson(res);
+        if (stopped) return;
+        const status = typeof data.status === "string" ? data.status : "";
+        if (status === "confirmed") {
           stopped = true;
           clearInterval(poll);
           router.push(`/success?enrollment=${encodeURIComponent(enrollmentId)}`);
-        } else if (data.status === "cancelled") {
+        } else if (status === "cancelled" || status === "pending") {
+          // pending here means the hold was released before the learner approved.
           stopped = true;
           clearInterval(poll);
           setStep("failed");
@@ -180,6 +183,8 @@ export default function EnrollForm({
       : payAmount > fullAmount
         ? `Maximum payment is UGX ${fullAmount.toLocaleString()}`
         : "";
+
+  const momoCheck = inspectMomoPhone(form.momoPhone);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -232,17 +237,15 @@ export default function EnrollForm({
   };
 
   const submitPayment = async () => {
-    if (!form.momoPhone.trim()) {
-      setErrorMsg("Enter the Mobile Money number to charge.");
-      return;
-    }
-    const momo = normalizeUgandaMobile(form.momoPhone);
-    if (!momo) {
+    const momoCheck = inspectMomoPhone(form.momoPhone);
+    if (!momoCheck.e164) {
+      setMomoAttempted(true);
       setErrorMsg(
-        "Enter a valid MTN or Airtel Uganda number, e.g. 0771234567 or +256771234567.",
+        momoCheck.error ?? "Enter the Mobile Money number to charge.",
       );
       return;
     }
+    const momo = momoCheck.e164;
     if (amountError) {
       setErrorMsg(amountError);
       return;
@@ -360,7 +363,7 @@ export default function EnrollForm({
     }
   };
 
-  const sans = { fontFamily: "system-ui, sans-serif" as const };
+  const sans = { fontFamily: "var(--font-geist-sans), sans-serif" as const };
   const inputCls =
     "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500";
   const labelCls =
@@ -711,27 +714,15 @@ export default function EnrollForm({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="enroll-momoPhone" className={labelCls} style={sans}>
-          Mobile Money Number *
-        </label>
-        <input
-          id="enroll-momoPhone"
-          name="momoPhone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          aria-describedby="enroll-momoPhone-hint"
-          value={form.momoPhone}
-          onChange={handleChange}
-          className={inputCls}
-          style={sans}
-          placeholder="e.g. 0771234567 or +256771234567"
-        />
-        <p id="enroll-momoPhone-hint" className="text-xs text-slate-400 mt-1" style={sans}>
-          MTN or Airtel Uganda number — you&apos;ll get the payment prompt here.
-        </p>
-      </div>
+      <MomoPhoneField
+        value={form.momoPhone}
+        attempted={momoAttempted}
+        disabled={submitting}
+        onChange={(momoPhone) => {
+          setMomoAttempted(false);
+          setForm({ ...form, momoPhone });
+        }}
+      />
 
       <div>
         <div className={labelCls} style={sans} id="enroll-amount-label">
@@ -826,7 +817,9 @@ export default function EnrollForm({
 
       <button
         onClick={submitPayment}
-        disabled={submitting}
+        disabled={
+          submitting || (momoCheck.local.length > 0 && !momoCheck.e164)
+        }
         className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold py-3.5 rounded-lg transition-colors disabled:opacity-50"
         style={{ backgroundColor: "#0d9488", ...sans }}
       >

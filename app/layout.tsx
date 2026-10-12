@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_URL, SITE_NAME, abs } from "@/lib/site";
-import { OG_IMAGE } from "@/lib/media";
+import { OG_IMAGE, ogImageMetadata } from "@/lib/media";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,14 +39,7 @@ export const metadata: Metadata = {
       "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM Quality Management Systems",
     description:
       "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
-    images: [
-      {
-        url: OG_IMAGE.src,
-        width: OG_IMAGE.width,
-        height: OG_IMAGE.height,
-        alt: OG_IMAGE.alt,
-      },
-    ],
+    images: [ogImageMetadata],
   },
   twitter: {
     card: "summary_large_image",
@@ -85,10 +78,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+    >
+      <body className="antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}

@@ -241,7 +241,7 @@ export default function ConsultingPage() {
                 backgroundColor: "#f0fdfa",
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               <ShieldCheck size={12} /> ISO Certification Consulting
@@ -253,7 +253,7 @@ export default function ConsultingPage() {
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               We guide your organisation from first assessment to a certified
               management system — ISO 9001, ISO 14001, ISO 45001 and ISO 22000.
@@ -267,7 +267,7 @@ export default function ConsultingPage() {
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Apply for certification <ArrowRight size={16} />
@@ -277,7 +277,7 @@ export default function ConsultingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-600 text-sm underline underline-offset-4"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 Or chat with us on WhatsApp
               </a>
@@ -305,7 +305,7 @@ export default function ConsultingPage() {
           </h2>
           <p
             className="text-slate-500 mb-10 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             Whether you need one standard or an integrated management system
             covering several, we take you all the way to certification.
@@ -322,7 +322,7 @@ export default function ConsultingPage() {
                 </div>
                 <div
                   className="text-sm text-slate-500"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.name}
                 </div>
@@ -351,7 +351,7 @@ export default function ConsultingPage() {
               backgroundColor: "#f0fdfa",
               borderColor: "#99f6e4",
               color: "#0f766e",
-              fontFamily: "system-ui, sans-serif",
+              fontFamily: "var(--font-geist-sans), sans-serif",
             }}
           >
             <ShieldCheck size={12} /> Information Security & Data Protection
@@ -361,7 +361,7 @@ export default function ConsultingPage() {
           </h2>
           <p
             className="text-slate-500 mb-10 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             Handling sensitive or payment data? We also take organisations
             through information-security and data-protection certification —
@@ -379,19 +379,19 @@ export default function ConsultingPage() {
                 </div>
                 <div
                   className="text-sm font-medium text-slate-600 mb-3"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.name}
                 </div>
                 <p
                   className="text-sm text-slate-500 leading-relaxed mb-4"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.tagline}
                 </p>
                 <span
                   className="inline-flex items-center gap-1 text-sm text-teal-600 font-medium"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   Learn more <ArrowRight size={14} />
                 </span>
@@ -411,7 +411,7 @@ export default function ConsultingPage() {
               </h2>
               <p
                 className="text-slate-500 max-w-2xl"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 A complete engagement — from the first gap analysis to keeping
                 your certificate valid year after year.
@@ -436,7 +436,7 @@ export default function ConsultingPage() {
                 <h3 className="font-bold text-slate-900 mb-2">{s.title}</h3>
                 <p
                   className="text-sm text-slate-500 leading-relaxed"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.desc}
                 </p>
@@ -455,7 +455,7 @@ export default function ConsultingPage() {
           </h2>
           <p
             className="text-slate-500 mb-12 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             A clear, five-stage path. We stay with you through every stage.
           </p>
@@ -477,7 +477,7 @@ export default function ConsultingPage() {
                   </h3>
                   <p
                     className="text-sm text-slate-500 leading-relaxed"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {step.desc}
                   </p>
@@ -506,7 +506,7 @@ export default function ConsultingPage() {
           </h2>
           <p
             className="text-slate-500 mb-10 max-w-2xl"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             A short walkthrough of our end-to-end approach — from gap analysis to
             a valid certificate.
@@ -528,7 +528,7 @@ export default function ConsultingPage() {
             </h2>
             <p
               className="text-slate-500 leading-relaxed mb-8"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Complete a short application with your organisation&apos;s details
               and the standard you need. We&apos;ll review it and send you a
@@ -544,7 +544,7 @@ export default function ConsultingPage() {
                   <Award size={16} className="text-teal-600 shrink-0" />
                   <span
                     className="text-sm text-slate-600"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {point}
                   </span>
@@ -557,7 +557,7 @@ export default function ConsultingPage() {
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Apply &amp; get a quotation <ArrowRight size={16} />
@@ -567,7 +567,7 @@ export default function ConsultingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-semibold"
-                style={{ color: "#128c4a", fontFamily: "system-ui, sans-serif" }}
+                style={{ color: "#128c4a", fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 <WhatsAppIcon /> Chat on WhatsApp
               </a>
@@ -580,7 +580,7 @@ export default function ConsultingPage() {
             </h3>
             <p
               className="text-slate-500 text-sm mb-6"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Not ready to apply yet? Send us a message and we&apos;ll get back
               to you within 24 hours.
@@ -605,7 +605,7 @@ export default function ConsultingPage() {
                 <h3 className="font-bold text-slate-900 mb-2">{f.q}</h3>
                 <p
                   className="text-sm text-slate-500 leading-relaxed"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {f.a}
                 </p>

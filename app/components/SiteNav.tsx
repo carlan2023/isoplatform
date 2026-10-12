@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { SITE_NAME } from "@/lib/site";
 
-const sans = { fontFamily: "system-ui, sans-serif" } as const;
+const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
 /** Absolute `/#section` hrefs so every link works from any page. */
 const NAV_BEFORE = [

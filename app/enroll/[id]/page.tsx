@@ -5,7 +5,8 @@ import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
 import InstructorContact from "@/app/components/InstructorContact";
-import { nextClassStart, formatClassDate } from "@/lib/schedule";
+import { advertisedCourseStart, formatClassDate } from "@/lib/schedule";
+import { presentCourseCopy } from "@/lib/copy";
 import {
   INDIVIDUAL_PRICE,
   TEAM_PRICE,
@@ -14,6 +15,10 @@ import {
   computePricing,
   formatUGX,
 } from "@/lib/pricing";
+
+// Same refresh as the course pages, so a passed start date cannot stay frozen
+// from the production build.
+export const revalidate = 60;
 
 export default async function EnrollPage({
   params,
@@ -30,11 +35,12 @@ export default async function EnrollPage({
     .single();
 
   if (!found) redirect("/");
-  const [course] = await withCurrentCohortSeats([found]);
+  const [course] = (await withCurrentCohortSeats([found])).map(presentCourseCopy);
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
-  // Advertise the next cohort — first Monday of next month, computed live.
-  const startDate = formatClassDate(nextClassStart());
+  // Same date the homepage and course page advertise, including a roll-forward
+  // when the stored start_date has passed.
+  const startDate = formatClassDate(advertisedCourseStart(course.start_date));
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -60,7 +66,7 @@ export default async function EnrollPage({
               backgroundColor: "#f0fdfa",
               borderColor: "#99f6e4",
               color: "#0f766e",
-              fontFamily: "system-ui, sans-serif",
+              fontFamily: "var(--font-geist-sans), sans-serif",
             }}
           >
             {course.standard}
@@ -70,7 +76,7 @@ export default async function EnrollPage({
           </h1>
           <p
             className="text-slate-500 leading-relaxed mb-8"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             {course.description}
           </p>
@@ -111,7 +117,7 @@ export default async function EnrollPage({
                 <div>
                   <div
                     className="text-xs text-slate-400 uppercase tracking-wide"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {item.label}
                   </div>
@@ -133,7 +139,7 @@ export default async function EnrollPage({
               <div className="flex justify-between items-center">
                 <span
                   className="text-sm text-slate-600"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   Individual
                 </span>
@@ -144,7 +150,7 @@ export default async function EnrollPage({
               <div className="flex justify-between items-center">
                 <span
                   className="text-sm text-slate-600"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   Team ({TEAM_MIN_SIZE}+ people)
                 </span>
@@ -157,7 +163,7 @@ export default async function EnrollPage({
                 <div className="flex justify-between items-center">
                   <span
                     className="text-sm text-slate-600"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     Minimum deposit ({Math.round(DEPOSIT_RATE * 100)}%)
                   </span>
@@ -178,7 +184,7 @@ export default async function EnrollPage({
             </h2>
             <p
               className="text-sm text-slate-500 mb-6"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Enter your details, then pay via Mobile Money to reserve your
               seat. You&apos;ll get a prompt on your phone to approve.

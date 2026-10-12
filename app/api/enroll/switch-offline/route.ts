@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
 
     const { data: enrollment, error: enrollError } = await admin
       .from("enrollments")
-      .select("id, user_id, status, amount_paid, stripe_session_id, courses (title)")
+      .select(
+        "id, user_id, status, amount_paid, stripe_session_id, courses (title, start_date)",
+      )
       .eq("id", enrollmentId)
       .maybeSingle();
 
@@ -103,7 +105,7 @@ export async function POST(req: NextRequest) {
       Array.isArray(enrollment.courses)
         ? enrollment.courses[0]
         : enrollment.courses
-    ) as { title: string } | null;
+    ) as { title: string; start_date?: string | null } | null;
     const amount = Number(enrollment.amount_paid) || 0;
 
     // Idempotent: if it's already marked offline, just re-send instructions.
@@ -146,6 +148,7 @@ export async function POST(req: NextRequest) {
       learnerEmail: user.email,
       courseTitle: course?.title ?? "your course",
       amount,
+      startDate: course?.start_date,
     });
 
     return NextResponse.json({ success: true, offline: true, amount });

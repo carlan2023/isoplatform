@@ -186,6 +186,18 @@ function QuoteButton({ className = "" }: { className?: string }) {
   );
 }
 
+function EnrollTeamLink({ onDark = false }: { onDark?: boolean }) {
+  return (
+    <Link
+      href="/internal-auditor-courses"
+      className="inline-flex items-center gap-1 font-medium underline underline-offset-4 hover:opacity-80"
+      style={{ ...sans, color: onDark ? "#ccfbf1" : "#0f766e" }}
+    >
+      Enroll your team <ArrowRight size={14} aria-hidden="true" />
+    </Link>
+  );
+}
+
 function WhatsAppButton({
   label,
   onDark = false,
@@ -299,6 +311,7 @@ export default function InternalAuditTrainingPage() {
             <div className="flex flex-wrap items-center gap-4">
               <QuoteButton />
               <WhatsAppButton label="Book a call on WhatsApp" />
+              <EnrollTeamLink />
             </div>
           </div>
 
@@ -542,6 +555,7 @@ export default function InternalAuditTrainingPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <QuoteButton />
             <WhatsAppButton label={`WhatsApp ${CONTACT.phoneDisplay}`} onDark />
+            <EnrollTeamLink onDark />
           </div>
           <p className="mt-8 text-sm" style={{ color: "#ccfbf1", ...sans }}>
             <a href={QUOTE_MAILTO} className="underline underline-offset-4 hover:opacity-80">

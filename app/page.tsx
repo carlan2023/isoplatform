@@ -18,10 +18,11 @@ import {
   formatUGX,
 } from "@/lib/pricing";
 import { SITE_NAME, SITE_URL, CONTACT } from "@/lib/site";
-import { nextClassStart, formatClassDateShort } from "@/lib/schedule";
+import { advertisedCourseStart, formatClassDateShort } from "@/lib/schedule";
 import { SECURITY_STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
 import { coursePath } from "@/lib/course-slug";
+import { presentCourseCopy } from "@/lib/copy";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 
@@ -35,7 +36,7 @@ async function getCourses() {
       .select("*")
       .eq("is_active", true)
       .order("start_date");
-    return await withCurrentCohortSeats(data || []);
+    return (await withCurrentCohortSeats(data || [])).map(presentCourseCopy);
   } catch (err) {
     // A public marketing homepage should never fail the whole build/deploy
     // because a data fetch hiccupped or env vars were missing. Render with no
@@ -115,7 +116,7 @@ export default async function HomePage() {
                 backgroundColor: "#f0fdfa",
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               <ShieldCheck size={12} />
@@ -128,7 +129,7 @@ export default async function HomePage() {
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               We take your organisation all the way to ISO 9001, 14001, 45001
               and 22000 certification — gap analysis, documentation, internal
@@ -142,7 +143,7 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Get your business certified <ArrowRight size={16} />
@@ -150,14 +151,14 @@ export default async function HomePage() {
               <Link
                 href="/iso-certification-consulting"
                 className="inline-flex items-center gap-2 border border-slate-300 text-slate-700 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-300 hover:text-teal-700"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 How it works
               </Link>
               <a
                 href="#training"
                 className="text-slate-600 text-sm underline underline-offset-4"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 Looking for Lead Auditor training?
               </a>
@@ -192,7 +193,7 @@ export default async function HomePage() {
                   </div>
                   <div
                     className="text-sm text-slate-500"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {s.label}
                   </div>
@@ -217,7 +218,7 @@ export default async function HomePage() {
               style={{
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               <ShieldCheck size={12} /> What we do for your business
@@ -229,7 +230,7 @@ export default async function HomePage() {
             </h2>
             <p
               className="text-slate-600 leading-relaxed mb-6"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               From your first gap analysis to a valid certificate, we manage the
               whole journey — ISO 9001, 14001, 45001 and 22000. Documentation,
@@ -242,7 +243,7 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Apply for certification <ArrowRight size={16} />
@@ -250,7 +251,7 @@ export default async function HomePage() {
               <Link
                 href="/iso-certification-consulting"
                 className="inline-flex items-center gap-2 bg-white border border-teal-200 text-teal-800 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-400"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 Explore consulting
               </Link>
@@ -259,14 +260,14 @@ export default async function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-600 text-sm underline underline-offset-4"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 Talk to us on WhatsApp
               </a>
             </div>
             <p
               className="text-sm text-slate-500 mt-5"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Handling sensitive or payment data? We also do{" "}
               <Link
@@ -321,7 +322,7 @@ export default async function HomePage() {
                         ? "text-teal-800 underline decoration-teal-300 underline-offset-2"
                         : "text-slate-700"
                     }`}
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {service.label}
                   </span>
@@ -355,7 +356,7 @@ export default async function HomePage() {
                 backgroundColor: "#f0fdfa",
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               <ShieldCheck size={12} /> Information Security & Data Protection
@@ -365,7 +366,7 @@ export default async function HomePage() {
             </h2>
             <p
               className="text-slate-500 max-w-2xl"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Handling sensitive or payment data? We take organisations through
               information-security and data-protection certification, end to
@@ -390,19 +391,19 @@ export default async function HomePage() {
                 </div>
                 <div
                   className="text-sm font-medium text-slate-600 mb-3"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.name}
                 </div>
                 <p
                   className="text-sm text-slate-500 leading-relaxed mb-4"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {s.tagline}
                 </p>
                 <span
                   className="inline-flex items-center gap-1 text-sm text-teal-600 font-medium"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   Learn more{" "}
                   <ArrowRight
@@ -427,7 +428,7 @@ export default async function HomePage() {
                 backgroundColor: "#f0fdfa",
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               <Award size={12} /> Internationally Recognised Training
@@ -438,7 +439,7 @@ export default async function HomePage() {
             </h2>
             <p
               className="text-slate-600 leading-relaxed mb-6"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Professional Lead Auditor training for ISO 9001, ISO 14001 and ISO
               45001 — equipping quality and compliance professionals across East
@@ -451,7 +452,7 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 View upcoming courses <ArrowRight size={16} />
@@ -459,7 +460,7 @@ export default async function HomePage() {
               <a
                 href="#pricing"
                 className="text-slate-600 text-sm underline underline-offset-4"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 See training pricing
               </a>
@@ -492,7 +493,7 @@ export default async function HomePage() {
                   </div>
                   <div
                     className="text-sm text-slate-500"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {stat.label}
                   </div>
@@ -535,7 +536,7 @@ export default async function HomePage() {
                 <h3 className="font-bold text-slate-900 mb-2">{item.title}</h3>
                 <p
                   className="text-sm text-slate-500 leading-relaxed"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {item.desc}
                 </p>
@@ -548,21 +549,14 @@ export default async function HomePage() {
       <section id="courses" className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+            <h2 className="text-3xl font-bold text-slate-900">
               Upcoming Courses
             </h2>
-            <p
-              className="text-slate-500"
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              All courses run for 5 days and include study materials, meals, and
-              a certificate of completion.
-            </p>
           </div>
           {courses.length === 0 && (
             <div
               className="border border-slate-200 rounded-lg p-12 text-center text-slate-500"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               No upcoming courses are scheduled right now. Please check back
               soon.
@@ -593,7 +587,7 @@ export default async function HomePage() {
                       backgroundColor: "#f0fdfa",
                       borderColor: "#99f6e4",
                       color: "#0f766e",
-                      fontFamily: "system-ui, sans-serif",
+                      fontFamily: "var(--font-geist-sans), sans-serif",
                     }}
                   >
                     {course.standard}
@@ -603,28 +597,28 @@ export default async function HomePage() {
                   </h3>
                   <p
                     className="text-slate-500 text-sm mb-5 leading-relaxed line-clamp-3"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {course.description}
                   </p>
                   <div className="space-y-2 mb-6">
                     <div
                       className="flex items-center gap-2 text-sm text-slate-500"
-                      style={{ fontFamily: "system-ui, sans-serif" }}
+                      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                     >
                       <Calendar size={14} className="text-teal-600 shrink-0" />
-                      {formatClassDateShort(nextClassStart())}
+                      {formatClassDateShort(advertisedCourseStart(course.start_date))}
                     </div>
                     <div
                       className="flex items-center gap-2 text-sm text-slate-500"
-                      style={{ fontFamily: "system-ui, sans-serif" }}
+                      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                     >
                       <Clock size={14} className="text-teal-600 shrink-0" />
                       {course.duration_days} days · {course.format}
                     </div>
                     <div
                       className="flex items-center gap-2 text-sm text-slate-500"
-                      style={{ fontFamily: "system-ui, sans-serif" }}
+                      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                     >
                       <Users size={14} className="text-teal-600 shrink-0" />
                       {course.seats_total - course.seats_taken} seats remaining
@@ -637,7 +631,7 @@ export default async function HomePage() {
                       </div>
                       <div
                         className="text-xs text-teal-600"
-                        style={{ fontFamily: "system-ui, sans-serif" }}
+                        style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                       >
                         {formatUGX(TEAM_PRICE)} for teams of {TEAM_MIN_SIZE}+
                       </div>
@@ -647,7 +641,7 @@ export default async function HomePage() {
                       className="relative z-10 inline-flex items-center gap-1 text-white text-sm px-4 py-2 rounded-md font-medium transition-colors hover:brightness-95"
                       style={{
                         backgroundColor: "#0d9488",
-                        fontFamily: "system-ui, sans-serif",
+                        fontFamily: "var(--font-geist-sans), sans-serif",
                       }}
                     >
                       Enroll <ArrowRight size={14} />
@@ -668,7 +662,7 @@ export default async function HomePage() {
           </h2>
           <p
             className="text-slate-500 mb-12"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             No hidden fees. All materials, meals, and certification included.
           </p>
@@ -680,7 +674,7 @@ export default async function HomePage() {
               </h3>
               <p
                 className="text-sm text-slate-500 mb-6"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 For professionals enrolling independently
               </p>
@@ -689,13 +683,13 @@ export default async function HomePage() {
               </div>
               <div
                 className="text-sm text-slate-500 mb-6"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 per person
               </div>
               <ul
                 className="space-y-2 text-sm text-slate-600"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 {[
                   "Course materials included",
@@ -719,7 +713,7 @@ export default async function HomePage() {
                 className="absolute top-4 right-4 text-xs font-medium px-2 py-1 rounded-full text-white"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Best Value
@@ -729,7 +723,7 @@ export default async function HomePage() {
               </h3>
               <p
                 className="text-sm text-slate-500 mb-6"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 For companies enrolling {TEAM_MIN_SIZE} or more people
               </p>
@@ -738,13 +732,13 @@ export default async function HomePage() {
               </div>
               <div
                 className="text-sm text-slate-500 mb-6"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 per person · minimum {TEAM_MIN_SIZE}
               </div>
               <ul
                 className="space-y-2 text-sm text-slate-600"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 {[
                   "Everything in Individual",
