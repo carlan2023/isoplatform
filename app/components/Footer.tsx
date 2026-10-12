@@ -9,9 +9,8 @@ import {
   Youtube,
 } from "lucide-react";
 import { SITE_NAME, LEGAL_NAME, CONTACT, SOCIALS } from "@/lib/site";
-import LaunchBadge from "@/app/components/LaunchBadge";
 
-const sans = { fontFamily: "system-ui, sans-serif" } as const;
+const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
 const QUICK_LINKS = [
   { label: "For Businesses", href: "/iso-certification-consulting" },
@@ -157,11 +156,10 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-slate-800">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <p className="text-xs" style={sans}>
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <p className="text-xs text-center sm:text-left" style={sans}>
             © {new Date().getFullYear()} {LEGAL_NAME}. All rights reserved.
           </p>
-          <LaunchBadge />
         </div>
       </div>
     </footer>

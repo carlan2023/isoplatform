@@ -212,6 +212,15 @@ describe("getBroRacksHealth", () => {
     }
   });
 
+  it("reports the www canonical host when the apex URL is configured", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://amqualitysystems.com/";
+    fetchMock.mockResolvedValueOnce(tokenOk("tok_abc"));
+    const health = await getBroRacksHealth();
+    expect(health.webhookUrl).toBe(
+      "https://www.amqualitysystems.com/api/webhooks/broracks",
+    );
+  });
+
   it("omits webhookUrl when NEXT_PUBLIC_SITE_URL is unset", async () => {
     delete process.env.BRORACKS_PUBLIC_KEY;
     const health = await getBroRacksHealth();

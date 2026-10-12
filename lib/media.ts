@@ -73,9 +73,24 @@ export const IMG = {
     src: "/media/iso-implementation-training-auditing.webp",
     width: 1280,
     height: 960,
-    alt: "Consultant leading an ISO 45001 implementation and internal-audit training workshop",
+    alt: "Consultant leading an ISO implementation and internal-audit training workshop",
   },
 } as const;
 
-/** Image used for Open Graph / social share previews (the proof-of-outcome shot). */
-export const OG_IMAGE = IMG.certifiedClients;
+/**
+ * Open Graph / Twitter card. A dedicated 1200×630 NAM QMS graphic at
+ * /og-image.png — not a redirect, and not a photo that carries another brand.
+ */
+export const OG_IMAGE = {
+  src: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "NAM Quality Management Systems — ISO certification consulting and Lead Auditor training in Uganda and East Africa",
+} as const;
+
+export const ogImageMetadata = {
+  url: OG_IMAGE.src,
+  width: OG_IMAGE.width,
+  height: OG_IMAGE.height,
+  alt: OG_IMAGE.alt,
+};

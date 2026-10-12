@@ -63,7 +63,7 @@ export default function ConsultForm({
     }
   };
 
-  const sans = { fontFamily: "system-ui, sans-serif" };
+  const sans = { fontFamily: "var(--font-geist-sans), sans-serif" };
   const inputCls =
     "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 bg-white";
   const errorId = `${uid}-error`;
