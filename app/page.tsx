@@ -18,7 +18,7 @@ import {
   formatUGX,
 } from "@/lib/pricing";
 import { SITE_NAME, SITE_URL, CONTACT } from "@/lib/site";
-import { nextClassStart, formatClassDateShort } from "@/lib/schedule";
+import { advertisedCourseStart, formatClassDateShort } from "@/lib/schedule";
 import { SECURITY_STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
 import { coursePath } from "@/lib/course-slug";
@@ -590,7 +590,7 @@ export default async function HomePage() {
                       style={{ fontFamily: "system-ui, sans-serif" }}
                     >
                       <Calendar size={14} className="text-teal-600 shrink-0" />
-                      {formatClassDateShort(nextClassStart())}
+                      {formatClassDateShort(advertisedCourseStart(course.start_date))}
                     </div>
                     <div
                       className="flex items-center gap-2 text-sm text-slate-500"

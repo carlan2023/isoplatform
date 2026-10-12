@@ -15,7 +15,11 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { SITE_NAME, abs } from "@/lib/site";
 import { courseSlug, coursePath, isUuid } from "@/lib/course-slug";
-import { nextClassStart, formatClassDate, toISODate } from "@/lib/schedule";
+import {
+  advertisedCourseStart,
+  formatClassDate,
+  toISODate,
+} from "@/lib/schedule";
 import InstructorContact from "@/app/components/InstructorContact";
 import {
   INDIVIDUAL_PRICE,
@@ -114,9 +118,10 @@ export default async function CoursePage({
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
   const isVirtual = course.format === "virtual";
-  // The next cohort always begins on the first Monday of next month, computed
-  // live so the advertised start date rolls forward automatically each month.
-  const nextStart = nextClassStart();
+  // Advertise the next first Monday. A stored start_date that has already
+  // passed (Africa/Kampala) is rolled forward here, so the page stays correct
+  // even when the daily cron has not rewritten the row yet.
+  const nextStart = advertisedCourseStart(course.start_date);
   const startDate = formatClassDate(nextStart);
   const startDateISO = toISODate(nextStart);
 

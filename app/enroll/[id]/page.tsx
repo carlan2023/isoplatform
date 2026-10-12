@@ -5,7 +5,7 @@ import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
 import InstructorContact from "@/app/components/InstructorContact";
-import { nextClassStart, formatClassDate } from "@/lib/schedule";
+import { advertisedCourseStart, formatClassDate } from "@/lib/schedule";
 import {
   INDIVIDUAL_PRICE,
   TEAM_PRICE,
@@ -14,6 +14,10 @@ import {
   computePricing,
   formatUGX,
 } from "@/lib/pricing";
+
+// Same refresh as the course pages, so a passed start date cannot stay frozen
+// from the production build.
+export const revalidate = 60;
 
 export default async function EnrollPage({
   params,
@@ -33,8 +37,9 @@ export default async function EnrollPage({
   const [course] = await withCurrentCohortSeats([found]);
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
-  // Advertise the next cohort — first Monday of next month, computed live.
-  const startDate = formatClassDate(nextClassStart());
+  // Same date the homepage and course page advertise, including a roll-forward
+  // when the stored start_date has passed.
+  const startDate = formatClassDate(advertisedCourseStart(course.start_date));
 
   return (
     <div className="min-h-screen bg-slate-50">

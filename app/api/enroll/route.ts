@@ -9,7 +9,7 @@
 // ---------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";
-import { currentCohortStart } from "@/lib/schedule";
+import { advertisedCourseStart, toISODate } from "@/lib/schedule";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     const { data: course, error: courseError } = await admin
       .from("courses")
-      .select("id, is_active")
+      .select("id, is_active, start_date")
       .eq("id", courseId)
       .maybeSingle();
 
@@ -132,7 +132,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cohort = currentCohortStart();
+    // Match the date shown on the course page. A passed start_date rolls to
+    // the next first Monday (Africa/Kampala); a future one is kept.
+    const cohort = toISODate(advertisedCourseStart(course.start_date));
     const existing = (existingRows ?? []).find(
       (e: { status: string; cohort_start?: string | null }) =>
         e.status === "pending" ||
