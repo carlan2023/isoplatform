@@ -12,6 +12,8 @@
 // indefinitely.
 // ---------------------------------------------------------------------------
 
+import { isCollectableUgx, MOMO_MAX_AMOUNT, MOMO_MIN_AMOUNT } from "./pricing";
+
 const DEFAULT_API_URL = "https://api.broracks.online";
 
 /** API origin. BRORACKS_API_URL overrides it; read per call, not at load. */
@@ -283,6 +285,14 @@ export function providerMessageFrom(body: unknown): string | null {
 export async function initiateCollection(
   params: CollectionParams,
 ): Promise<CollectionResult> {
+  if (!isCollectableUgx(params.amount)) {
+    throw new BroRacksRejectedError(
+      `Amount must be a whole number of UGX between ${MOMO_MIN_AMOUNT.toLocaleString()} and ${MOMO_MAX_AMOUNT.toLocaleString()}.`,
+      null,
+      null,
+    );
+  }
+
   const send = async (token: string): Promise<Response> => {
     try {
       return await fetchWithTimeout(
