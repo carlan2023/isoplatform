@@ -225,7 +225,7 @@ export default function LoginPage() {
 
   const inputBase =
     "w-full border border-slate-200 rounded-lg pl-9 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500";
-  const sansFont = { fontFamily: "system-ui, sans-serif" as const };
+  const sansFont = { fontFamily: "var(--font-geist-sans), sans-serif" as const };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">

@@ -15,6 +15,8 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { SITE_NAME, abs } from "@/lib/site";
 import { courseSlug, coursePath, isUuid } from "@/lib/course-slug";
+import { presentCourseCopy } from "@/lib/copy";
+import { ogImageMetadata } from "@/lib/media";
 import { nextClassStart, formatClassDate, toISODate } from "@/lib/schedule";
 import InstructorContact from "@/app/components/InstructorContact";
 import {
@@ -55,18 +57,18 @@ async function getCourse(param: string): Promise<Course | null> {
         .select("*")
         .eq("id", param)
         .single();
-      return (data as Course) ?? null;
+      return data ? presentCourseCopy(data as Course) : null;
     }
     const { data } = await supabase
       .from("courses")
       .select("*")
       .eq("is_active", true)
       .order("start_date");
-    return (
+    const found =
       ((data as Course[] | null) ?? []).find(
         (c) => courseSlug(c.title) === param,
-      ) ?? null
-    );
+      ) ?? null;
+    return found ? presentCourseCopy(found) : null;
   } catch {
     return null;
   }
@@ -96,6 +98,7 @@ export async function generateMetadata({
       url: abs(path),
       siteName: SITE_NAME,
       type: "website",
+      images: [ogImageMetadata],
     },
   };
 }
@@ -198,7 +201,7 @@ export default async function CoursePage({
           <Link
             href="/#courses"
             className="text-sm text-slate-500 hover:text-teal-600 transition-colors flex items-center gap-1"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             <ArrowLeft size={14} /> All courses
           </Link>
@@ -215,7 +218,7 @@ export default async function CoursePage({
                 backgroundColor: "#f0fdfa",
                 borderColor: "#99f6e4",
                 color: "#0f766e",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               {course.standard}
@@ -226,7 +229,7 @@ export default async function CoursePage({
           </h1>
           <p
             className="text-slate-600 leading-relaxed mb-8"
-            style={{ fontFamily: "system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             {course.description}
           </p>
@@ -246,7 +249,7 @@ export default async function CoursePage({
                 <div>
                   <div
                     className="text-xs text-slate-400 uppercase tracking-wide"
-                    style={{ fontFamily: "system-ui, sans-serif" }}
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                   >
                     {f.label}
                   </div>
@@ -267,7 +270,7 @@ export default async function CoursePage({
                 <CheckCircle2 size={18} className="text-teal-600 shrink-0" />
                 <span
                   className="text-sm text-slate-600"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                 >
                   {item}
                 </span>
@@ -284,7 +287,7 @@ export default async function CoursePage({
             </div>
             <div
               className="text-sm text-slate-500 mb-5"
-              style={{ fontFamily: "system-ui, sans-serif" }}
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               per person · {formatUGX(TEAM_PRICE)} for teams of {TEAM_MIN_SIZE}+
             </div>
@@ -295,7 +298,7 @@ export default async function CoursePage({
                 className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold py-3.5 rounded-lg transition-colors"
                 style={{
                   backgroundColor: "#0d9488",
-                  fontFamily: "system-ui, sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
                 Enroll now <ArrowRight size={16} />
@@ -303,7 +306,7 @@ export default async function CoursePage({
             ) : (
               <div
                 className="w-full text-center text-sm font-semibold py-3.5 rounded-lg bg-slate-100 text-slate-400"
-                style={{ fontFamily: "system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
                 Fully booked
               </div>
@@ -311,14 +314,14 @@ export default async function CoursePage({
 
             <div className="border-t border-slate-100 mt-5 pt-5 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500" style={{ fontFamily: "system-ui, sans-serif" }}>
+                <span className="text-slate-500" style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}>
                   Minimum deposit ({Math.round(DEPOSIT_RATE * 100)}%)
                 </span>
                 <span className="font-bold" style={{ color: "#0d9488" }}>
                   {formatUGX(computePricing(1).minDeposit)}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400 pt-1" style={{ fontFamily: "system-ui, sans-serif" }}>
+              <div className="flex items-center gap-2 text-xs text-slate-400 pt-1" style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}>
                 <ShieldCheck size={13} className="text-teal-600" /> Pay a deposit
                 or in full via Mobile Money
               </div>

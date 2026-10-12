@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-const sans = { fontFamily: "system-ui, sans-serif" } as const;
+const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
 export default function NotFound() {
   return (

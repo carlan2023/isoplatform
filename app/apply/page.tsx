@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
 };
 
-const sans = { fontFamily: "system-ui, sans-serif" } as const;
+const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
 const STEPS = [
   {
