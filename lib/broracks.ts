@@ -12,6 +12,7 @@
 // indefinitely.
 // ---------------------------------------------------------------------------
 
+import { isCollectableUgx, MOMO_MAX_AMOUNT, MOMO_MIN_AMOUNT } from "./pricing";
 import {
   collectionReferenceFrom,
   parseProviderPaymentState,
@@ -471,6 +472,14 @@ export function describeBroRacksFailure(error: unknown): {
 export async function initiateCollection(
   params: CollectionParams,
 ): Promise<CollectionResult> {
+  if (!isCollectableUgx(params.amount)) {
+    throw new BroRacksRejectedError(
+      `Amount must be a whole number of UGX between ${MOMO_MIN_AMOUNT.toLocaleString()} and ${MOMO_MAX_AMOUNT.toLocaleString()}.`,
+      null,
+      null,
+    );
+  }
+
   const send = async (token: string): Promise<Response> => {
     try {
       return await fetchWithTimeout(

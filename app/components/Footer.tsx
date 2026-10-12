@@ -18,6 +18,7 @@ const QUICK_LINKS = [
   { label: "Lead Auditor Training", href: "/#training" },
   { label: "Upcoming Courses", href: "/#courses" },
   { label: "ISO 27001", href: "/certifications/iso-27001" },
+  { label: "Internal Auditor Courses", href: "/internal-auditor-courses" },
   { label: "Student Portal", href: "/login" },
 ];
 

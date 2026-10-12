@@ -321,6 +321,23 @@ describe("getBroRacksHealth", () => {
   });
 });
 
+describe("initiateCollection amount limits", () => {
+  it("rejects amounts outside whole UGX 500–7,000,000 before calling BroRacks", async () => {
+    for (const amount of [499, 7_000_001, 1000.4, 0]) {
+      await expect(initiateCollection({ ...params, amount })).rejects.toBeInstanceOf(
+        BroRacksRejectedError,
+      );
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("accepts the inclusive bounds", async () => {
+    fetchMock.mockResolvedValueOnce(tokenOk("t1")).mockResolvedValueOnce(collectionOk());
+    await initiateCollection({ ...params, amount: 500 });
+    expect(bodyOf(fetchMock.mock.calls[1]).amount).toBe(500);
+  });
+});
+
 describe("providerMessageFrom", () => {
   it("reads a top-level message from a JSON string", () => {
     expect(providerMessageFrom('{"message":"Invalid phone number"}')).toBe(

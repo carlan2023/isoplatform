@@ -12,26 +12,82 @@ export const TEAM_MIN_SIZE = 3;
 export const MAX_TEAM_SIZE = 10;
 export const DEPOSIT_RATE = 0.3; // minimum deposit = 30% of the full amount
 
-/** Per-person price for a given team size. */
-export function pricePerPerson(teamSize: number): number {
+/** Internal Auditor Courses — list price per person. */
+export const INTERNAL_AUDITOR_PRICE = 400_000;
+/** Groups of this size or larger pay half. */
+export const INTERNAL_AUDITOR_GROUP_MIN = 5;
+/** 50% of INTERNAL_AUDITOR_PRICE. */
+export const INTERNAL_AUDITOR_GROUP_PRICE = INTERNAL_AUDITOR_PRICE / 2;
+
+/**
+ * BroRacks Mobile Money collects whole Uganda shillings in this inclusive
+ * range. Every charge must pass isCollectableUgx before it is sent.
+ */
+export const MOMO_MIN_AMOUNT = 500;
+export const MOMO_MAX_AMOUNT = 7_000_000;
+
+export const PRICING_PRODUCTS = ["lead-auditor", "internal-auditor"] as const;
+export type PricingProduct = (typeof PRICING_PRODUCTS)[number];
+
+/** True when `amount` is a whole number of UGX BroRacks can collect. */
+export function isCollectableUgx(amount: number): boolean {
+  return (
+    Number.isInteger(amount) &&
+    amount >= MOMO_MIN_AMOUNT &&
+    amount <= MOMO_MAX_AMOUNT
+  );
+}
+
+/** Per-person price for a given team size and product. */
+export function pricePerPerson(
+  teamSize: number,
+  product: PricingProduct = "lead-auditor",
+): number {
+  if (product === "internal-auditor") {
+    return teamSize >= INTERNAL_AUDITOR_GROUP_MIN
+      ? INTERNAL_AUDITOR_GROUP_PRICE
+      : INTERNAL_AUDITOR_PRICE;
+  }
   return teamSize >= TEAM_MIN_SIZE ? TEAM_PRICE : INDIVIDUAL_PRICE;
 }
 
 /**
- * Canonical pricing for a booking. Clamps team size to the allowed range and
- * returns the per-person rate, the full amount, and the minimum deposit.
+ * Canonical pricing for a booking. Clamps team size to 1..MAX_TEAM_SIZE and
+ * returns the per-person rate, the full amount, and the minimum due now.
+ *
+ * Lead Auditor courses keep the 30% deposit. Internal Auditor Courses charge
+ * the full total (groups of INTERNAL_AUDITOR_GROUP_MIN or more are half price).
  */
-export function computePricing(teamSize: number) {
+export function computePricing(
+  teamSize: number,
+  product: PricingProduct = "lead-auditor",
+) {
   const team = Math.min(MAX_TEAM_SIZE, Math.max(1, Math.floor(teamSize) || 1));
-  const perPerson = pricePerPerson(team);
+  const perPerson = pricePerPerson(team, product);
   const fullAmount = perPerson * team;
-  const minDeposit = Math.ceil(fullAmount * DEPOSIT_RATE);
+  const minDeposit =
+    product === "internal-auditor"
+      ? fullAmount
+      : Math.ceil(fullAmount * DEPOSIT_RATE);
   return { team, perPerson, fullAmount, minDeposit };
 }
 
 /** Format a UGX amount for display, e.g. 1000000 -> "UGX 1,000,000". */
 export function formatUGX(amount: number): string {
   return `UGX ${Math.round(amount).toLocaleString()}`;
+}
+
+/**
+ * Why a total cannot be sent to BroRacks, or null when it can.
+ * A group whose total is above MOMO_MAX_AMOUNT (UGX 7,000,000) gets a
+ * specific message instead of a generic payment failure.
+ */
+export function collectionLimitMessage(amount: number): string | null {
+  if (isCollectableUgx(amount)) return null;
+  if (Number.isInteger(amount) && amount > MOMO_MAX_AMOUNT) {
+    return `This total of ${formatUGX(amount)} is above the Mobile Money limit of ${formatUGX(MOMO_MAX_AMOUNT)}. Choose fewer participants, or contact NAM QMS to arrange this booking.`;
+  }
+  return `Mobile Money can only collect whole amounts from ${formatUGX(MOMO_MIN_AMOUNT)} to ${formatUGX(MOMO_MAX_AMOUNT)}.`;
 }
 
 /**

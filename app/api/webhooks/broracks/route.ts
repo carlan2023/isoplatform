@@ -33,6 +33,27 @@ import {
   sendResendEmail,
 } from "@/lib/email";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { INTERNAL_AUDITOR_COURSE_TITLE } from "@/lib/group-enrollment";
+import { CONTACT } from "@/lib/site";
+
+type GroupEnrollmentRow = {
+  id: string;
+  status: string;
+  amount: number;
+  company_name: string;
+  contact_name: string;
+  contact_email: string;
+  participant_count: number;
+};
+
+/** True when group checkout tables have not been created yet (migration not run). */
+function isMissingGroupTable(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  const msg = `${error.code ?? ""} ${error.message ?? ""}`;
+  return /PGRST205|42P01|schema cache|does not exist|Could not find the table/i.test(
+    msg,
+  );
+}
 import { classStartEmailHtml } from "@/lib/enrollment-emails";
 import { classStartLabel } from "@/lib/schedule";
 
@@ -188,6 +209,14 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
       : String(collectedAmount ?? "unknown");
 
   if (!enrollment) {
+    const groupOutcome = await confirmGroupEnrollment(
+      admin,
+      reference,
+      event,
+      amountLabel,
+    );
+    if (groupOutcome) return groupOutcome;
+
     // Money was collected but we can't match it: e.g. the learner switched to
     // cash (reference replaced) and then approved the prompt anyway, or the
     // reference failed to save. A human has to reconcile this.
@@ -393,6 +422,10 @@ async function handleFailure(admin: SupabaseClient, event: WebhookEvent) {
   }
 
   if (!cancelled || cancelled.length === 0) {
+    for (const ref of references) {
+      const groupOutcome = await cancelGroupEnrollment(admin, ref);
+      if (groupOutcome) return groupOutcome;
+    }
     console.warn(
       `[broracks webhook] ${event.event} for ${references.join(", ")} matched no held enrollment`,
     );
@@ -419,6 +452,255 @@ async function handleFailure(admin: SupabaseClient, event: WebhookEvent) {
       learnerEmail: userData?.user?.email,
       courseTitle: course?.title ?? "your course",
     });
+  }
+
+  return NextResponse.json({ received: true });
+}
+
+// ---------------------------------------------------------------------------
+// Internal Auditor Courses group bookings. Called only when the reference is
+// not a course enrollment. Returns null when this reference is not a group
+// booking (or the group tables have not been created yet) so the caller can
+// keep the existing course-enrollment behaviour.
+// ---------------------------------------------------------------------------
+async function loadGroupEnrollment(admin: SupabaseClient, reference: string) {
+  const { data, error } = await admin
+    .from("group_enrollments")
+    .select(
+      "id, status, amount, company_name, contact_name, contact_email, participant_count",
+    )
+    .eq("payment_reference", reference)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingGroupTable(error)) {
+      console.warn(
+        "[broracks webhook] group_enrollments is missing — run db/group-enrollments.sql",
+      );
+      return { row: null as GroupEnrollmentRow | null, missing: true, failed: false };
+    }
+    console.error("[broracks webhook] group enrollment query:", error);
+    return { row: null as GroupEnrollmentRow | null, missing: false, failed: true };
+  }
+
+  return {
+    row: (data as GroupEnrollmentRow | null) ?? null,
+    missing: false,
+    failed: false,
+  };
+}
+
+async function confirmGroupEnrollment(
+  admin: SupabaseClient,
+  reference: string,
+  event: WebhookEvent,
+  amountLabel: string,
+): Promise<NextResponse | null> {
+  const loaded = await loadGroupEnrollment(admin, reference);
+  if (loaded.failed) {
+    return NextResponse.json(
+      { error: "Could not load enrollment" },
+      { status: 500 },
+    );
+  }
+  if (!loaded.row) return null;
+
+  const group = loaded.row;
+  if (group.status === "confirmed") {
+    return NextResponse.json({ received: true });
+  }
+
+  if (group.status !== "awaiting_confirmation" && group.status !== "pending") {
+    console.error(
+      `[broracks webhook] payment ${reference} received for group enrollment ${group.id} in status '${group.status}'`,
+    );
+    await alertStaff(
+      `Payment received for a ${group.status} group booking — ref ${reference}`,
+      {
+        Reference: reference,
+        Enrollment: group.id,
+        Course: INTERNAL_AUDITOR_COURSE_TITLE,
+        Company: group.company_name,
+        Status: group.status,
+        Amount: amountLabel,
+      },
+    );
+    return NextResponse.json({ received: true });
+  }
+
+  if (
+    !shouldConfirmPayment(
+      event.data?.amount,
+      Number(group.amount),
+      event.data?.currency,
+    )
+  ) {
+    console.error(
+      `[broracks webhook] group amount mismatch for ${reference}: collected ${event.data?.amount} ${event.data?.currency ?? ""}, expected ${group.amount} UGX`,
+    );
+    await alertStaff(`Payment amount mismatch — ref ${reference}`, {
+      Reference: reference,
+      Enrollment: group.id,
+      Course: INTERNAL_AUDITOR_COURSE_TITLE,
+      Company: group.company_name,
+      Collected: `${event.data?.amount ?? ""} ${event.data?.currency ?? ""}`.trim(),
+      Expected: `UGX ${Number(group.amount).toLocaleString()}`,
+    });
+    return NextResponse.json({ received: true });
+  }
+
+  const { data: confirmedRows, error: confirmError } = await admin
+    .from("group_enrollments")
+    .update({ status: "confirmed" })
+    .eq("id", group.id)
+    .eq("payment_reference", reference)
+    .in("status", ["pending", "awaiting_confirmation"])
+    .select("id");
+
+  if (confirmError) {
+    console.error(
+      `[broracks webhook] failed to confirm group enrollment ${group.id} for ref ${reference}:`,
+      confirmError,
+    );
+    return NextResponse.json(
+      { error: "Could not confirm enrollment" },
+      { status: 500 },
+    );
+  }
+
+  if (!confirmedRows || confirmedRows.length === 0) {
+    return NextResponse.json({ received: true });
+  }
+
+  const { data: people } = await admin
+    .from("group_enrollment_participants")
+    .select("full_name, email")
+    .eq("group_enrollment_id", group.id);
+
+  const roster = (people ?? [])
+    .map(
+      (person) =>
+        `<li>${escapeHtml(person.full_name)} — ${escapeHtml(person.email)}</li>`,
+    )
+    .join("");
+  const title = escapeHtml(INTERNAL_AUDITOR_COURSE_TITLE);
+  const amountEsc = escapeHtml(amountLabel);
+  const refEsc = escapeHtml(reference);
+  const company = escapeHtml(group.company_name);
+
+  const mail = await sendResendEmail({
+    from: getResendFrom(),
+    to: group.contact_email,
+    subject: `Payment confirmed — ${INTERNAL_AUDITOR_COURSE_TITLE}`,
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
+        <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
+          <h1 style="margin: 0; font-size: 22px;">Your team is enrolled</h1>
+          <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM QMS</p>
+        </div>
+        <p style="font-family: system-ui, sans-serif; color: #475569;">Dear ${escapeHtml(group.contact_name)},</p>
+        <p style="font-family: system-ui, sans-serif; color: #475569;">
+          Your payment of <strong>${amountEsc}</strong> was received.
+          <strong>${company}</strong> is enrolled in <strong>${title}</strong>
+          for ${group.participant_count} ${group.participant_count === 1 ? "participant" : "participants"}.
+        </p>
+        ${roster ? `<ul style="font-family: system-ui, sans-serif; color: #475569;">${roster}</ul>` : ""}
+        <p style="font-family: system-ui, sans-serif; color: #475569;">
+          We will be in touch with joining instructions. Reference: <strong>${refEsc}</strong>
+        </p>
+      </div>
+    `,
+  });
+  if (!mail.ok) {
+    console.error("[broracks webhook] group confirmation email failed:", mail.error);
+  }
+
+  const staffTo = getStaffInbox();
+  const adminMail = await sendResendEmail({
+    from: getResendNotificationsFrom(),
+    to: staffTo,
+    replyTo: group.contact_email,
+    subject: `Group payment confirmed — ${INTERNAL_AUDITOR_COURSE_TITLE} · ${group.company_name}`,
+    html: `
+      <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; color: #1e293b;">
+        <h2 style="margin: 0 0 16px;">Internal Auditor Courses group enrolled</h2>
+        <table style="width: 100%; font-size: 14px; color: #475569;">
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 160px;">Company</td><td>${company}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Contact</td><td>${escapeHtml(group.contact_name)} · ${escapeHtml(group.contact_email)}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Participants</td><td>${group.participant_count}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount</td><td>${amountEsc}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Reference</td><td>${refEsc}</td></tr>
+        </table>
+        ${roster ? `<ul>${roster}</ul>` : ""}
+      </div>
+    `,
+  });
+  if (!adminMail.ok) {
+    console.error("[broracks webhook] group staff email failed:", adminMail.error);
+  }
+
+  return NextResponse.json({ received: true });
+}
+
+async function cancelGroupEnrollment(
+  admin: SupabaseClient,
+  reference: string,
+): Promise<NextResponse | null> {
+  const loaded = await loadGroupEnrollment(admin, reference);
+  if (loaded.failed) {
+    return NextResponse.json(
+      { error: "Could not cancel enrollment" },
+      { status: 500 },
+    );
+  }
+  if (!loaded.row) return null;
+
+  const { data: cancelled, error: cancelError } = await admin
+    .from("group_enrollments")
+    .update({ status: "cancelled" })
+    .eq("id", loaded.row.id)
+    .eq("payment_reference", reference)
+    .in("status", ["pending", "awaiting_confirmation"])
+    .select("id, contact_email, contact_name");
+
+  if (cancelError) {
+    console.error(
+      `[broracks webhook] could not cancel group booking for ref ${reference}:`,
+      cancelError,
+    );
+    return NextResponse.json(
+      { error: "Could not cancel enrollment" },
+      { status: 500 },
+    );
+  }
+
+  const row = cancelled?.[0];
+  if (row?.contact_email) {
+    const mail = await sendResendEmail({
+      from: getResendFrom(),
+      to: row.contact_email,
+      subject: `Your Mobile Money payment didn't go through — ${INTERNAL_AUDITOR_COURSE_TITLE}`,
+      html: `
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
+          <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
+            <h1 style="margin: 0; font-size: 22px;">Payment not completed</h1>
+            <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM QMS</p>
+          </div>
+          <p style="font-family: system-ui, sans-serif; color: #475569;">Dear ${escapeHtml(row.contact_name)},</p>
+          <p style="font-family: system-ui, sans-serif; color: #475569;">
+            The Mobile Money payment for <strong>${escapeHtml(INTERNAL_AUDITOR_COURSE_TITLE)}</strong>
+            was declined, cancelled or timed out, so no money was taken.
+          </p>
+          <p style="font-family: system-ui, sans-serif; color: #475569;">
+            You can enroll again, or contact us on WhatsApp at
+            <a href="${CONTACT.whatsapp}" style="color: #0d9488;">${escapeHtml(CONTACT.phoneDisplay)}</a>.
+          </p>
+        </div>
+      `,
+    });
+    if (!mail.ok) {
+      console.error("[broracks webhook] group failure email failed:", mail.error);
+    }
   }
 
   return NextResponse.json({ received: true });

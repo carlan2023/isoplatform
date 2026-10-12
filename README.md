@@ -57,6 +57,11 @@ Run these in the Supabase SQL editor, in this order (the `courses`,
 2. `db/payments.sql` - atomic seat reservation and seat accounting
 3. `db/enrollment-flow.sql` - `awaiting_confirmation` status and profile columns
 4. `db/cohorts.sql` - per-cohort (monthly) seat counting
+5. `db/group-enrollments.sql` - Internal Auditor Courses group enrollments and participants
+
+`db/group-enrollments.sql` **must be run** in the Supabase SQL editor before
+the Internal Auditor Courses checkout (`/internal-auditor-courses`) can save
+a booking. Until it is run, the page still loads, but payment cannot be stored.
 
 ## Operations
 

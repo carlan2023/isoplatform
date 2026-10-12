@@ -38,6 +38,32 @@ export interface Profile {
   role: "student" | "admin";
 }
 
+export type GroupEnrollmentStatus = EnrollmentStatus;
+
+/** Company booking for Internal Auditor Courses. See db/group-enrollments.sql. */
+export interface GroupEnrollment {
+  id: string;
+  product: "internal-auditor";
+  company_name: string;
+  contact_name: string;
+  contact_email: string;
+  momo_phone: string;
+  participant_count: number;
+  per_person: number;
+  amount: number;
+  status: GroupEnrollmentStatus;
+  payment_reference: string | null;
+  created_at: string;
+}
+
+export interface GroupEnrollmentParticipant {
+  id: string;
+  group_enrollment_id: string;
+  full_name: string;
+  email: string;
+  created_at: string;
+}
+
 export interface Enrollment {
   id: string;
   user_id: string;
@@ -78,6 +104,43 @@ export interface Database {
           Omit<Enrollment, "user_id" | "course_id" | "courses" | "profiles">
         >;
         Update: Partial<Omit<Enrollment, "courses" | "profiles">>;
+        Relationships: [];
+      };
+      group_enrollments: {
+        Row: GroupEnrollment;
+        Insert: {
+          company_name: string;
+          contact_name: string;
+          contact_email: string;
+          momo_phone: string;
+          participant_count: number;
+          per_person: number;
+          amount: number;
+        } & Partial<
+          Omit<
+            GroupEnrollment,
+            | "company_name"
+            | "contact_name"
+            | "contact_email"
+            | "momo_phone"
+            | "participant_count"
+            | "per_person"
+            | "amount"
+          >
+        >;
+        Update: Partial<GroupEnrollment>;
+        Relationships: [];
+      };
+      group_enrollment_participants: {
+        Row: GroupEnrollmentParticipant;
+        Insert: {
+          group_enrollment_id: string;
+          full_name: string;
+          email: string;
+        } & Partial<
+          Omit<GroupEnrollmentParticipant, "group_enrollment_id" | "full_name" | "email">
+        >;
+        Update: Partial<GroupEnrollmentParticipant>;
         Relationships: [];
       };
     };
