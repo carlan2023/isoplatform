@@ -15,24 +15,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { safeRedirectPath } from "@/lib/redirect";
+import { forgotPasswordHref } from "@/lib/auth-url";
+import { evaluatePassword, passwordValidationError } from "@/lib/password";
+import { PASSWORD_UPDATED_NOTICE } from "@/lib/recovery";
 
 type View = "login" | "register";
-
-// Realtime password rules — evaluated on every keystroke in the register form.
-const PASSWORD_RULES: { label: string; test: (p: string) => boolean }[] = [
-  { label: "At least 8 characters", test: (p) => p.length >= 8 },
-  {
-    label: "Upper and lowercase letters",
-    test: (p) => /[a-z]/.test(p) && /[A-Z]/.test(p),
-  },
-  { label: "At least one number", test: (p) => /\d/.test(p) },
-];
 
 export default function LoginPage() {
   const router = useRouter();
   const [view, setView] = useState<View>("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
   const [sentVia, setSentVia] = useState<"register" | "magic">("register");
   const [form, setForm] = useState({
@@ -52,9 +46,11 @@ export default function LoginPage() {
 
   // Surface an error passed back by /auth/callback (e.g. expired email link).
   useEffect(() => {
-    const e = new URLSearchParams(window.location.search).get("error");
+    const params = new URLSearchParams(window.location.search);
+    const e = params.get("error");
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of a URL param after mount (kept in an effect to avoid a hydration mismatch).
     if (e) setError(e);
+    if (params.get("reset") === "success") setNotice(PASSWORD_UPDATED_NOTICE);
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,10 +65,7 @@ export default function LoginPage() {
   };
 
   // Realtime validation state (register form).
-  const passwordChecks = PASSWORD_RULES.map((r) => ({
-    label: r.label,
-    ok: r.test(form.password),
-  }));
+  const passwordChecks = evaluatePassword(form.password);
   const passwordValid = passwordChecks.every((c) => c.ok);
   const passwordsMatch =
     form.confirm_password.length > 0 && form.password === form.confirm_password;
@@ -136,12 +129,12 @@ export default function LoginPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passwordValid) {
-      setError("Please choose a password that meets all the requirements.");
-      return;
-    }
-    if (!passwordsMatch) {
-      setError("Passwords do not match.");
+    const passwordProblem = passwordValidationError(
+      form.password,
+      form.confirm_password,
+    );
+    if (passwordProblem) {
+      setError(passwordProblem);
       return;
     }
     setLoading(true);
@@ -254,6 +247,16 @@ export default function LoginPage() {
         </div>
 
         <div className="p-8">
+          {notice && (
+            <div
+              role="status"
+              className="bg-teal-50 border border-teal-200 text-teal-700 text-sm rounded-lg px-4 py-3 mb-4"
+              style={sansFont}
+            >
+              {notice}
+            </div>
+          )}
+
           {error && (
             <div
               role="alert"
@@ -343,6 +346,15 @@ export default function LoginPage() {
                 >
                   {visible.login ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
+              </div>
+              <div className="flex justify-end -mt-2">
+                <Link
+                  href={forgotPasswordHref(form.email)}
+                  className="text-sm"
+                  style={{ color: "#0d9488", ...sansFont }}
+                >
+                  Forgot password?
+                </Link>
               </div>
               <button
                 type="submit"
