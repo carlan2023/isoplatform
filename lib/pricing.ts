@@ -13,7 +13,7 @@ export const MAX_TEAM_SIZE = 10;
 export const DEPOSIT_RATE = 0.3; // minimum deposit = 30% of the full amount
 
 /** Internal Auditor Courses — list price per person. */
-export const INTERNAL_AUDITOR_PRICE = 40_000;
+export const INTERNAL_AUDITOR_PRICE = 400_000;
 /** Groups of this size or larger pay half. */
 export const INTERNAL_AUDITOR_GROUP_MIN = 5;
 /** 50% of INTERNAL_AUDITOR_PRICE. */
@@ -75,6 +75,19 @@ export function computePricing(
 /** Format a UGX amount for display, e.g. 1000000 -> "UGX 1,000,000". */
 export function formatUGX(amount: number): string {
   return `UGX ${Math.round(amount).toLocaleString()}`;
+}
+
+/**
+ * Why a total cannot be sent to BroRacks, or null when it can.
+ * A group whose total is above MOMO_MAX_AMOUNT (UGX 7,000,000) gets a
+ * specific message instead of a generic payment failure.
+ */
+export function collectionLimitMessage(amount: number): string | null {
+  if (isCollectableUgx(amount)) return null;
+  if (Number.isInteger(amount) && amount > MOMO_MAX_AMOUNT) {
+    return `This total of ${formatUGX(amount)} is above the Mobile Money limit of ${formatUGX(MOMO_MAX_AMOUNT)}. Choose fewer participants, or contact NAM QMS to arrange this booking.`;
+  }
+  return `Mobile Money can only collect whole amounts from ${formatUGX(MOMO_MIN_AMOUNT)} to ${formatUGX(MOMO_MAX_AMOUNT)}.`;
 }
 
 /**

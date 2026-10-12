@@ -3,18 +3,16 @@
 //
 // The company chooses how many people are coming (capped by MAX_TEAM_SIZE)
 // and enters each participant's name and email. The amount charged is always
-// computePricing(..., "internal-auditor").fullAmount: UGX 40,000 per person,
-// or UGX 20,000 per person for groups of 5 or more. That total is collected
+// computePricing(..., "internal-auditor").fullAmount: UGX 400,000 per person,
+// or UGX 200,000 per person for groups of 5 or more. That total is collected
 // in one Mobile Money payment.
 // ---------------------------------------------------------------------------
 
 import { normalizeUgandaMobile } from "./phone";
 import {
   computePricing,
-  isCollectableUgx,
+  collectionLimitMessage,
   MAX_TEAM_SIZE,
-  MOMO_MAX_AMOUNT,
-  MOMO_MIN_AMOUNT,
   type PricingProduct,
 } from "./pricing";
 import { cleanString, isValidEmail } from "./validation";
@@ -162,11 +160,9 @@ export function validateGroupEnrollment(input: unknown): GroupEnrollmentResult {
     }
   }
 
-  if (!isCollectableUgx(fullAmount)) {
-    return {
-      ok: false,
-      error: `Mobile Money can only collect whole amounts from UGX ${MOMO_MIN_AMOUNT.toLocaleString()} to UGX ${MOMO_MAX_AMOUNT.toLocaleString()}.`,
-    };
+  const limitMessage = collectionLimitMessage(fullAmount);
+  if (limitMessage) {
+    return { ok: false, error: limitMessage };
   }
 
   return {

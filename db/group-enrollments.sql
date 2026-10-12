@@ -9,10 +9,11 @@
 -- A company books Internal Auditor Courses for several people and pays the
 -- server-computed total in one Mobile Money collection. Prices live in
 -- lib/pricing.ts (computePricing with product "internal-auditor"):
---   UGX 40,000 per person, or UGX 20,000 per person for groups of 5+.
--- The participant cap matches MAX_TEAM_SIZE (10). The amount check matches
--- the BroRacks whole-UGX window (MOMO_MIN_AMOUNT 500 .. MOMO_MAX_AMOUNT
--- 7,000,000) in lib/pricing.ts.
+--   UGX 400,000 per person, or UGX 200,000 per person for groups of 5+.
+-- The participant cap matches MAX_TEAM_SIZE (10). A full group of 10 at the
+-- group rate is UGX 2,000,000, inside the BroRacks maximum. The amount check
+-- matches the BroRacks whole-UGX window (MOMO_MIN_AMOUNT 500 ..
+-- MOMO_MAX_AMOUNT 7,000,000) in lib/pricing.ts and rejects a total outside it.
 --
 -- Writes happen only through the service role (the enroll API and the
 -- BroRacks webhook). Signed-in admins may read the rows.

@@ -13,35 +13,35 @@ function payload(overrides: Record<string, unknown> = {}) {
     contactEmail: "amina@acme.example",
     momoPhone: "0771234567",
     teamSize: 1,
-    fullAmount: 40_000,
+    fullAmount: 400_000,
     participants: [{ name: "Amina Nakato", email: "amina@acme.example" }],
     ...overrides,
   };
 }
 
 describe("validateGroupEnrollment", () => {
-  it("prices one participant at UGX 40,000 and normalises the phone", () => {
+  it("prices one participant at UGX 400,000 and normalises the phone", () => {
     const result = validateGroupEnrollment(payload());
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.fullAmount).toBe(40_000);
-    expect(result.data.perPerson).toBe(40_000);
+    expect(result.data.fullAmount).toBe(400_000);
+    expect(result.data.perPerson).toBe(400_000);
     expect(result.data.momoPhone).toBe("+256771234567");
     expect(result.data.contactEmail).toBe("amina@acme.example");
   });
 
-  it("charges UGX 20,000 per person for a group of five", () => {
+  it("charges UGX 200,000 per person for a group of five", () => {
     const participants = Array.from({ length: 5 }, (_, i) => ({
       name: `Person ${i + 1}`,
       email: `person${i + 1}@acme.example`,
     }));
     const result = validateGroupEnrollment(
-      payload({ teamSize: 5, fullAmount: 100_000, participants }),
+      payload({ teamSize: 5, fullAmount: 1_000_000, participants }),
     );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.perPerson).toBe(20_000);
-    expect(result.data.fullAmount).toBe(100_000);
+    expect(result.data.perPerson).toBe(200_000);
+    expect(result.data.fullAmount).toBe(1_000_000);
     expect(result.data.participantCount).toBe(5);
   });
 
@@ -51,11 +51,11 @@ describe("validateGroupEnrollment", () => {
       email: `person${i + 1}@acme.example`,
     }));
     const result = validateGroupEnrollment(
-      payload({ teamSize: 4, fullAmount: 160_000, participants }),
+      payload({ teamSize: 4, fullAmount: 1_600_000, participants }),
     );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.fullAmount).toBe(160_000);
+    expect(result.data.fullAmount).toBe(1_600_000);
   });
 
   it("rejects a team larger than MAX_TEAM_SIZE", () => {
@@ -64,7 +64,7 @@ describe("validateGroupEnrollment", () => {
   });
 
   it("rejects a displayed total that does not match the server price", () => {
-    const result = validateGroupEnrollment(payload({ fullAmount: 20_000 }));
+    const result = validateGroupEnrollment(payload({ fullAmount: 200_000 }));
     expect(result).toEqual({
       ok: false,
       error: "Prices have changed since this page loaded. Please refresh and try again.",
@@ -75,7 +75,7 @@ describe("validateGroupEnrollment", () => {
     const result = validateGroupEnrollment(
       payload({
         teamSize: 2,
-        fullAmount: 80_000,
+        fullAmount: 800_000,
         participants: [{ name: "Amina Nakato", email: "amina@acme.example" }],
       }),
     );
@@ -88,7 +88,7 @@ describe("validateGroupEnrollment", () => {
     const result = validateGroupEnrollment(
       payload({
         teamSize: 2,
-        fullAmount: 80_000,
+        fullAmount: 800_000,
         participants: [
           { name: "Amina Nakato", email: "shared@acme.example" },
           { name: "John Okello", email: "Shared@acme.example" },

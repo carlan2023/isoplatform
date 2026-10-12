@@ -8,6 +8,7 @@ import {
 } from "@/lib/group-enrollment";
 import { normalizeUgandaMobile } from "@/lib/phone";
 import {
+  collectionLimitMessage,
   computePricing,
   formatUGX,
   INTERNAL_AUDITOR_GROUP_MIN,
@@ -68,6 +69,7 @@ export default function InternalAuditorEnrollForm() {
   const team = participants.length;
   const { perPerson, fullAmount } = computePricing(team, "internal-auditor");
   const groupRate = team >= INTERNAL_AUDITOR_GROUP_MIN;
+  const limitMessage = collectionLimitMessage(fullAmount);
   const normalizedPhone = normalizeUgandaMobile(momoPhone);
 
   useEffect(() => {
@@ -125,6 +127,7 @@ export default function InternalAuditorEnrollForm() {
   };
 
   const clientError = (): string | null => {
+    if (limitMessage) return limitMessage;
     if (!companyName.trim()) return "Enter your company name.";
     if (!contactName.trim()) return "Enter your name.";
     if (!isValidEmail(contactEmail.trim())) {
@@ -411,10 +414,12 @@ export default function InternalAuditorEnrollForm() {
           >
             {Array.from({ length: MAX_TEAM_SIZE }, (_, i) => i + 1).map((n) => {
               const price = computePricing(n, "internal-auditor");
+              const overLimit = collectionLimitMessage(price.fullAmount) !== null;
               return (
                 <option key={n} value={n}>
                   {n} — {formatUGX(price.fullAmount)} total
                   {n >= INTERNAL_AUDITOR_GROUP_MIN ? " (50% off)" : ""}
+                  {overLimit ? " (above Mobile Money limit)" : ""}
                 </option>
               );
             })}
@@ -484,8 +489,11 @@ export default function InternalAuditorEnrollForm() {
         </ol>
       </fieldset>
 
-      <div className="rounded-xl border border-teal-200 bg-teal-50 p-5" id={totalId}>
-        <p className="text-sm text-teal-900" style={sans}>
+      <div
+        className={`rounded-xl border p-5 ${limitMessage ? "border-red-300 bg-red-50" : "border-teal-200 bg-teal-50"}`}
+        id={totalId}
+      >
+        <p className={`text-sm ${limitMessage ? "text-red-900" : "text-teal-900"}`} style={sans}>
           {groupRate
             ? `Group rate applied: 50% off, ${formatUGX(perPerson)} per person.`
             : `${formatUGX(perPerson)} per person. Add ${INTERNAL_AUDITOR_GROUP_MIN - team} more for 50% off.`}
@@ -496,14 +504,20 @@ export default function InternalAuditorEnrollForm() {
           </span>{" "}
           <strong className="text-2xl">{formatUGX(fullAmount)}</strong>
         </p>
-        <p className="mt-1 text-xs text-slate-500" style={sans}>
-          Total due now, in whole Uganda shillings, by MTN or Airtel Mobile Money.
-        </p>
+        {limitMessage ? (
+          <p className="mt-3 text-sm font-medium text-red-800" style={sans} role="alert">
+            {limitMessage}
+          </p>
+        ) : (
+          <p className="mt-1 text-xs text-slate-500" style={sans}>
+            Total due now, in whole Uganda shillings, by MTN or Airtel Mobile Money.
+          </p>
+        )}
       </div>
 
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || limitMessage !== null}
         className="w-full inline-flex items-center justify-center gap-2 text-white text-sm font-semibold py-3 rounded-lg disabled:opacity-60"
         style={{ backgroundColor: "#0d9488", ...sans }}
       >
