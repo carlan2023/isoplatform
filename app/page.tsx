@@ -294,30 +294,53 @@ export default async function HomePage() {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
-            {[
-              "Gap analysis",
-              "Documentation support",
-              "Internal auditor training",
-              "Certification audit prep",
-              "Post-certification maintenance",
-              "Integrated management systems",
-            ].map((service) => (
-              <div
-                key={service}
-                className="flex items-center gap-3 bg-white border border-teal-100 rounded-lg px-4 py-3"
-              >
-                <div
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: "#0d9488" }}
-                />
-                <span
-                  className="text-sm text-slate-700 font-medium"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
+            {(
+              [
+                { label: "Gap analysis" },
+                { label: "Documentation support" },
+                {
+                  label: "Internal auditor training",
+                  href: "/internal-audit-training",
+                },
+                { label: "Certification audit prep" },
+                { label: "Post-certification maintenance" },
+                { label: "Integrated management systems" },
+              ] as { label: string; href?: string }[]
+            ).map((service) => {
+              const className =
+                "flex items-center gap-3 bg-white border border-teal-100 rounded-lg px-4 py-3";
+              const body = (
+                <>
+                  <div
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: "#0d9488" }}
+                  />
+                  <span
+                    className={`text-sm font-medium ${
+                      service.href
+                        ? "text-teal-800 underline decoration-teal-300 underline-offset-2"
+                        : "text-slate-700"
+                    }`}
+                    style={{ fontFamily: "system-ui, sans-serif" }}
+                  >
+                    {service.label}
+                  </span>
+                </>
+              );
+              return service.href ? (
+                <Link
+                  key={service.label}
+                  href={service.href}
+                  className={`${className} transition-colors hover:border-teal-400`}
                 >
-                  {service}
-                </span>
-              </div>
-            ))}
+                  {body}
+                </Link>
+              ) : (
+                <div key={service.label} className={className}>
+                  {body}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

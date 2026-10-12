@@ -20,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    {
+      url: abs("/internal-audit-training"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     // Per-standard certification landing pages (ISO 27001, 27701, PCI DSS…).
     ...STANDARDS.map((s) => ({
       url: abs(`/certifications/${s.slug}`),
