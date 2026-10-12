@@ -71,6 +71,7 @@ export interface Enrollment {
   status: EnrollmentStatus;
   amount_paid: number;
   stripe_session_id: string | null; // BroRacks payment reference (legacy column name)
+  held_at?: string | null; // when the Mobile Money seat hold started
   enrolled_at: string; // ISO timestamp
   // Joined relations (populated via .select('*, courses(*)'))
   courses?: Course;

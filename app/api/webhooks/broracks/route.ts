@@ -22,8 +22,9 @@ import {
   isFreshTimestamp,
   shouldConfirmPayment,
   parseAmount,
-  FAILED_COLLECTION_EVENTS,
 } from "@/lib/webhook";
+import { resolveCollectionOutcome, webhookReferences } from "@/lib/collection-status";
+import { OFFLINE_REF, sendPaymentReleasedEmail } from "@/lib/enrollment-emails";
 import {
   escapeHtml,
   getResendFrom,
@@ -53,11 +54,17 @@ function isMissingGroupTable(error: { code?: string; message?: string } | null):
     msg,
   );
 }
+import { classStartEmailHtml } from "@/lib/enrollment-emails";
+import { classStartLabel } from "@/lib/schedule";
 
 type WebhookEvent = {
   event?: string;
+  type?: string;
   data?: {
     reference?: string;
+    broracks_ref?: string;
+    merchant_reference?: string;
+    status?: string;
     amount?: number | string;
     currency?: string;
     phone_number?: string;
@@ -131,12 +138,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getSupabaseAdmin();
+    const headerEvent = req.headers.get("X-BroRacks-Event");
+    const eventName =
+      (typeof event.event === "string" && event.event) ||
+      (typeof event.type === "string" && event.type) ||
+      headerEvent ||
+      "";
+    event.event = eventName;
+    const outcome = resolveCollectionOutcome(eventName, event.data?.status);
 
-    if (event.event === "collection.success") {
+    if (outcome === "success") {
       return await handleSuccess(admin, event);
     }
 
-    if (event.event && FAILED_COLLECTION_EVENTS.has(event.event)) {
+    if (outcome === "failure") {
       return await handleFailure(admin, event);
     }
 
@@ -159,7 +174,10 @@ export async function POST(req: NextRequest) {
 // collection.success
 // ---------------------------------------------------------------------------
 async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
-  const reference = event.data?.reference;
+  const references = webhookReferences(event).filter(
+    (ref) => ref !== OFFLINE_REF && !ref.startsWith("CLAIM-"),
+  );
+  const reference = references[0];
   if (!reference) {
     console.warn("[broracks webhook] collection.success without reference");
     return NextResponse.json({ received: true });
@@ -167,8 +185,11 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
 
   const { data: enrollment, error: enrollErr } = await admin
     .from("enrollments")
-    .select("id, user_id, status, amount_paid, course_id, courses (id, title)")
-    .eq("stripe_session_id", reference)
+    .select(
+      "id, user_id, status, amount_paid, course_id, stripe_session_id, courses (id, title, start_date)",
+    )
+    .in("stripe_session_id", references)
+    .limit(1)
     .maybeSingle();
 
   if (enrollErr) {
@@ -218,7 +239,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
 
   const course = (
     Array.isArray(enrollment.courses) ? enrollment.courses[0] : enrollment.courses
-  ) as { id: string; title: string } | null;
+  ) as { id: string; title: string; start_date?: string | null } | null;
   const courseTitle = course?.title ?? "your course";
 
   if (enrollment.status !== "awaiting_confirmation") {
@@ -269,7 +290,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
     .update({ status: "confirmed" })
     .eq("id", enrollment.id)
     .eq("status", "awaiting_confirmation")
-    .eq("stripe_session_id", reference)
+    .eq("stripe_session_id", enrollment.stripe_session_id)
     .select("id");
 
   if (confirmError) {
@@ -324,6 +345,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
           Your payment of <strong>${amountEsc}</strong> was received successfully.
           You are now enrolled in <strong>${title}</strong>.
         </p>
+        ${classStartEmailHtml(course?.start_date)}
         <p style="font-family: system-ui, sans-serif; color: #475569;">
           We will be in touch with joining instructions. Reference: <strong>${refEsc}</strong>
         </p>
@@ -347,6 +369,7 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
         <p style="color: #475569;">A Mobile Money payment succeeded and the seat is now assigned.</p>
         <table style="width: 100%; font-size: 14px; color: #475569;">
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 160px;">Course</td><td>${title}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Class start</td><td>${escapeHtml(classStartLabel(course?.start_date))}</td></tr>
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Learner email</td><td>${escapeHtml(customerEmail)}</td></tr>
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Amount</td><td>${amountEsc}</td></tr>
           <tr><td style="padding: 6px 0; font-weight: 600; color: #1e293b;">Reference</td><td>${refEsc}</td></tr>
@@ -368,19 +391,22 @@ async function handleSuccess(admin: SupabaseClient, event: WebhookEvent) {
 // collection.failed / cancelled / expired
 // ---------------------------------------------------------------------------
 async function handleFailure(admin: SupabaseClient, event: WebhookEvent) {
-  const reference = event.data?.reference;
+  const references = webhookReferences(event).filter(
+    (ref) => ref !== OFFLINE_REF && !ref.startsWith("CLAIM-"),
+  );
+  const reference = references[0];
   console.warn(
     `[broracks webhook] ${event.event} for ref ${reference ?? "none"}${event.data?.reason ? ` (${event.data.reason})` : ""}`,
   );
-  if (!reference) return NextResponse.json({ received: true });
+  if (references.length === 0) return NextResponse.json({ received: true });
 
   // Cancel the booking and release its held seat — but ONLY while it is still
   // awaiting this payment. A confirmed enrollment is never downgraded, and an
   // out-of-order/duplicate failure after success is ignored.
   const { data: cancelled, error: cancelError } = await admin
     .from("enrollments")
-    .update({ status: "cancelled" })
-    .eq("stripe_session_id", reference)
+    .update({ status: "cancelled", amount_paid: 0 })
+    .in("stripe_session_id", references)
     .eq("status", "awaiting_confirmation")
     .select("id, user_id, course_id, courses (title)");
 
@@ -396,8 +422,13 @@ async function handleFailure(admin: SupabaseClient, event: WebhookEvent) {
   }
 
   if (!cancelled || cancelled.length === 0) {
-    const groupOutcome = await cancelGroupEnrollment(admin, reference);
-    if (groupOutcome) return groupOutcome;
+    for (const ref of references) {
+      const groupOutcome = await cancelGroupEnrollment(admin, ref);
+      if (groupOutcome) return groupOutcome;
+    }
+    console.warn(
+      `[broracks webhook] ${event.event} for ${references.join(", ")} matched no held enrollment`,
+    );
   }
 
   for (const row of cancelled ?? []) {
@@ -417,35 +448,10 @@ async function handleFailure(admin: SupabaseClient, event: WebhookEvent) {
     const { data: userData } = await admin.auth.admin.getUserById(
       row.user_id as string,
     );
-    const email = userData?.user?.email?.trim();
-    if (email) {
-      const title = escapeHtml(course?.title ?? "your course");
-      const mail = await sendResendEmail({
-        from: getResendFrom(),
-        to: email,
-        subject: `Your Mobile Money payment didn't go through — ${course?.title ?? "NAM QMS"}`,
-        html: `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1e293b;">
-            <div style="border-left: 4px solid #0d9488; padding-left: 20px; margin-bottom: 32px;">
-              <h1 style="margin: 0; font-size: 22px;">Payment not completed</h1>
-              <p style="margin: 8px 0 0; color: #64748b; font-family: system-ui, sans-serif;">NAM Quality Management Systems</p>
-            </div>
-            <p style="font-family: system-ui, sans-serif; color: #475569;">
-              Your Mobile Money payment for <strong>${title}</strong> was declined, cancelled or timed out,
-              so no money was taken and your seat has been released.
-            </p>
-            <p style="font-family: system-ui, sans-serif; color: #475569;">
-              You can enroll again at any time, or contact us on WhatsApp at
-              <a href="https://wa.me/256707068533" style="color: #0d9488;">+256 707 068 533</a>
-              to pay by cash or bank transfer.
-            </p>
-          </div>
-        `,
-      });
-      if (!mail.ok) {
-        console.error("[broracks webhook] failure email failed:", mail.error);
-      }
-    }
+    await sendPaymentReleasedEmail({
+      learnerEmail: userData?.user?.email,
+      courseTitle: course?.title ?? "your course",
+    });
   }
 
   return NextResponse.json({ received: true });

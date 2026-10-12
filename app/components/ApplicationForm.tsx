@@ -126,7 +126,7 @@ const HONEYPOT_FIELD = "website_url_confirm";
 const DRAFT_KEY = "nam-iso-application-draft-v1";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
 
-const sans = { fontFamily: "system-ui, sans-serif" } as const;
+const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 const TEAL = "#0d9488";
 
 const fieldId = (name: string) => `app-${name}`;

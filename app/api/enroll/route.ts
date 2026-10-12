@@ -9,10 +9,12 @@
 // ---------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";
-import { currentCohortStart } from "@/lib/schedule";
+import { advertisedCourseStart, toISODate } from "@/lib/schedule";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { cleanString, isUuid, readJsonObject } from "@/lib/validation";
+import { pickEnrollmentToReuse } from "@/lib/enrollment-reuse";
+import { reconcileEnrollmentById } from "@/lib/payment-reconcile";
 
 const MAX_NAME = 120;
 const MAX_COMPANY = 160;
@@ -74,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     const { data: course, error: courseError } = await admin
       .from("courses")
-      .select("id, is_active")
+      .select("id, is_active, start_date")
       .eq("id", courseId)
       .maybeSingle();
 
@@ -111,16 +113,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Reuse this learner's enrollment for the cohort currently on sale so a
-    // returning student doesn't stack duplicate rows. A paid enrollment for an
-    // EARLIER class (older cohort_start) does not block enrolling again; an
-    // unpaid (pending) one is reused and moved to the current cohort at payment
-    // time by reserve_seat_for_payment (db/cohorts.sql).
+    // retry after a cancelled Mobile Money prompt does not insert a second
+    // row. A paid enrollment for an EARLIER class does not block enrolling
+    // again. A pending row is moved onto the current cohort at payment time
+    // by reserve_seat_for_payment (db/cohorts.sql).
     const { data: existingRows, error: existingError } = await admin
       .from("enrollments")
-      .select("*")
+      .select("id, status, cohort_start")
       .eq("user_id", user.id)
       .eq("course_id", courseId)
-      .neq("status", "cancelled")
       .order("enrolled_at", { ascending: false })
       .limit(10);
 
@@ -132,23 +133,54 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cohort = currentCohortStart();
-    const existing = (existingRows ?? []).find(
-      (e: { status: string; cohort_start?: string | null }) =>
-        e.status === "pending" ||
-        // Before db/cohorts.sql runs there is no cohort_start: keep the old
-        // behaviour (any held enrollment counts).
-        e.cohort_start === undefined ||
-        e.cohort_start === null ||
-        String(e.cohort_start).slice(0, 10) >= cohort,
-    ) as { id: string; status: string } | undefined;
+    // Match the date shown on the course page. A passed start_date rolls to
+    // the next first Monday (Africa/Kampala); a future one is kept.
+    const cohort = toISODate(advertisedCourseStart(course.start_date));
+    let rows = existingRows ?? [];
+    let choice = pickEnrollmentToReuse(rows, cohort);
 
-    if (existing) {
+    // A USSD cancel can leave the row awaiting_confirmation if the webhook
+    // never arrived. Ask BroRacks before refusing a retry.
+    if (choice.kind === "already" && choice.status === "awaiting_confirmation") {
+      await reconcileEnrollmentById(admin, choice.id, { force: true });
+      const { data: refreshed } = await admin
+        .from("enrollments")
+        .select("id, status, cohort_start")
+        .eq("id", choice.id)
+        .maybeSingle();
+      if (refreshed) {
+        rows = rows.map((row) => (row.id === refreshed.id ? refreshed : row));
+        choice = pickEnrollmentToReuse(rows, cohort);
+      }
+    }
+
+    if (choice.kind === "already") {
       return NextResponse.json({
-        enrollmentId: existing.id,
-        status: existing.status,
-        // Signals the UI to skip the payment step (already paid/confirmed).
-        alreadyEnrolled: existing.status !== "pending",
+        enrollmentId: choice.id,
+        status: choice.status,
+        alreadyEnrolled: true,
+      });
+    }
+
+    if (choice.kind === "reuse") {
+      if (choice.reset) {
+        const { error: resetError } = await admin
+          .from("enrollments")
+          .update({ status: "pending", amount_paid: 0, stripe_session_id: null })
+          .eq("id", choice.id)
+          .eq("status", "cancelled");
+        if (resetError) {
+          console.error("[enroll:create] reuse reset:", resetError);
+          return NextResponse.json(
+            { error: "Could not start your enrollment. Please try again." },
+            { status: 500 },
+          );
+        }
+      }
+      return NextResponse.json({
+        enrollmentId: choice.id,
+        status: "pending",
+        alreadyEnrolled: false,
       });
     }
 
