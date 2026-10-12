@@ -4,8 +4,16 @@
 // and JSON-LD, so the correction has to happen on the way out.
 // ---------------------------------------------------------------------------
 
+const ISO_22000_BLURB =
+  /^food (?:safty|safety) management systems limited$/i;
+
 /** "Food Safty …" → "Food Safety …", preserving the original capitalisation. */
 export function fixFoodSafetyTypo(value: string): string {
+  // The ISO 22000 blurb is this phrase plus a stray "Limited". Drop that word
+  // so the public description is "Food Safety Management Systems".
+  if (ISO_22000_BLURB.test(value.trim())) {
+    return "Food Safety Management Systems";
+  }
   return value.replace(/safty/gi, (match) => {
     if (match === match.toUpperCase()) return "SAFETY";
     if (match[0] === match[0].toUpperCase()) return "Safety";

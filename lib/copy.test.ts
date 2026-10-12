@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import { fixFoodSafetyTypo, presentCourseCopy } from "./copy";
 
 describe("fixFoodSafetyTypo", () => {
-  it("corrects the ISO 22000 course description", () => {
+  it("corrects the ISO 22000 course description and drops Limited", () => {
     expect(fixFoodSafetyTypo("Food Safty Management Systems Limited")).toBe(
-      "Food Safety Management Systems Limited",
+      "Food Safety Management Systems",
+    );
+    expect(fixFoodSafetyTypo("Food Safety Management Systems Limited")).toBe(
+      "Food Safety Management Systems",
     );
   });
 
@@ -31,7 +34,7 @@ describe("presentCourseCopy", () => {
       description: "Food Safty Management Systems Limited",
     });
     expect(course.title).toBe("ISO 22000: Lead Auditor");
-    expect(course.description).toBe("Food Safety Management Systems Limited");
+    expect(course.description).toBe("Food Safety Management Systems");
     expect(course.id).toBe("1");
   });
 });

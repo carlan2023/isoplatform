@@ -526,16 +526,9 @@ export default async function HomePage() {
       <section id="courses" className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+            <h2 className="text-3xl font-bold text-slate-900">
               Upcoming Courses
             </h2>
-            <p
-              className="text-slate-500"
-              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-            >
-              All courses run for 5 days and include study materials, meals, and
-              a certificate of completion.
-            </p>
           </div>
           {courses.length === 0 && (
             <div

@@ -1,5 +1,5 @@
 -- ===========================================================================
--- Correct "Safty" → "Safety" in course copy
+-- Correct "Safty" → "Safety" and drop the stray "Limited" on the ISO 22000 blurb
 -- ===========================================================================
 -- Run this in the Supabase SQL editor. Safe to run more than once.
 --
@@ -8,8 +8,16 @@
 -- This updates the stored row. As of review, the only live occurrence is
 -- courses.description for "ISO 22000: Lead Auditor":
 --   "Food Safty Management Systems Limited"
+-- which should be stored as "Food Safety Management Systems" (no "Limited").
 -- ===========================================================================
 
+-- Known ISO 22000 blurb: fix the spelling and drop the stray "Limited".
+update public.courses
+set description = 'Food Safety Management Systems'
+where description ilike 'food safty management systems limited'
+   or description ilike 'food safety management systems limited';
+
+-- Any other "Safty" still in a description.
 update public.courses
 set description = replace(
   replace(replace(description, 'SAFTY', 'SAFETY'), 'Safty', 'Safety'),
