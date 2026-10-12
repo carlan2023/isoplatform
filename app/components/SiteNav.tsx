@@ -36,12 +36,14 @@ function isCurrent(pathname: string, href: string) {
  * link row; below `md` it collapses into an accessible hamburger menu.
  */
 export default function SiteNav() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [trainingOpen, setTrainingOpen] = useState(false);
+  const [trainingOpen, setTrainingOpen] = useState(
+    pathname === "/internal-audit-training",
+  );
   const menuId = useId();
   const trainingMenuId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const pathname = usePathname();
   const onTrainingPage = pathname === "/internal-audit-training";
 
   // Close on route change (e.g. navigating to another page from the menu).

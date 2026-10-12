@@ -280,7 +280,7 @@ export default function InternalAuditTrainingPage() {
         <div className="max-w-6xl mx-auto px-6 py-20 md:py-24 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div>
             <p
-              className="text-xs font-medium tracking-wide uppercase mb-4"
+              className="text-sm font-medium mb-4"
               style={{ color: "#0f766e", ...sans }}
             >
               Corporate training · In-house at your site or at our Kampala venue
