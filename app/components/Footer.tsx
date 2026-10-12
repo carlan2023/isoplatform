@@ -16,6 +16,7 @@ const QUICK_LINKS = [
   { label: "For Businesses", href: "/iso-certification-consulting" },
   { label: "Apply for Certification", href: "/apply" },
   { label: "Lead Auditor Training", href: "/#training" },
+  { label: "Internal Audit Training", href: "/internal-audit-training" },
   { label: "Upcoming Courses", href: "/#courses" },
   { label: "ISO 27001", href: "/certifications/iso-27001" },
   { label: "Internal Auditor Courses", href: "/internal-auditor-courses" },

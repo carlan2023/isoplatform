@@ -75,6 +75,16 @@ export const IMG = {
     height: 960,
     alt: "Consultant leading an ISO implementation and internal-audit training workshop",
   },
+  /**
+   * Corporate internal-audit training hero (Pexels 5668778). Stock meeting
+   * photo — do not swap in the IQS whiteboard training shot or real client photos.
+   */
+  internalAuditTraining: {
+    src: "/media/iso-internal-audit-training.webp",
+    width: 1600,
+    height: 2400,
+    alt: "Professionals collaborating around a conference table during a corporate training meeting",
+  },
 } as const;
 
 /**
