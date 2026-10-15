@@ -31,6 +31,7 @@ import {
   computePricing,
   formatUGX,
 } from "@/lib/pricing";
+import { ugandaIsoPageForCourse } from "@/lib/uganda-iso";
 
 export const revalidate = 60;
 
@@ -120,6 +121,7 @@ export default async function CoursePage({
   if (isUuid(id)) permanentRedirect(coursePath(course));
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
+  const organisationGuide = ugandaIsoPageForCourse(course);
   const isVirtual = course.format === "virtual";
   // Advertise the next first Monday. A stored start_date that has already
   // passed (Africa/Kampala) is rolled forward here, so the page stays correct
@@ -233,10 +235,24 @@ export default async function CoursePage({
             {course.title}
           </h1>
           <p
-            className="text-slate-600 leading-relaxed mb-8"
+            className="text-slate-600 leading-relaxed mb-4"
             style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
             {course.description}
+          </p>
+          <p
+            className="text-sm text-slate-600 leading-relaxed mb-8"
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+          >
+            For organisations training a team:{" "}
+            <Link
+              href={organisationGuide.path}
+              className="font-medium underline underline-offset-2"
+              style={{ color: "#0f766e" }}
+            >
+              {organisationGuide.courseLinkLabel}
+            </Link>
+            .
           </p>
 
           <div className="grid sm:grid-cols-2 gap-4 mb-10">

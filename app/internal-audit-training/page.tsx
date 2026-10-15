@@ -430,7 +430,15 @@ export default function InternalAuditTrainingPage() {
           </div>
           <p className="text-sm text-slate-500 mt-6" style={sans}>
             Integrated management system audits (for example 9001 + 14001 +
-            45001) on request.
+            45001) on request. Organisations comparing standards can start from{" "}
+            <Link
+              href="/iso-certification-uganda"
+              className="font-medium underline underline-offset-2"
+              style={{ color: "#0f766e" }}
+            >
+              ISO certification in Uganda
+            </Link>
+            , including medical devices.
           </p>
         </div>
       </section>

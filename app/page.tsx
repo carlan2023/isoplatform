@@ -23,6 +23,8 @@ import { SECURITY_STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
 import { coursePath } from "@/lib/course-slug";
 import { presentCourseCopy } from "@/lib/copy";
+import { UGANDA_ISO_STANDARDS } from "@/lib/uganda-iso";
+import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 
@@ -419,6 +421,57 @@ export default async function HomePage() {
                     size={14}
                     className="group-hover:translate-x-0.5 transition-transform"
                   />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ORGANISATIONS IN UGANDA — per-standard readiness guides */}
+      <section className="bg-slate-50 border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="mb-12 max-w-2xl">
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+              ISO certification in Uganda
+            </h2>
+            <p
+              className="text-slate-500"
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+            >
+              Guides for institutions and organisations: in-house team training,
+              a free gap analysis, and what has to be ready before a
+              certification body audits.{" "}
+              <Link
+                href={UGANDA_ISO_HUB_PATH}
+                className="text-teal-700 font-medium underline underline-offset-2"
+              >
+                Start with the overview
+              </Link>
+              .
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {UGANDA_ISO_STANDARDS.map((standard) => (
+              <Link
+                key={standard.path}
+                href={standard.path}
+                className="group block border border-slate-200 rounded-lg p-6 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-teal-200"
+              >
+                <div className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
+                  {standard.code}
+                </div>
+                <div
+                  className="text-sm text-slate-500 mb-4"
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+                >
+                  {standard.name}
+                </div>
+                <span
+                  className="inline-flex items-center gap-1 text-sm text-teal-600 font-medium"
+                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+                >
+                  Read the guide <ArrowRight size={14} />
                 </span>
               </Link>
             ))}
