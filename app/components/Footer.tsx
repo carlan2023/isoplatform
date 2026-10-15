@@ -9,6 +9,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { SITE_NAME, LEGAL_NAME, CONTACT, SOCIALS } from "@/lib/site";
+import { UGANDA_ISO_PAGES } from "@/lib/uganda-iso";
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
@@ -22,6 +23,11 @@ const QUICK_LINKS = [
   { label: "Internal Auditor Courses", href: "/internal-auditor-courses" },
   { label: "Student Portal", href: "/login" },
 ];
+
+const UGANDA_LINKS = UGANDA_ISO_PAGES.map((page) => ({
+  label: page.footerLabel,
+  href: page.path,
+}));
 
 const LEGAL_LINKS = [
   { label: "Privacy Policy", href: "/privacy" },
@@ -98,6 +104,24 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3 text-sm" style={sans}>
               {QUICK_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="hover:text-white transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <h3
+              className="text-white font-semibold text-sm mt-8 mb-4"
+              style={sans}
+            >
+              ISO in Uganda
+            </h3>
+            <ul className="space-y-3 text-sm" style={sans}>
+              {UGANDA_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}

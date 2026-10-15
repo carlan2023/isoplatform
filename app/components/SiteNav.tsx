@@ -6,12 +6,14 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { SITE_NAME } from "@/lib/site";
+import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
 /** Absolute `/#section` hrefs so every link works from any page. */
 const NAV_BEFORE = [
   { label: "For Businesses", href: "/iso-certification-consulting" },
+  { label: "ISO in Uganda", href: UGANDA_ISO_HUB_PATH },
 ] as const;
 
 const NAV_AFTER = [
@@ -27,7 +29,15 @@ const TRAINING_LINKS = [
 
 const APPLY_HREF = "/apply";
 
+function isIsoUgandaPath(pathname: string) {
+  return (
+    pathname === UGANDA_ISO_HUB_PATH ||
+    /^\/iso-\d+-certification-uganda$/.test(pathname)
+  );
+}
+
 function isCurrent(pathname: string, href: string) {
+  if (href === UGANDA_ISO_HUB_PATH) return isIsoUgandaPath(pathname);
   return pathname === href;
 }
 

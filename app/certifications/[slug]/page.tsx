@@ -19,6 +19,7 @@ import {
   allStandardSlugs,
   type Standard,
 } from "@/lib/standards";
+import { ugandaIsoPageForStandardSlug } from "@/lib/uganda-iso";
 
 export const revalidate = 3600;
 
@@ -64,6 +65,7 @@ export default async function CertificationPage({
 
   const path = `/certifications/${standard.slug}`;
   const applyHref = `/apply?standard=${encodeURIComponent(standard.slug)}`;
+  const ugandaGuide = ugandaIsoPageForStandardSlug(standard.slug);
   const related = STANDARDS.filter(
     (s) => s.slug !== standard.slug && s.category === standard.category,
   );
@@ -200,6 +202,22 @@ export default async function CertificationPage({
                 Or chat with us on WhatsApp
               </a>
             </div>
+            {ugandaGuide && (
+              <p
+                className="text-sm text-slate-600 mt-6"
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+              >
+                Training a team in Uganda?{" "}
+                <Link
+                  href={ugandaGuide.path}
+                  className="font-medium underline underline-offset-2"
+                  style={{ color: "#0f766e" }}
+                >
+                  {ugandaGuide.courseLinkLabel}
+                </Link>
+                .
+              </p>
+            )}
           </div>
         </div>
       </section>

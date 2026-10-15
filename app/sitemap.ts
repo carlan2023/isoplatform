@@ -4,6 +4,7 @@ import { INTERNAL_AUDITOR_ENROLL_PATH } from "@/lib/group-enrollment";
 import { abs } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
 import { coursePath } from "@/lib/course-slug";
+import { UGANDA_ISO_HUB_PATH, ugandaIsoSitemapPaths } from "@/lib/uganda-iso";
 
 // Regenerate alongside the ISR pages so newly published courses appear.
 export const revalidate = 60;
@@ -21,6 +22,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    ...ugandaIsoSitemapPaths().map((path) => ({
+      url: abs(path),
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: path === UGANDA_ISO_HUB_PATH ? 0.9 : 0.8,
+    })),
     {
       url: abs("/internal-audit-training"),
       lastModified: now,

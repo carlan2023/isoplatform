@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Footer from "@/app/components/Footer";
 import InternalAuditorEnrollForm from "@/app/components/InternalAuditorEnrollForm";
 import SiteNav from "@/app/components/SiteNav";
@@ -14,6 +15,7 @@ import {
   INTERNAL_AUDITOR_PRICE,
 } from "@/lib/pricing";
 import { abs, SITE_NAME } from "@/lib/site";
+import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
 
 const TITLE = "Internal Auditor Courses";
 const DESCRIPTION = `Enroll your team in NAM QMS ${INTERNAL_AUDITOR_COURSE_TITLE}. ${formatUGX(INTERNAL_AUDITOR_PRICE)} per person, or ${formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person for groups of ${INTERNAL_AUDITOR_GROUP_MIN} or more. Pay the total with Mobile Money.`;
@@ -63,6 +65,17 @@ export default function InternalAuditorCoursesPage() {
             {INTERNAL_AUDITOR_GROUP_MIN} or more get 50% off —{" "}
             {formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person. Enter your team,
             see the total, and pay it with MTN or Airtel Mobile Money.
+          </p>
+          <p className="text-sm text-slate-600 mt-4" style={sans}>
+            Preparing the wider system? Read{" "}
+            <Link
+              href={UGANDA_ISO_HUB_PATH}
+              className="font-medium underline underline-offset-2"
+              style={{ color: "#0f766e" }}
+            >
+              ISO certification in Uganda
+            </Link>{" "}
+            for organisations.
           </p>
         </div>
       </section>
