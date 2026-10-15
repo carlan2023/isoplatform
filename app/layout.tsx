@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { SITE_URL, SITE_NAME, abs } from "@/lib/site";
+import { SITE_URL, SITE_NAME, SITE_LEGAL_NAME, abs } from "@/lib/site";
 import { OG_IMAGE, ogImageMetadata } from "@/lib/media";
 import { HUBSPOT_SCRIPT_SRC } from "@/lib/hubspot";
 
@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "ISO Certification in Uganda & Lead Auditor Training | NAMQMS",
-    template: `%s | NAMQMS`,
+    default: "ISO Certification in Uganda & Lead Auditor Training | NAM QMS",
+    template: `%s | NAM QMS`,
   },
   description:
     "Get your business ISO 9001, 14001, 45001 & 22000 certified across Uganda & East Africa — gap analysis, documentation and audit prep, end to end.",
@@ -32,13 +32,15 @@ export const metadata: Metadata = {
     "get ISO certified",
     "ISO Lead Auditor training",
   ],
+  applicationName: SITE_NAME,
+  manifest: "/site.webmanifest",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
     url: SITE_URL,
     title:
-      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM Quality Management Systems",
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM QMS",
     description:
       "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
     images: [ogImageMetadata],
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM Quality Management Systems",
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM QMS",
     description:
       "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting across East Africa — plus internationally recognised Lead Auditor training.",
     images: [OG_IMAGE.src],
@@ -62,6 +64,7 @@ const organizationLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: SITE_NAME,
+  alternateName: SITE_LEGAL_NAME,
   url: SITE_URL,
   logo: abs("/nam-qms-logo.png"),
   description:
