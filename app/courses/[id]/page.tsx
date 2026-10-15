@@ -23,7 +23,6 @@ import {
 import { presentCourseCopy } from "@/lib/copy";
 import { ogImageMetadata } from "@/lib/media";
 import InstructorContact from "@/app/components/InstructorContact";
-import BrandMark from "@/app/components/BrandMark";
 import {
   INDIVIDUAL_PRICE,
   TEAM_PRICE,
@@ -199,12 +198,12 @@ export default async function CoursePage({
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link
-            href="/"
-            aria-label={`${SITE_NAME} — home`}
-            className="inline-flex shrink-0"
-          >
-            <BrandMark className="h-10 w-auto" />
+          <Link href="/" className="flex items-center">
+            <img
+              src="/nam-qms-logo.png"
+              alt="NAM Quality Management Systems"
+              className="h-10 w-auto"
+            />
           </Link>
           <Link
             href="/#courses"

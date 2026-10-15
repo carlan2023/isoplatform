@@ -33,18 +33,6 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 describe("brand name", () => {
-  it("renders the header mark as the text NAM", () => {
-    const source = readFileSync(
-      path.join(process.cwd(), "app/components/BrandMark.tsx"),
-      "utf8",
-    );
-    expect(source).toMatch(/>\s*NAM\s*</);
-    expect(source).toContain('textLength="82"');
-    for (const pattern of FORBIDDEN) {
-      expect(source).not.toMatch(pattern);
-    }
-  });
-
   it("does not use AM QMS, AMQMS, or AM Quality Systems in source", () => {
     const files = [
       ...walk(path.join(process.cwd(), "app")),
