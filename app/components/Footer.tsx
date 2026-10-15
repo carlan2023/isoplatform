@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-  ShieldCheck,
   Mail,
   Phone,
   MapPin,
@@ -43,19 +43,31 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-400">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+      <div className="max-w-6xl mx-auto px-5 py-12 sm:px-6 sm:py-16">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12 lg:grid-cols-4">
           {/* Brand + contact */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-6 h-6 rounded-sm flex items-center justify-center"
-                style={{ backgroundColor: "#0d9488" }}
-              >
-                <ShieldCheck size={13} className="text-white" />
-              </div>
-              <span className="text-white font-bold">{SITE_NAME}</span>
-            </div>
+          <div className="min-w-0 lg:col-span-2">
+            {/*
+              The original logo is a transparent PNG with navy type. On this
+              dark footer it sits on a light chip so the artwork stays as-is
+              and remains readable. Do not recolor or redraw the file.
+            */}
+            <Link
+              href="/"
+              aria-label={`${SITE_NAME} — home`}
+              className="mb-5 block w-full max-w-[17rem] rounded-xl bg-white p-2.5 shadow-sm sm:max-w-[22rem] sm:p-3"
+            >
+              <Image
+                src="/nam-qms-logo.png"
+                alt={SITE_NAME}
+                width={1280}
+                height={586}
+                unoptimized
+                sizes="(min-width: 640px) 22rem, 17rem"
+                className="h-auto w-full"
+                style={{ width: "100%", height: "auto" }}
+              />
+            </Link>
             <p className="text-sm leading-relaxed max-w-sm mb-6" style={sans}>
               ISO certification consulting and internationally recognised Lead
               Auditor training for organisations across Uganda and East Africa.
@@ -64,19 +76,19 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${CONTACT.email}`}
-                  className="inline-flex items-center gap-3 hover:text-white transition-colors"
+                  className="flex items-start gap-3 hover:text-white transition-colors"
                 >
-                  <Mail size={16} className="text-teal-500 shrink-0" />
-                  {CONTACT.email}
+                  <Mail size={16} className="text-teal-500 shrink-0 mt-0.5" />
+                  <span className="min-w-0 break-words">{CONTACT.email}</span>
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${CONTACT.phone}`}
-                  className="inline-flex items-center gap-3 hover:text-white transition-colors"
+                  className="flex items-start gap-3 hover:text-white transition-colors"
                 >
-                  <Phone size={16} className="text-teal-500 shrink-0" />
-                  {CONTACT.phoneDisplay}
+                  <Phone size={16} className="text-teal-500 shrink-0 mt-0.5" />
+                  <span className="min-w-0">{CONTACT.phoneDisplay}</span>
                 </a>
               </li>
               <li>
@@ -84,30 +96,30 @@ export default function Footer() {
                   href={CONTACT.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 hover:text-white transition-colors"
+                  className="flex items-start gap-3 hover:text-white transition-colors"
                 >
-                  <MessageCircle size={16} className="text-teal-500 shrink-0" />
-                  Chat on WhatsApp
+                  <MessageCircle size={16} className="text-teal-500 shrink-0 mt-0.5" />
+                  <span>Chat on WhatsApp</span>
                 </a>
               </li>
-              <li className="inline-flex items-center gap-3">
-                <MapPin size={16} className="text-teal-500 shrink-0" />
-                {CONTACT.location}
+              <li className="flex items-start gap-3">
+                <MapPin size={16} className="text-teal-500 shrink-0 mt-0.5" />
+                <span>{CONTACT.location}</span>
               </li>
             </ul>
           </div>
 
           {/* Quick links */}
-          <div>
+          <div className="min-w-0">
             <h3 className="text-white font-semibold text-sm mb-4" style={sans}>
               Explore
             </h3>
-            <ul className="space-y-3 text-sm" style={sans}>
+            <ul className="space-y-2.5 text-sm" style={sans}>
               {QUICK_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="hover:text-white transition-colors"
+                    className="inline-block py-0.5 hover:text-white transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -120,12 +132,12 @@ export default function Footer() {
             >
               ISO in Uganda
             </h3>
-            <ul className="space-y-3 text-sm" style={sans}>
+            <ul className="space-y-2.5 text-sm" style={sans}>
               {UGANDA_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="hover:text-white transition-colors"
+                    className="inline-block py-0.5 hover:text-white transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -135,11 +147,11 @@ export default function Footer() {
           </div>
 
           {/* Legal + socials */}
-          <div>
+          <div className="min-w-0">
             <h3 className="text-white font-semibold text-sm mb-4" style={sans}>
               Company
             </h3>
-            <ul className="space-y-3 text-sm" style={sans}>
+            <ul className="space-y-2.5 text-sm" style={sans}>
               <li>
                 <Link
                   href="/iso-certification-consulting#enquiry"
@@ -152,7 +164,7 @@ export default function Footer() {
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="hover:text-white transition-colors"
+                    className="inline-block py-0.5 hover:text-white transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -182,8 +194,8 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-slate-800">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <p className="text-xs text-center sm:text-left" style={sans}>
+        <div className="max-w-6xl mx-auto px-5 py-5 sm:px-6 sm:py-6">
+          <p className="text-xs text-center leading-relaxed sm:text-left" style={sans}>
             © {new Date().getFullYear()} {LEGAL_NAME}. All rights reserved.
           </p>
         </div>
