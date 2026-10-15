@@ -2,10 +2,10 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { SITE_NAME } from "@/lib/site";
+import BrandMark from "@/app/components/BrandMark";
 import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
@@ -90,16 +90,13 @@ export default function SiteNav() {
       className="border-b border-slate-200 bg-white sticky top-0 z-50"
     >
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
-        <Link href="/" aria-label={`${SITE_NAME} — home`} onClick={close}>
-          <Image
-            src="/nam-qms-logo.png"
-            alt={SITE_NAME}
-            width={1280}
-            height={586}
-            priority
-            sizes="96px"
-            className="h-12 w-auto"
-          />
+        <Link
+          href="/"
+          aria-label={`${SITE_NAME} — home`}
+          onClick={close}
+          className="inline-flex shrink-0"
+        >
+          <BrandMark className="h-10 w-auto md:h-11 lg:h-12" />
         </Link>
 
         {/* Desktop */}
