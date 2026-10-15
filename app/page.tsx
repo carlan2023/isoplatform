@@ -156,6 +156,15 @@ export default async function HomePage() {
                 How it works
               </Link>
               <a
+                href="https://149517164.hs-sites-eu1.com/free-iso-gap-analysis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-teal-600 text-teal-700 px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-50"
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+              >
+                Free ISO gap analysis <ArrowRight size={16} />
+              </a>
+              <a
                 href="#training"
                 className="text-slate-600 text-sm underline underline-offset-4"
                 style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}

@@ -36,7 +36,7 @@ export async function generateMetadata({
   if (!standard) return {};
   const path = `/certifications/${standard.slug}`;
   return {
-    // Plain string → the root layout's title template appends "| NAMQMS" once.
+    // Plain string → the root layout's title template appends "| NAM QMS" once.
     // (Don't include the brand here or it double-brands.)
     title: standard.metaTitle,
     description: standard.metaDescription,

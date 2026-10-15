@@ -46,10 +46,12 @@ export function canonicalSiteUrl(raw?: string | null): string {
 
 export const SITE_URL = canonicalSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
-export const SITE_NAME = "NAM Quality Management Systems";
+export const SITE_NAME = "NAM QMS";
+/** The full trading name, for prose and the Organization JSON-LD alternateName. */
+export const SITE_LEGAL_NAME = "NAM Quality Management Systems";
 
 /** Legal entity that owns/operates the site (used in the copyright line). */
-export const LEGAL_NAME = SITE_NAME;
+export const LEGAL_NAME = SITE_LEGAL_NAME;
 
 /** Primary contact details, surfaced in the footer and contact points. */
 export const CONTACT = {

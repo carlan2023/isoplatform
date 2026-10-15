@@ -95,7 +95,7 @@ export const OG_IMAGE = {
   src: "/og-image.png",
   width: 1200,
   height: 630,
-  alt: "NAM Quality Management Systems — ISO certification consulting and Lead Auditor training in Uganda and East Africa",
+  alt: "NAM QMS logo — ISO certification consulting and Lead Auditor training in Uganda and East Africa",
 } as const;
 
 export const ogImageMetadata = {

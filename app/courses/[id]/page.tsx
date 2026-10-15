@@ -92,7 +92,7 @@ export async function generateMetadata({
     `${course.title}: internationally recognised ISO Lead Auditor training in East Africa.`;
   const path = coursePath(course);
   return {
-    // The root layout's title template appends "| NAMQMS".
+    // The root layout's title template appends "| NAM QMS".
     title,
     description,
     alternates: { canonical: path },
