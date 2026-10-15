@@ -4,6 +4,8 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
+import BrandMark from "@/app/components/BrandMark";
+import { SITE_NAME } from "@/lib/site";
 import InstructorContact from "@/app/components/InstructorContact";
 import { advertisedCourseStart, formatClassDate } from "@/lib/schedule";
 import { presentCourseCopy } from "@/lib/copy";
@@ -47,12 +49,12 @@ export default async function EnrollPage({
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-5xl mx-auto">
-          <Link href="/" className="flex items-center">
-            <img
-              src="/nam-qms-logo.png"
-              alt="NAM Quality Management Systems"
-              className="h-10 w-auto"
-            />
+          <Link
+            href="/"
+            aria-label={`${SITE_NAME} — home`}
+            className="inline-flex shrink-0"
+          >
+            <BrandMark className="h-10 w-auto" />
           </Link>
         </div>
       </div>
