@@ -25,12 +25,13 @@ export const PRIMARY_VIDEO = {
 export const PRIMARY_VIDEO_URL = `https://www.youtube.com/watch?v=${PRIMARY_VIDEO.youtubeId}`;
 export const PRIMARY_VIDEO_EMBED_URL = `https://www.youtube-nocookie.com/embed/${PRIMARY_VIDEO.youtubeId}`;
 
-/**
- * Video thumbnail. Prefer a custom high-res image at /public/media (better for
- * OG cards and click-through); falls back to YouTube's auto-generated frame.
- */
-export const PRIMARY_VIDEO_THUMBNAIL =
-  `https://i.ytimg.com/vi/${PRIMARY_VIDEO.youtubeId}/hqdefault.jpg`;
+/** Poster frame for the consulting-page explainer. Hosted locally so the filename and alt are ours. */
+export const PRIMARY_VIDEO_THUMBNAIL = {
+  src: "/media/nam-qms-iso-certification-explainer-video-thumbnail.jpg",
+  width: 480,
+  height: 360,
+  alt: "Black video thumbnail with a white play button for the NAM QMS ISO certification explainer",
+} as const;
 
 // ---------------------------------------------------------------------------
 // Marketing photos in /public/media. `width`/`height` are the real pixel sizes
@@ -46,10 +47,10 @@ export const IMG = {
     alt: "ISO certification in Uganda: certificate of registration, audit checklist and the four steps from gap analysis to certification",
   },
   certifiedClients: {
-    src: "/media/iso-certified-clients-uganda.webp",
+    src: "/media/team-holding-framed-certificate-uganda.webp",
     width: 624,
     height: 468,
-    alt: "Ugandan business team holding their framed ISO certificates",
+    alt: "Professionals in business dress standing outside an office building and holding one framed certificate together",
   },
   leadAuditorTraining: {
     src: "/media/iso-lead-auditor-training-uganda.webp",
@@ -58,22 +59,22 @@ export const IMG = {
     alt: "ISO Lead Auditor training session in Uganda with professionals at laptops",
   },
   foodSafetyAudit: {
-    src: "/media/iso-22000-food-safety-audit.webp",
+    src: "/media/iso-22000-food-safety-warehouse-inspection.webp",
     width: 1600,
     height: 1200,
-    alt: "ISO 22000 food safety audit in a warehouse of stored produce in East Africa",
+    alt: "Workers in white coats and hairnets inspecting packaged goods on warehouse shelves",
   },
   qmsImplementation: {
-    src: "/media/iso-9001-implementation-uganda.webp",
+    src: "/media/iso-9001-document-review-meeting-uganda.webp",
     width: 1280,
     height: 1706,
-    alt: "ISO 9001 quality management system implementation meeting reviewing a document register",
+    alt: "Two colleagues seated at a conference table reviewing a printed document, one pointing to a section on the page",
   },
   implementationTraining: {
-    src: "/media/iso-implementation-training-auditing.webp",
+    src: "/media/iso-implementation-whiteboard-workshop.webp",
     width: 1280,
     height: 960,
-    alt: "Consultant leading an ISO implementation and internal-audit training workshop",
+    alt: "A trainer pointing at a whiteboard of diagrams while professionals seated at a conference table take notes",
   },
   /**
    * Corporate internal-audit training hero (Pexels 5668778). Stock meeting

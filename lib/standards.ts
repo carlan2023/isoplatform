@@ -311,9 +311,10 @@ export const STANDARDS: Standard[] = [
     heading: "ISO 22000 certification in Uganda: food safety management consulting",
     intro:
       "ISO 22000 is the international standard for a Food Safety Management System (FSMS). It combines HACCP principles, prerequisite programmes and a management system approach. We help Ugandan food processors, manufacturers, packers and exporters build an FSMS that controls food safety hazards and prepares them for certification by an accredited certification body and for the expectations of buyers and export markets.",
-    metaTitle: "ISO 22000 Certification in Uganda | Cost & Timeline",
+    metaTitle:
+      "ISO 22000 Certification in Uganda — ISO 22000 training in Kampala",
     metaDescription:
-      "ISO 22000 certification consulting in Uganda: HACCP, prerequisite programmes, FSMS documentation, internal audits and audit preparation for food businesses.",
+      "ISO 22000 training in Kampala for organisations: HACCP, prerequisite programmes, FSMS documentation, internal audits and audit preparation for food businesses.",
     keywords: [
       "ISO 22000 certification in Uganda",
       "ISO 22000 Uganda",

@@ -35,6 +35,11 @@ import { ugandaIsoPageForCourse } from "@/lib/uganda-iso";
 
 export const revalidate = 60;
 
+/** Existing ISO 22000 lead-auditor course. Other courses keep their titles. */
+function isIso22000Course(course: { title: string; standard: string | null }) {
+  return /iso\s*22000/i.test(`${course.standard ?? ""} ${course.title}`);
+}
+
 type Course = {
   id: string;
   title: string;
@@ -87,10 +92,14 @@ export async function generateMetadata({
   const { id } = await params;
   const course = await getCourse(id);
   if (!course) return { title: "Course not found" };
-  const title = `${course.title} — ${course.standard ?? "ISO"} Lead Auditor Training`;
-  const description =
-    course.description ??
-    `${course.title}: internationally recognised ISO Lead Auditor training in East Africa.`;
+  const iso22000 = isIso22000Course(course);
+  const title = iso22000
+    ? `${course.title} — ISO 22000 training in Kampala for organisations`
+    : `${course.title} — ${course.standard ?? "ISO"} Lead Auditor Training`;
+  const description = iso22000
+    ? `ISO 22000 training in Kampala for organisations. ${course.description ?? ""}`.trim()
+    : (course.description ??
+      `${course.title}: internationally recognised ISO Lead Auditor training in East Africa.`);
   const path = coursePath(course);
   return {
     // The root layout's title template appends "| NAM QMS".
@@ -283,7 +292,9 @@ export default async function CoursePage({
           </div>
 
           <h2 className="text-xl font-bold text-slate-900 mb-4">
-            What&apos;s included
+            {isIso22000Course(course)
+              ? "What's included in ISO 22000 training in Kampala for organisations"
+              : "What's included"}
           </h2>
           <ul className="space-y-2 mb-4">
             {includes.map((item) => (

@@ -127,7 +127,7 @@ export default async function HomePage() {
             <h1 className="text-5xl font-bold text-slate-900 leading-tight mb-6">
               Helping businesses get{" "}
               <span style={{ color: "#0d9488" }}>ISO certified</span> in Uganda
-              & East Africa
+              & East Africa | NAM QMS
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"

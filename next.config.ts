@@ -10,12 +10,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  images: {
-    // YouTube video thumbnails for the click-to-load video facade.
-    remotePatterns: [
-      { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },
-    ],
-  },
   async redirects() {
     // Permanent (308) apex → www for every path, including static assets.
     // Next.js uses 308 rather than 301 so POST bodies (enrollment, webhooks)
