@@ -13,10 +13,12 @@ export default function YouTubeFacade({
   embedUrl,
   thumbnail,
   title,
+  alt,
 }: {
   embedUrl: string;
   thumbnail: string;
   title: string;
+  alt: string;
 }) {
   const [playing, setPlaying] = useState(false);
   const src = `${embedUrl}${embedUrl.includes("?") ? "&" : "?"}autoplay=1&rel=0`;
@@ -44,7 +46,7 @@ export default function YouTubeFacade({
         >
           <Image
             src={thumbnail}
-            alt=""
+            alt={alt}
             fill
             sizes="(max-width: 1024px) 100vw, 960px"
             className="object-cover opacity-90 transition-opacity group-hover:opacity-100"

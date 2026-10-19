@@ -229,7 +229,9 @@ export default async function CertificationPage({
             <div className="flex items-center gap-2 mb-4">
               <Building2 size={20} className="text-teal-600" />
               <h2 className="text-2xl font-bold text-slate-900">
-                Who {standard.code} is for
+                {standard.slug === "iso-22000"
+                  ? "ISO 22000 training in Kampala for organisations"
+                  : `Who ${standard.code} is for`}
               </h2>
             </div>
             <p

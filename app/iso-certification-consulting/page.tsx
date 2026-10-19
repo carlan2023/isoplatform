@@ -181,7 +181,7 @@ export default function ConsultingPage() {
     "@type": "VideoObject",
     name: PRIMARY_VIDEO.name,
     description: PRIMARY_VIDEO.description,
-    thumbnailUrl: [PRIMARY_VIDEO_THUMBNAIL],
+    thumbnailUrl: [abs(PRIMARY_VIDEO_THUMBNAIL.src)],
     uploadDate: PRIMARY_VIDEO.uploadDate,
     ...(PRIMARY_VIDEO.duration ? { duration: PRIMARY_VIDEO.duration } : {}),
     contentUrl: PRIMARY_VIDEO_URL,
@@ -249,7 +249,7 @@ export default function ConsultingPage() {
             <h1 className="text-5xl font-bold text-slate-900 leading-tight mb-6">
               Helping businesses get{" "}
               <span style={{ color: "#0d9488" }}>ISO certified</span> in East
-              Africa
+              Africa | NAM QMS
             </h1>
             <p
               className="text-slate-500 text-lg leading-relaxed mb-8"
@@ -513,8 +513,9 @@ export default function ConsultingPage() {
           </p>
           <YouTubeFacade
             embedUrl={PRIMARY_VIDEO_EMBED_URL}
-            thumbnail={PRIMARY_VIDEO_THUMBNAIL}
+            thumbnail={PRIMARY_VIDEO_THUMBNAIL.src}
             title={PRIMARY_VIDEO.name}
+            alt={PRIMARY_VIDEO_THUMBNAIL.alt}
           />
         </div>
       </section>

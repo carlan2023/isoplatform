@@ -16,9 +16,10 @@ import SiteNav from "@/app/components/SiteNav";
 import { CONTACT, SITE_URL, abs } from "@/lib/site";
 import { IMG } from "@/lib/media";
 
-const TITLE = "ISO Internal Audit Training for Companies | NAM QMS";
+const TITLE =
+  "ISO internal auditor training in Uganda for organisations | NAM QMS";
 const DESCRIPTION =
-  "Train your own staff as ISO internal auditors for ISO 9001, 14001, 45001, 22000 and 27001. In-house or at our Kampala venue. Request a quote from NAM QMS.";
+  "For organisations: internal auditor training in Uganda. Train your own staff as ISO internal auditors for ISO 9001, 14001, 45001, 22000 and 27001. In-house or at our Kampala venue. Request a quote from NAM QMS.";
 
 const QUOTE_MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
   "Internal Audit Training – Quote Request",
@@ -355,7 +356,7 @@ export default function InternalAuditTrainingPage() {
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2 className="text-3xl font-bold text-slate-900 mb-10">
-            Who it&apos;s for
+            For organisations: internal auditor training in Uganda
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {AUDIENCE.map((item) => (
