@@ -32,6 +32,7 @@ const UGANDA_LINKS = UGANDA_ISO_PAGES.map((page) => ({
 const LEGAL_LINKS = [
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms & Conditions", href: "/terms" },
+  { label: "Verify a certificate", href: "/verify" },
 ];
 
 // Only render a social icon when its URL is configured in lib/site.ts.

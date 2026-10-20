@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const LAST_UPDATED = "15 October 2026";
+const LAST_UPDATED = "20 October 2026";
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
@@ -55,7 +55,15 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    h: "6. How we use personal data",
+    h: "6. Certificate verification",
+    p: [
+      "When NAM QMS issues a certificate of completion for a training course, we store the certificate ID, the full name of the holder, the course, the training dates, the issue date and whether the certificate is valid or revoked.",
+      "Anyone with the certificate ID can look it up on this website and see those details. That page does not show an email address or a phone number, and it does not list other certificates.",
+      "A NAM QMS certificate of completion records training only. It is not an ISO certificate, and NAM QMS does not certify organisations.",
+    ],
+  },
+  {
+    h: "7. How we use personal data",
     p: ["We use the personal data described above to:"],
     list: [
       "Process enrolments, certification applications and consultation requests.",
@@ -66,7 +74,7 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    h: "7. Who we share it with",
+    h: "8. Who we share it with",
     p: [
       "We do not sell personal data. We share it only as far as needed to run the service:",
     ],
@@ -78,21 +86,21 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    h: "8. Retention and security",
+    h: "9. Retention and security",
     p: [
       "We keep personal data only for as long as we need it for the booking, the service you asked for, or a legal duty such as accounting. We then delete it or reduce it so it no longer identifies you.",
       "We take reasonable technical and organisational measures against loss, misuse and unauthorised access. No website can guarantee perfect security.",
     ],
   },
   {
-    h: "9. Your rights",
+    h: "10. Your rights",
     p: [
       "Under the Data Protection and Privacy Act, 2019 you may ask us for a copy of the personal data we hold about you, ask us to correct it, or ask us to delete it where the law allows. Where we rely on your consent, you may withdraw that consent. You may also object to processing that is not required to deliver a service you asked for.",
       "To use these rights, contact us with the details below. If you are not satisfied with our response, you may complain to the Personal Data Protection Office established under the Act.",
     ],
   },
   {
-    h: "10. Contact",
+    h: "11. Contact",
     p: [
       `Questions about this policy, or a request about your personal data, can be sent to ${CONTACT.email}, or by phone or WhatsApp on ${CONTACT.phoneDisplay}. ${SITE_NAME} is based in ${CONTACT.location}.`,
     ],

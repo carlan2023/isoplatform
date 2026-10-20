@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-const LAST_UPDATED = "9 July 2026";
+const LAST_UPDATED = "20 October 2026";
 
 const SECTIONS = [
   {
@@ -33,7 +33,7 @@ const SECTIONS = [
   {
     h: "4. Consulting services",
     p: [
-      "ISO certification consulting is delivered under a separate written scope of work agreed with your organisation. Certification decisions are made solely by independent, accredited certification bodies; we prepare and support your organisation but do not issue certificates or guarantee a certification outcome.",
+      "ISO certification consulting is delivered under a separate written scope of work agreed with your organisation. Certification decisions are made solely by independent, accredited certification bodies; we prepare and support your organisation but do not issue ISO certificates or guarantee a certification outcome. A NAM QMS certificate of completion may be issued to a person who finishes a training course. That document records training only. It is not an ISO certificate, and NAM QMS does not certify organisations.",
     ],
   },
   {

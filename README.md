@@ -58,10 +58,33 @@ Run these in the Supabase SQL editor, in this order (the `courses`,
 3. `db/enrollment-flow.sql` - `awaiting_confirmation` status and profile columns
 4. `db/cohorts.sql` - per-cohort (monthly) seat counting
 5. `db/group-enrollments.sql` - Internal Auditor Courses group enrollments and participants
+6. `db/certificates.sql` - NAM QMS certificates of completion (public verification)
 
 `db/group-enrollments.sql` **must be run** in the Supabase SQL editor before
 the Internal Auditor Courses checkout (`/internal-auditor-courses`) can save
 a booking. Until it is run, the page still loads, but payment cannot be stored.
+
+`db/certificates.sql` **must be run** before `/verify` can look up a certificate.
+Run it again if it was applied for the earlier dash or slash numbers.
+Visitors only see the holder name, course, training dates, issue date and
+status, through the server. A number looks like `NQ26LA014E`: `NQ`, a
+two-digit year, `LA` (Lead Auditor) or `IA` (Internal Auditor), a
+three-digit serial, and a check letter. Spaces and hyphens typed into the
+form are ignored. A wrong check letter is an invalid number.
+Only a Vercel **preview** deployment inserts two fake rows on the first lookup
+(`NQ26LA000G`, valid, and `NQ26IA000Q`, revoked, both for Sample Holder).
+Production never inserts them, even if `CERTIFICATE_DEMO_SEED=true`.
+If a preview shares the production database, delete those rows:
+
+```sql
+delete from public.certificates
+where certificate_id in ('NQ26LA000G', 'NQ26IA000Q');
+```
+
+`POST /api/admin/certificates/service` adds, revokes, or bulk-loads certificates
+without the admin UI. It requires `Authorization: Bearer <CERT_ADMIN_TOKEN>`
+and `SUPABASE_SERVICE_ROLE_KEY`. The route rejects every request when
+`CERT_ADMIN_TOKEN` is unset. Set that token in Vercel; do not commit it.
 
 ## Operations
 

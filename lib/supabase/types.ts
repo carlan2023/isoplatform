@@ -64,6 +64,22 @@ export interface GroupEnrollmentParticipant {
   created_at: string;
 }
 
+export type CertificateStatus = "valid" | "revoked";
+
+/** NAM QMS certificate of completion. No email or phone is stored. */
+export interface Certificate {
+  id: string;
+  certificate_id: string;
+  holder_full_name: string;
+  course: string;
+  training_start: string;
+  training_end: string;
+  issue_date: string;
+  status: CertificateStatus;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Enrollment {
   id: string;
   user_id: string;
@@ -129,6 +145,29 @@ export interface Database {
           >
         >;
         Update: Partial<GroupEnrollment>;
+        Relationships: [];
+      };
+      certificates: {
+        Row: Certificate;
+        Insert: {
+          certificate_id: string;
+          holder_full_name: string;
+          course: string;
+          training_start: string;
+          training_end: string;
+          issue_date: string;
+        } & Partial<
+          Omit<
+            Certificate,
+            | "certificate_id"
+            | "holder_full_name"
+            | "course"
+            | "training_start"
+            | "training_end"
+            | "issue_date"
+          >
+        >;
+        Update: Partial<Certificate>;
         Relationships: [];
       };
       group_enrollment_participants: {
