@@ -58,10 +58,22 @@ Run these in the Supabase SQL editor, in this order (the `courses`,
 3. `db/enrollment-flow.sql` - `awaiting_confirmation` status and profile columns
 4. `db/cohorts.sql` - per-cohort (monthly) seat counting
 5. `db/group-enrollments.sql` - Internal Auditor Courses group enrollments and participants
+6. `db/certificates.sql` - NAM QMS certificates of completion (public verification)
 
 `db/group-enrollments.sql` **must be run** in the Supabase SQL editor before
 the Internal Auditor Courses checkout (`/internal-auditor-courses`) can save
 a booking. Until it is run, the page still loads, but payment cannot be stored.
+
+`db/certificates.sql` **must be run** before `/verify` can look up a certificate.
+Visitors only see the holder name, course, training dates, issue date and
+status, through the server. Preview deployments insert two fake rows on the
+first lookup (`NAMQMS-DEMO-0001`, valid, and `NAMQMS-DEMO-0002`, revoked,
+both for Sample Holder). Delete those rows before launch:
+
+```sql
+delete from public.certificates
+where certificate_id in ('NAMQMS-DEMO-0001', 'NAMQMS-DEMO-0002');
+```
 
 ## Operations
 

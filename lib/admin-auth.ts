@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import { NextResponse } from "next/server";
+import { localMemoryCertificateStore } from "@/lib/certificate-runtime";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Confirm the caller is a signed-in admin. Returns the admin's user id or a
@@ -33,4 +34,14 @@ export async function requireAdmin(): Promise<
     };
   }
   return { userId: user.id };
+}
+
+// Local `next dev` with CERTIFICATE_STORE=memory can open the certificate
+// admin screen without a Supabase login. Preview and production never take
+// this path: Vercel sets VERCEL=1, and production NODE_ENV blocks it too.
+export async function requireAdminOrLocalDemo(): Promise<
+  { userId: string } | { response: NextResponse }
+> {
+  if (localMemoryCertificateStore()) return { userId: "local-demo" };
+  return requireAdmin();
 }

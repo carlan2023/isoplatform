@@ -13,6 +13,7 @@
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { localMemoryCertificateStore } from "@/lib/certificate-runtime";
 import {
   describeRecoveryLink,
   shouldEstablishRecoveryOnServer,
@@ -29,6 +30,15 @@ function redirectWithAuthCookies(url: URL, cookiesToSet: Map<string, AuthCookie>
 }
 
 export async function middleware(request: NextRequest) {
+  // Local certificate screenshots use an in-memory store and skip Supabase.
+  // The guard is false on every Vercel deployment.
+  if (
+    localMemoryCertificateStore() &&
+    request.nextUrl.pathname.startsWith("/admin/certificates")
+  ) {
+    return NextResponse.next();
+  }
+
   // Session cookies written while Supabase exchanges a recovery link or
   // refreshes a session. A redirect has to carry them itself — a new
   // NextResponse does not inherit cookies set on the previous one.

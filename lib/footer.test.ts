@@ -30,7 +30,7 @@ describe("privacy policy page", () => {
   const page = source("app/privacy/page.tsx");
 
   it("is dated 15 October 2026 and covers the data the site actually collects", () => {
-    expect(page).toContain("15 October 2026");
+    expect(page).toContain("20 October 2026");
     expect(page).toContain("Data Protection and Privacy Act, 2019");
     expect(page).toContain("Broracks");
     expect(page).toContain("HubSpot");
