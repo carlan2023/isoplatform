@@ -14,10 +14,12 @@ import { supabase } from "@/lib/supabase";
 import {
   CERTIFICATE_CSV_TEMPLATE,
   CERTIFICATE_DISCLAIMER,
+  CERTIFICATE_ID_EXAMPLE,
   formatCertificateDate,
   isDemoCertificateId,
   type CertificateRecord,
   type CertificateStatus,
+  type CourseCode,
 } from "@/lib/certificates";
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" as const };
@@ -52,6 +54,9 @@ export default function CertificateEditor({ demoUnlocked }: { demoUnlocked: bool
   const [notice, setNotice] = useState("");
   const [form, setForm] = useState<FormState>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [assigning, setAssigning] = useState(false);
+  const [assignYear, setAssignYear] = useState("2026");
+  const [assignCode, setAssignCode] = useState<CourseCode>("LA");
   const [csvErrors, setCsvErrors] = useState<{ row: number; error: string }[]>([]);
 
   const load = async () => {
@@ -113,6 +118,33 @@ export default function CertificateEditor({ demoUnlocked }: { demoUnlocked: bool
 
   const onField = (key: keyof FormState, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const assignNext = async () => {
+    setAssigning(true);
+    setError("");
+    setNotice("");
+    let res: Response;
+    try {
+      res = await fetch("/api/admin/certificates/next", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year: Number(assignYear), courseCode: assignCode }),
+      });
+    } catch (e) {
+      console.error("[admin/certificates] assign failed:", e);
+      setAssigning(false);
+      setError("Network error. Please try again.");
+      return;
+    }
+    const data = await res.json().catch(() => ({}));
+    setAssigning(false);
+    if (!res.ok || typeof data.certificateId !== "string") {
+      setError(data.error || "Could not assign a certificate number.");
+      return;
+    }
+    onField("certificateId", data.certificateId);
+    setNotice(`Assigned ${data.certificateId}.`);
   };
 
   const save = async () => {
@@ -410,8 +442,46 @@ export default function CertificateEditor({ demoUnlocked }: { demoUnlocked: bool
           <h2 className="text-lg font-bold text-slate-900 mb-4">
             {form.originalCertificateId ? "Edit certificate" : "Add a certificate"}
           </h2>
+          <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <label className="block text-sm text-slate-700">
+              Year
+              <input
+                type="number"
+                min={2000}
+                max={2099}
+                value={assignYear}
+                onChange={(event) => setAssignYear(event.target.value)}
+                className="mt-1.5 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm text-slate-700">
+              Course code
+              <select
+                value={assignCode}
+                onChange={(event) => setAssignCode(event.target.value as CourseCode)}
+                className="mt-1.5 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="LA">LA — Lead Auditor</option>
+                <option value="IA">IA — Internal Auditor</option>
+              </select>
+            </label>
+          </div>
+          <button
+            type="button"
+            disabled={assigning}
+            onClick={() => {
+              assignNext().catch((e) => {
+                console.error(e);
+                setError("Could not assign a certificate number.");
+                setAssigning(false);
+              });
+            }}
+            className="text-sm font-medium text-teal-700 mb-4 disabled:opacity-60"
+          >
+            {assigning ? "Assigning…" : "Assign next number"}
+          </button>
           <div className="grid md:grid-cols-2 gap-4">
-            <Field label="Certificate ID" value={form.certificateId} onChange={(value) => onField("certificateId", value)} placeholder="NAMQMS/TRN/2026/0001" />
+            <Field label="Certificate ID" value={form.certificateId} onChange={(value) => onField("certificateId", value)} placeholder={CERTIFICATE_ID_EXAMPLE} />
             <Field label="Holder full name" value={form.holderFullName} onChange={(value) => onField("holderFullName", value)} />
             <Field label="Course" value={form.course} onChange={(value) => onField("course", value)} placeholder="ISO 9001 Lead Auditor" />
             <label className="block text-sm text-slate-700">
@@ -451,7 +521,7 @@ export default function CertificateEditor({ demoUnlocked }: { demoUnlocked: bool
           <p className="text-sm text-slate-500 mb-4">
             Columns: certificate_id, holder_full_name, course, training_start, training_end, issue_date, status.
             Dates use YYYY-MM-DD. Status is valid or revoked. An existing certificate ID is updated.
-            Certificate IDs look like NAMQMS/TRN/2026/0001. Capitalisation is ignored, and a dash is stored as a slash.
+            Certificate numbers look like {CERTIFICATE_ID_EXAMPLE}. Capitalisation is ignored. Spaces and hyphens are removed. The check letter must match.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <input

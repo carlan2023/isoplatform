@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // GET /api/admin/certificates/qr?certificateId=...&format=png|svg
 //
-// Downloads a QR code that opens /verify/[certificateId] on this site.
+// Downloads a QR code that opens /verify?id=… for this certificate.
 // ---------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";

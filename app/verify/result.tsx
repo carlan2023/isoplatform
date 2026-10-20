@@ -59,6 +59,11 @@ export default function CertificateLookupResult({
       title: "Check the certificate ID",
       body: `Certificate IDs look like ${CERTIFICATE_ID_EXAMPLE}.`,
     },
+    invalid_number: {
+      icon: <SearchX className="text-slate-500" size={22} aria-hidden="true" />,
+      title: "Invalid number",
+      body: "The check letter does not match this certificate number.",
+    },
     not_found: {
       icon: <SearchX className="text-slate-500" size={22} aria-hidden="true" />,
       title: "No certificate found",

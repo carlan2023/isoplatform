@@ -9,7 +9,7 @@ import {
   VERIFY_PAGE_TITLE,
   certificateIdFromPath,
   clientIpFromHeaders,
-  isCertificateId,
+  classifyCertificateId,
   normalizeCertificateId,
 } from "@/lib/certificates";
 import { SITE_NAME, abs } from "@/lib/site";
@@ -76,9 +76,10 @@ export default async function VerifyPage({
   const rawSurname = firstQuery(query.surname);
   const surname = rawSurname.slice(0, 120);
   const normalized = rawId ? normalizeCertificateId(rawId) : "";
-  const initialId = normalized && isCertificateId(normalized)
-    ? normalized
-    : rawId.trim().slice(0, 80);
+  const initialId =
+    rawId && classifyCertificateId(rawId) !== "malformed"
+      ? normalized
+      : rawId.trim().slice(0, 32);
 
   if (!rawId) {
     return (

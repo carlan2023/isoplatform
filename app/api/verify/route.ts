@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// GET /api/verify?id=NAMQMS/TRN/2026/0001&surname=Holder
+// GET /api/verify?id=NQ26LA014E&surname=Holder
 //
 // The only public read of a NAM QMS certificate of completion. Returns the
 // holder name, course, training dates, issue date and status. A miss and a
@@ -27,6 +27,11 @@ export function lookupResponse(outcome: PublicLookupOutcome) {
     case "invalid_id":
       return NextResponse.json(
         { error: `Enter a certificate ID such as ${CERTIFICATE_ID_EXAMPLE}.` },
+        { status: 400, headers: NO_STORE },
+      );
+    case "invalid_number":
+      return NextResponse.json(
+        { error: "Invalid number" },
         { status: 400, headers: NO_STORE },
       );
     case "rate_limited":

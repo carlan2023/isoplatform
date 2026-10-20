@@ -16,6 +16,7 @@ import {
   CertificateUnavailableError,
   DEMO_CERTIFICATE_INPUTS,
   createMemoryCertificateStore,
+  classifyCertificateId,
   isCertificateId,
   isMissingCertificatesTable,
   lookupCertificate,
@@ -53,13 +54,14 @@ export async function runPublicLookup(args: {
   if (verifyRateLimiter.isLimited(args.ip || "unknown", args.now)) {
     return { kind: "rate_limited" };
   }
-  const certificateId = normalizeCertificateId(args.certificateId);
-  if (!isCertificateId(certificateId)) return { kind: "invalid_id" };
+  const idClass = classifyCertificateId(args.certificateId);
+  if (idClass === "malformed") return { kind: "invalid_id" };
+  if (idClass === "invalid_number") return { kind: "invalid_number" };
   try {
     const store = getCertificateStore();
     await ensureDemoCertificates(store);
     return await lookupCertificate(store, {
-      certificateId,
+      certificateId: args.certificateId,
       surname: args.surname,
     });
   } catch (error) {
@@ -240,5 +242,19 @@ const supabaseCertificateStore: CertificateStore = {
       .in("certificate_id", ids);
     if (error) raise(error);
     return count ?? 0;
+  },
+  async listIdsByPrefix(prefix) {
+    const key = prefix.toUpperCase().replace(/[%_\\]/g, "");
+    if (!/^NQ\d{2}(LA|IA)$/.test(key)) return [];
+    const admin = getSupabaseAdmin();
+    const { data, error } = await admin
+      .from("certificates")
+      .select("certificate_id")
+      .like("certificate_id", `${key}%`)
+      .limit(1000);
+    if (error) raise(error);
+    return (data ?? []).map((row) =>
+      String((row as { certificate_id: string }).certificate_id),
+    );
   },
 };

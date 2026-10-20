@@ -11,16 +11,20 @@
 -- only the holder name, course, training dates, issue date and status.
 -- Admins write through /api/admin/certificates, also with the service role.
 --
--- Certificate numbers look like NAMQMS/TRN/2026/0001. Lookup is
--- case-insensitive; the server stores the uppercase slash form.
--- A dash is an alias, so NAMQMS-TRN-2026-0001 is the same number.
+-- Certificate numbers are 10 characters: NQ + 2-digit year + LA or IA
+-- + 3-digit serial + 1 check letter. Example: NQ26LA014E.
+-- LA is Lead Auditor. IA is Internal Auditor. No hyphens or slashes.
+-- The check letter is validated in the app (weighted mod 23, alphabet
+-- ABCDEFGHJKLMNPQRSTVWXYZ). This table checks the shape only.
+-- Lookup ignores capitalisation and drops spaces and hyphens.
 --
--- Preview deployments insert two clearly fake rows the first time someone
--- checks a certificate (NAMQMS/TRN/2026/DEMO1 and NAMQMS/TRN/2026/DEMO2,
--- holder "Sample Holder"). Remove them before launch:
+-- Only a Vercel preview deployment inserts two clearly fake rows the first
+-- time someone checks a certificate (NQ26LA000G valid, NQ26IA000Q revoked,
+-- holder "Sample Holder", serial 000). Production never inserts them.
+-- If preview shares this database, remove the samples:
 --
 --   delete from public.certificates
---   where certificate_id in ('NAMQMS/TRN/2026/DEMO1', 'NAMQMS/TRN/2026/DEMO2');
+--   where certificate_id in ('NQ26LA000G', 'NQ26IA000Q');
 -- ===========================================================================
 
 create extension if not exists pgcrypto;
@@ -38,7 +42,7 @@ create table if not exists public.certificates (
   updated_at timestamptz not null default now(),
   constraint certificates_certificate_id_unique unique (certificate_id),
   constraint certificates_certificate_id_format
-    check (certificate_id ~ '^NAMQMS(/[A-Z0-9]{2,12}){1,5}$'),
+    check (certificate_id ~ '^NQ[0-9]{2}(LA|IA)[0-9]{3}[ABCDEFGHJKLMNPQRSTVWXYZ]$'),
   constraint certificates_status_check
     check (status in ('valid', 'revoked')),
   constraint certificates_dates_check
@@ -63,13 +67,18 @@ alter table public.certificates enable row level security;
 revoke all on table public.certificates from anon, authenticated;
 grant select, insert, update, delete on table public.certificates to service_role;
 
--- Re-running this file updates a database created with the earlier dash-only
--- rule. Drop the old preview rows first so the new check can be applied.
+-- Re-running this file replaces the earlier dash and slash number formats.
+-- Drop those sample rows first so the new check can be applied.
 delete from public.certificates
-where certificate_id in ('NAMQMS-DEMO-0001', 'NAMQMS-DEMO-0002');
+where certificate_id in (
+  'NAMQMS-DEMO-0001',
+  'NAMQMS-DEMO-0002',
+  'NAMQMS/TRN/2026/DEMO1',
+  'NAMQMS/TRN/2026/DEMO2'
+);
 
 alter table public.certificates drop constraint if exists certificates_certificate_id_format;
 alter table public.certificates
   add constraint certificates_certificate_id_format
-  check (certificate_id ~ '^NAMQMS(/[A-Z0-9]{2,12}){1,5}$');
+  check (certificate_id ~ '^NQ[0-9]{2}(LA|IA)[0-9]{3}[ABCDEFGHJKLMNPQRSTVWXYZ]$');
 -- ===========================================================================

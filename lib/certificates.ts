@@ -16,13 +16,63 @@ export const VERIFY_PAGE_DESCRIPTION =
 export const CERTIFICATE_DISCLAIMER =
   "A NAM QMS certificate of completion records that the named person finished a NAM QMS training course. It is not an ISO certificate, and NAM QMS does not certify organisations.";
 
-/** Printed on a certificate, for example NAMQMS/TRN/2026/0001. */
-export const CERTIFICATE_ID_EXAMPLE = "NAMQMS/TRN/2026/0001";
+/**
+ * Check letters are A–Z without I, O, or U (23 characters).
+ * NQ26LA014E is the shape: NQ, year, course code, serial, check letter.
+ */
+export const CHECK_ALPHABET = "ABCDEFGHJKLMNPQRSTVWXYZ";
 
-export const CERTIFICATE_ID_MAX = 80;
+export const COURSE_CODES = ["LA", "IA"] as const;
+export type CourseCode = (typeof COURSE_CODES)[number];
 
-/** Canonical form uses slashes. Dashes are accepted and stored as slashes. */
-export const CERTIFICATE_ID_RE = /^NAMQMS(?:\/[A-Z0-9]{2,12}){1,5}$/;
+export const COURSE_CODE_LABEL: Record<CourseCode, string> = {
+  LA: "Lead Auditor",
+  IA: "Internal Auditor",
+};
+
+/** Ten characters after spaces and hyphens are removed. */
+export const CERTIFICATE_ID_LENGTH = 10;
+
+/** Loose shape. The last character is checked separately. */
+const CERTIFICATE_ID_SHAPE = /^NQ\d{2}(LA|IA)\d{3}[A-Z]$/;
+
+/**
+ * Check letter for a 9-character body.
+ * Digits are 0–9. Letters are A=1 … Z=26, including I, O, and U in the body
+ * (IA uses I). Each value is multiplied by its position, starting at 1.
+ * The remainder mod 23 picks the check letter.
+ */
+export function checkLetterForBody(body: string): string {
+  let sum = 0;
+  for (let i = 0; i < body.length; i += 1) {
+    const ch = body[i];
+    const value =
+      ch >= "0" && ch <= "9" ? ch.charCodeAt(0) - 48 : ch.charCodeAt(0) - 64;
+    sum += value * (i + 1);
+  }
+  return CHECK_ALPHABET[sum % CHECK_ALPHABET.length] ?? "";
+}
+
+export function buildCertificateId(
+  year: number,
+  courseCode: CourseCode,
+  serial: number,
+): string {
+  if (!Number.isInteger(year) || year < 2000 || year > 2099) {
+    throw new CertificateRejectedError("Choose a year from 2000 to 2099.");
+  }
+  if (courseCode !== "LA" && courseCode !== "IA") {
+    throw new CertificateRejectedError("Choose LA or IA.");
+  }
+  if (!Number.isInteger(serial) || serial < 0 || serial > 999) {
+    throw new CertificateRejectedError("The serial must be from 000 to 999.");
+  }
+  const body = `NQ${String(year).slice(2)}${courseCode}${String(serial).padStart(3, "0")}`;
+  return `${body}${checkLetterForBody(body)}`;
+}
+
+/** Printed example. The check letter is calculated, not chosen. */
+export const CERTIFICATE_ID_EXAMPLE = buildCertificateId(2026, "LA", 14);
 
 export const VERIFY_RATE_LIMIT = 30;
 export const VERIFY_RATE_WINDOW_MS = 10 * 60 * 1000;
@@ -74,6 +124,7 @@ export type PublicCertificate = {
 
 export type PublicLookupOutcome =
   | { kind: "invalid_id" }
+  | { kind: "invalid_number" }
   | { kind: "rate_limited" }
   | { kind: "unavailable" }
   | { kind: "not_found"; certificateId: string }
@@ -111,9 +162,13 @@ export class CertificateUnavailableError extends Error {
   }
 }
 
+/** Serial 000 is reserved for these sample rows and is never assigned next. */
+export const DEMO_LEAD_AUDITOR_ID = buildCertificateId(2026, "LA", 0);
+export const DEMO_INTERNAL_AUDITOR_ID = buildCertificateId(2026, "IA", 0);
+
 export const DEMO_CERTIFICATE_INPUTS: CertificateInput[] = [
   {
-    certificateId: "NAMQMS/TRN/2026/DEMO1",
+    certificateId: DEMO_LEAD_AUDITOR_ID,
     holderFullName: "Sample Holder",
     course: "ISO 9001 Lead Auditor",
     trainingStart: "2026-01-06",
@@ -122,7 +177,7 @@ export const DEMO_CERTIFICATE_INPUTS: CertificateInput[] = [
     status: "valid",
   },
   {
-    certificateId: "NAMQMS/TRN/2026/DEMO2",
+    certificateId: DEMO_INTERNAL_AUDITOR_ID,
     holderFullName: "Sample Holder",
     course: "ISO 45001 Internal Auditor",
     trainingStart: "2026-02-02",
@@ -134,7 +189,7 @@ export const DEMO_CERTIFICATE_INPUTS: CertificateInput[] = [
 
 export const CERTIFICATE_CSV_TEMPLATE = [
   "certificate_id,holder_full_name,course,training_start,training_end,issue_date,status",
-  "NAMQMS/TRN/2026/0001,Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid",
+  `${CERTIFICATE_ID_EXAMPLE},Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid`,
 ].join("\n");
 
 const CSV_HEADER_FIELDS: Record<string, CertificateField> = {
@@ -157,19 +212,30 @@ const REQUIRED_FIELDS: CertificateField[] = [
   "status",
 ];
 
+export type CertificateIdClass = "valid" | "invalid_number" | "malformed";
+
 /**
- * Trim, ignore capitalisation, and treat "-" as "/".
- * " namqms-trn-2026-0001 " and "NAMQMS/TRN/2026/0001" are the same ID.
+ * Trim, ignore capitalisation, and drop spaces and hyphens.
+ * " nq26-la-014-e " and "NQ26LA014E" are the same ID.
  */
 export function normalizeCertificateId(value: string): string {
-  return value.trim().toUpperCase().replace(/\s+/g, "").replace(/-/g, "/");
+  return value.trim().toUpperCase().replace(/[\s-]+/g, "");
+}
+
+export function classifyCertificateId(value: string): CertificateIdClass {
+  const id = normalizeCertificateId(value);
+  if (!CERTIFICATE_ID_SHAPE.test(id)) return "malformed";
+  const body = id.slice(0, CERTIFICATE_ID_LENGTH - 1);
+  return id[CERTIFICATE_ID_LENGTH - 1] === checkLetterForBody(body)
+    ? "valid"
+    : "invalid_number";
 }
 
 export function isCertificateId(value: string): boolean {
-  return value.length <= CERTIFICATE_ID_MAX && CERTIFICATE_ID_RE.test(value);
+  return classifyCertificateId(value) === "valid";
 }
 
-/** Join a /verify/[id] path. Encoded slashes (%2F) are decoded first. */
+/** Join a /verify/[id] path. A single segment is one certificate number. */
 export function certificateIdFromPath(parts: string[] | undefined | null): string {
   if (!parts?.length) return "";
   return parts
@@ -314,11 +380,19 @@ export function validateCertificateInput(raw: unknown): ValidationResult {
   }
   const body = raw as Record<string, unknown>;
   const certificateId = normalizeCertificateId(asText(body.certificateId) ?? "");
-  if (!asText(body.certificateId) || !isCertificateId(certificateId)) {
+  const idClass = classifyCertificateId(certificateId);
+  if (!asText(body.certificateId) || idClass === "malformed") {
     return {
       ok: false,
       field: "certificateId",
       error: `Enter a certificate ID such as ${CERTIFICATE_ID_EXAMPLE}.`,
+    };
+  }
+  if (idClass === "invalid_number") {
+    return {
+      ok: false,
+      field: "certificateId",
+      error: "Invalid number.",
     };
   }
 
@@ -414,6 +488,7 @@ export interface CertificateStore {
     inputs: CertificateInput[],
   ): Promise<{ inserted: number; updated: number }>;
   deleteByCertificateIds(certificateIds: string[]): Promise<number>;
+  listIdsByPrefix(prefix: string): Promise<string[]>;
 }
 
 export function createMemoryCertificateStore(
@@ -490,7 +565,41 @@ export function createMemoryCertificateStore(
       }
       return deleted;
     },
+    async listIdsByPrefix(prefix) {
+      const key = prefix.toUpperCase();
+      return [...rows.keys()].filter((id) => id.startsWith(key));
+    },
   };
+}
+
+/** Next serial for a year and course. Sample serial 000 does not count as 001. */
+export async function assignNextCertificateId(
+  store: CertificateStore,
+  year: number,
+  courseCode: CourseCode,
+): Promise<string> {
+  if (!Number.isInteger(year) || year < 2000 || year > 2099) {
+    throw new CertificateRejectedError("Choose a year from 2000 to 2099.");
+  }
+  if (courseCode !== "LA" && courseCode !== "IA") {
+    throw new CertificateRejectedError("Choose LA or IA.");
+  }
+  const prefix = `NQ${String(year).slice(2)}${courseCode}`;
+  const ids = await store.listIdsByPrefix(prefix);
+  let max = 0;
+  for (const id of ids) {
+    const normalized = normalizeCertificateId(id);
+    if (!normalized.startsWith(prefix) || normalized.length < 9) continue;
+    const serial = Number(normalized.slice(6, 9));
+    if (Number.isInteger(serial) && serial > max) max = serial;
+  }
+  const next = max + 1;
+  if (next > 999) {
+    throw new CertificateRejectedError(
+      "No certificate numbers left for that year and course.",
+    );
+  }
+  return buildCertificateId(year, courseCode, next);
 }
 
 export async function lookupCertificate(
@@ -498,11 +607,14 @@ export async function lookupCertificate(
   query: { certificateId: string; surname?: string | null },
 ): Promise<
   | { kind: "invalid_id" }
+  | { kind: "invalid_number" }
   | { kind: "not_found"; certificateId: string }
   | { kind: "found"; certificate: PublicCertificate }
 > {
   const certificateId = normalizeCertificateId(query.certificateId);
-  if (!isCertificateId(certificateId)) return { kind: "invalid_id" };
+  const idClass = classifyCertificateId(certificateId);
+  if (idClass === "malformed") return { kind: "invalid_id" };
+  if (idClass === "invalid_number") return { kind: "invalid_number" };
   const row = await store.getByCertificateId(certificateId);
   if (!row || !holderSurnameMatches(row.holderFullName, query.surname)) {
     return { kind: "not_found", certificateId };

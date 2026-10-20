@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+import { CERTIFICATE_ID_EXAMPLE } from "@/lib/certificates";
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 
@@ -48,11 +49,11 @@ export default function VerifyForm({
             name="certificateId"
             value={certificateId}
             onChange={(event) => setCertificateId(event.target.value)}
-            placeholder="NAMQMS/TRN/2026/0001"
+            placeholder={CERTIFICATE_ID_EXAMPLE}
             autoComplete="off"
             spellCheck={false}
             required
-            maxLength={80}
+            maxLength={32}
             className="mt-1.5 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-slate-900 focus:outline-none focus:border-teal-600"
           />
         </label>

@@ -1,16 +1,29 @@
 // ---------------------------------------------------------------------------
 // QR codes for a printed NAM QMS certificate of completion.
-// The code opens /verify?id=… so a slash in the certificate number stays in
-// the query string. It carries no personal data.
+// Production codes open https://amqualitysystems.com/verify?id=NQ26LA014E.
+// Preview and local hosts keep their own origin so the code opens that site.
+// The code carries no personal data.
 // ---------------------------------------------------------------------------
 
 import QRCode from "qrcode";
+import { APEX_HOST, CANONICAL_HOST } from "./site";
 
 const HOST_RE = /^[a-z0-9.-]+(?::\d+)?$/i;
 
+export const CERTIFICATE_QR_ORIGIN = `https://${APEX_HOST}`;
+
+export function qrOrigin(origin: string): string {
+  try {
+    const host = new URL(origin).hostname.toLowerCase();
+    if (host === APEX_HOST || host === CANONICAL_HOST) return CERTIFICATE_QR_ORIGIN;
+  } catch {
+    // Keep a non-URL origin only after the trailing slash is removed below.
+  }
+  return origin.replace(/\/+$/, "");
+}
+
 export function certificateVerifyUrl(origin: string, certificateId: string): string {
-  const base = origin.replace(/\/+$/, "");
-  return `${base}/verify?id=${encodeURIComponent(certificateId)}`;
+  return `${qrOrigin(origin)}/verify?id=${encodeURIComponent(certificateId)}`;
 }
 
 export function requestPublicOrigin(request: {

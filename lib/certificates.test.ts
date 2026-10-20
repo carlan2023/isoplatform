@@ -11,11 +11,19 @@ import {
 import {
   CERTIFICATE_CSV_TEMPLATE,
   CERTIFICATE_DISCLAIMER,
+  CERTIFICATE_ID_EXAMPLE,
+  CHECK_ALPHABET,
   DEMO_CERTIFICATE_INPUTS,
+  DEMO_INTERNAL_AUDITOR_ID,
+  DEMO_LEAD_AUDITOR_ID,
   VERIFY_PAGE_TITLE,
   VERIFY_RATE_LIMIT,
   VERIFY_RATE_WINDOW_MS,
+  assignNextCertificateId,
+  buildCertificateId,
   certificateIdFromPath,
+  checkLetterForBody,
+  classifyCertificateId,
   createMemoryCertificateStore,
   createRateLimiter,
   formatCertificateDate,
@@ -45,25 +53,49 @@ const PUBLIC_KEYS = [
 ];
 
 describe("certificate ids", () => {
-  it("accepts the slash form, ignoring case, spaces, and dash aliases", () => {
-    expect(normalizeCertificateId(" namqms/trn/2026/0001 ")).toBe("NAMQMS/TRN/2026/0001");
-    expect(normalizeCertificateId("namqms-trn-2026-0001")).toBe("NAMQMS/TRN/2026/0001");
-    expect(isCertificateId("NAMQMS/TRN/2026/0001")).toBe(true);
-    expect(isCertificateId("NAMQMS/TRN/2026/DEMO1")).toBe(true);
-    expect(isCertificateId("NAMQMS/TRN/2026/DEMO2")).toBe(true);
-    expect(isCertificateId(normalizeCertificateId("NAMQMS-TRN-2026-DEMO1"))).toBe(true);
-    expect(isCertificateId("NAMQMS")).toBe(false);
-    expect(isCertificateId("NAMQMS/%")).toBe(false);
-    expect(isCertificateId("AMQMS/TRN/2026/0001")).toBe(false);
-    expect(certificateIdFromPath(["NAMQMS", "TRN", "2026", "0001"])).toBe(
-      "NAMQMS/TRN/2026/0001",
+  it("builds a 10-character number and checks the letter", () => {
+    expect(CHECK_ALPHABET).toHaveLength(23);
+    expect(CHECK_ALPHABET).not.toMatch(/[IOU]/);
+    expect(checkLetterForBody("NQ26LA000")).toBe("G");
+    expect(checkLetterForBody("NQ26IA000")).toBe("Q");
+    expect(buildCertificateId(2026, "LA", 14)).toBe("NQ26LA014E");
+    expect(CERTIFICATE_ID_EXAMPLE).toBe("NQ26LA014E");
+    expect(DEMO_LEAD_AUDITOR_ID).toBe("NQ26LA000G");
+    expect(DEMO_INTERNAL_AUDITOR_ID).toBe("NQ26IA000Q");
+    expect(DEMO_LEAD_AUDITOR_ID).toHaveLength(10);
+
+    expect(normalizeCertificateId(" nq26-la-014-e ")).toBe("NQ26LA014E");
+    expect(normalizeCertificateId("NQ 26 LA 014 E")).toBe("NQ26LA014E");
+    expect(isCertificateId("nq26-la-014-e")).toBe(true);
+    expect(classifyCertificateId("NQ26LA014K")).toBe("invalid_number");
+    expect(classifyCertificateId("NQ26LA014I")).toBe("invalid_number");
+    expect(classifyCertificateId("NAMQMS/TRN/2026/0001")).toBe("malformed");
+    expect(classifyCertificateId("NQ26XX014E")).toBe("malformed");
+    expect(certificateIdFromPath(["NQ26LA014E"])).toBe("NQ26LA014E");
+    expect(certificateIdFromPath(["nq26-la-000-g"])).toBe("nq26-la-000-g");
+    expect(normalizeCertificateId(certificateIdFromPath(["nq26-la-000-g"]))).toBe(
+      DEMO_LEAD_AUDITOR_ID,
     );
-    expect(certificateIdFromPath(["NAMQMS%2FTRN%2F2026%2F0001"])).toBe(
-      "NAMQMS/TRN/2026/0001",
+  });
+
+  it("assigns the next serial per year and course, skipping sample 000", async () => {
+    const store = createMemoryCertificateStore(DEMO_CERTIFICATE_INPUTS);
+    await expect(assignNextCertificateId(store, 2026, "LA")).resolves.toBe(
+      buildCertificateId(2026, "LA", 1),
     );
-    expect(
-      normalizeCertificateId(certificateIdFromPath(["NAMQMS-TRN-2026-0001"])),
-    ).toBe("NAMQMS/TRN/2026/0001");
+    await expect(assignNextCertificateId(store, 2026, "IA")).resolves.toBe(
+      buildCertificateId(2026, "IA", 1),
+    );
+    await store.insert({
+      ...DEMO_CERTIFICATE_INPUTS[0],
+      certificateId: buildCertificateId(2026, "LA", 14),
+    });
+    await expect(assignNextCertificateId(store, 2026, "LA")).resolves.toBe(
+      buildCertificateId(2026, "LA", 15),
+    );
+    await expect(assignNextCertificateId(store, 1999, "LA")).rejects.toThrow(
+      /2000 to 2099/,
+    );
   });
 });
 
@@ -82,7 +114,7 @@ describe("public certificate", () => {
   it("returns only the fields shown on the verify page", () => {
     const record = {
       id: "secret-row",
-      certificateId: "NAMQMS/TRN/2026/DEMO1",
+      certificateId: DEMO_LEAD_AUDITOR_ID,
       holderFullName: "Sample Holder",
       course: "ISO 9001 Lead Auditor",
       trainingStart: "2026-01-06",
@@ -110,14 +142,13 @@ describe("lookup", () => {
 
   it("shows a valid sample, a revoked sample, and a miss", async () => {
     const valid = await lookupCertificate(store, {
-      certificateId: " namqms/trn/2026/demo1 ",
+      certificateId: " nq 26 la 000 g ",
     });
     const revoked = await lookupCertificate(store, {
-      certificateId: "NAMQMS-TRN-2026-DEMO2",
+      certificateId: "nq26-ia-000-q",
     });
-    const missing = await lookupCertificate(store, {
-      certificateId: "NAMQMS/TRN/2026/9999",
-    });
+    const missingId = buildCertificateId(2026, "LA", 999);
+    const missing = await lookupCertificate(store, { certificateId: missingId });
     expect(valid).toMatchObject({
       kind: "found",
       certificate: { holderName: "Sample Holder", status: "valid" },
@@ -126,12 +157,20 @@ describe("lookup", () => {
       kind: "found",
       certificate: { course: "ISO 45001 Internal Auditor", status: "revoked" },
     });
-    expect(missing).toEqual({ kind: "not_found", certificateId: "NAMQMS/TRN/2026/9999" });
+    expect(missing).toEqual({ kind: "not_found", certificateId: missingId });
+  });
+
+  it("rejects a bad check letter before looking up a holder", async () => {
+    const result = await lookupCertificate(store, { certificateId: "NQ26LA000K" });
+    expect(result).toEqual({ kind: "invalid_number" });
+    expect(JSON.stringify(result)).not.toContain("Sample Holder");
+    const odd = await lookupCertificate(store, { certificateId: "NQ26LA014K" });
+    expect(odd.kind).toBe("invalid_number");
   });
 
   it("treats a wrong surname as not found", async () => {
     const result = await lookupCertificate(store, {
-      certificateId: "namqms/trn/2026/demo1",
+      certificateId: "nq26la000g",
       surname: "Smith",
     });
     expect(result.kind).toBe("not_found");
@@ -142,7 +181,7 @@ describe("lookup", () => {
     const local = createMemoryCertificateStore([
       ...DEMO_CERTIFICATE_INPUTS,
       {
-        certificateId: "NAMQMS/TRN/2026/0001",
+        certificateId: buildCertificateId(2026, "LA", 1),
         holderFullName: "Sample Holder",
         course: "ISO 9001 Lead Auditor",
         trainingStart: "2026-03-02",
@@ -153,7 +192,7 @@ describe("lookup", () => {
     ]);
     expect(await removeDemoCertificates(local)).toBe(2);
     const left = await local.list();
-    expect(left.map((row) => row.certificateId)).toEqual(["NAMQMS/TRN/2026/0001"]);
+    expect(left.map((row) => row.certificateId)).toEqual([buildCertificateId(2026, "LA", 1)]);
   });
 });
 
@@ -174,8 +213,8 @@ describe("validation and csv", () => {
     const bad = parseCertificateCsv(
       [
         "certificate_id,holder_full_name,course,training_start,training_end,issue_date,status",
-        "NAMQMS/TRN/2026/0002,Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid",
-        "namqms-trn-2026-0002,Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid",
+        `${buildCertificateId(2026, "LA", 2)},Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid`,
+        `${buildCertificateId(2026, "LA", 2).toLowerCase().replace(/^(..)(..)(...)(...)$/, "$1-$2-$3-$4")},Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid`,
       ].join("\n"),
     );
     expect(bad.ok).toBe(false);
@@ -195,12 +234,28 @@ describe("rate limit", () => {
 });
 
 describe("preview seed guard", () => {
-  it("seeds only outside production, and only in memory for local development", () => {
+  it("inserts sample rows only on a Vercel preview, never in production", () => {
     expect(demoSeedEnabled({ VERCEL_ENV: "preview" })).toBe(true);
+    expect(demoSeedEnabled({ NODE_ENV: "production", VERCEL_ENV: "preview" })).toBe(true);
+    expect(demoSeedEnabled({ VERCEL_ENV: "preview", CERTIFICATE_DEMO_SEED: "false" })).toBe(
+      false,
+    );
+    expect(demoSeedEnabled({ VERCEL_ENV: "production" })).toBe(false);
     expect(demoSeedEnabled({ VERCEL_ENV: "production", CERTIFICATE_DEMO_SEED: "true" })).toBe(
       false,
     );
-    expect(demoSeedEnabled({ CERTIFICATE_DEMO_SEED: "true" })).toBe(true);
+    expect(
+      demoSeedEnabled({
+        NODE_ENV: "production",
+        VERCEL: "1",
+        VERCEL_ENV: "production",
+        CERTIFICATE_DEMO_SEED: "true",
+      }),
+    ).toBe(false);
+    expect(demoSeedEnabled({ NODE_ENV: "production", CERTIFICATE_DEMO_SEED: "true" })).toBe(
+      false,
+    );
+    expect(demoSeedEnabled({ CERTIFICATE_DEMO_SEED: "true" })).toBe(false);
     expect(demoSeedEnabled({})).toBe(false);
 
     expect(
@@ -236,10 +291,14 @@ describe("qr helper", () => {
   it("encodes only the verify link", async () => {
     const url = certificateVerifyUrl(
       "https://www.amqualitysystems.com/",
-      "NAMQMS/TRN/2026/DEMO1",
+      DEMO_LEAD_AUDITOR_ID,
     );
-    expect(url).toBe(
-      "https://www.amqualitysystems.com/verify?id=NAMQMS%2FTRN%2F2026%2FDEMO1",
+    expect(url).toBe(`https://amqualitysystems.com/verify?id=${DEMO_LEAD_AUDITOR_ID}`);
+    expect(
+      certificateVerifyUrl("https://preview.example.com", DEMO_LEAD_AUDITOR_ID),
+    ).toBe(`https://preview.example.com/verify?id=${DEMO_LEAD_AUDITOR_ID}`);
+    expect(certificateVerifyUrl("http://localhost:3000/", DEMO_INTERNAL_AUDITOR_ID)).toBe(
+      `http://localhost:3000/verify?id=${DEMO_INTERNAL_AUDITOR_ID}`,
     );
     const svg = await certificateQrSvg(url);
     expect(svg).toContain("<svg");
@@ -287,6 +346,13 @@ describe("certificate copy and database rules", () => {
   it("keeps the table closed to anonymous reads", () => {
     const sql = source("db/certificates.sql");
     expect(sql).toContain("revoke all on table public.certificates from anon, authenticated");
+    expect(sql).toContain(DEMO_LEAD_AUDITOR_ID);
+    expect(sql).toContain(DEMO_INTERNAL_AUDITOR_ID);
+    expect(sql).toContain("NAMQMS/TRN/2026/DEMO1");
+    expect(sql).toContain("NAMQMS-DEMO-0001");
+    expect(sql).toContain(
+      "check (certificate_id ~ '^NQ[0-9]{2}(LA|IA)[0-9]{3}[ABCDEFGHJKLMNPQRSTVWXYZ]$')",
+    );
     expect(sql).not.toMatch(/create policy/i);
     expect(sql).not.toMatch(/\bemail\b/i);
     expect(sql).not.toMatch(/\bphone\b/i);
