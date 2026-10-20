@@ -16,7 +16,13 @@ export const VERIFY_PAGE_DESCRIPTION =
 export const CERTIFICATE_DISCLAIMER =
   "A NAM QMS certificate of completion records that the named person finished a NAM QMS training course. It is not an ISO certificate, and NAM QMS does not certify organisations.";
 
-export const CERTIFICATE_ID_RE = /^NAMQMS(?:-[A-Z0-9]{2,12}){1,5}$/;
+/** Printed on a certificate, for example NAMQMS/TRN/2026/0001. */
+export const CERTIFICATE_ID_EXAMPLE = "NAMQMS/TRN/2026/0001";
+
+export const CERTIFICATE_ID_MAX = 80;
+
+/** Canonical form uses slashes. Dashes are accepted and stored as slashes. */
+export const CERTIFICATE_ID_RE = /^NAMQMS(?:\/[A-Z0-9]{2,12}){1,5}$/;
 
 export const VERIFY_RATE_LIMIT = 30;
 export const VERIFY_RATE_WINDOW_MS = 10 * 60 * 1000;
@@ -107,7 +113,7 @@ export class CertificateUnavailableError extends Error {
 
 export const DEMO_CERTIFICATE_INPUTS: CertificateInput[] = [
   {
-    certificateId: "NAMQMS-DEMO-0001",
+    certificateId: "NAMQMS/TRN/2026/DEMO1",
     holderFullName: "Sample Holder",
     course: "ISO 9001 Lead Auditor",
     trainingStart: "2026-01-06",
@@ -116,7 +122,7 @@ export const DEMO_CERTIFICATE_INPUTS: CertificateInput[] = [
     status: "valid",
   },
   {
-    certificateId: "NAMQMS-DEMO-0002",
+    certificateId: "NAMQMS/TRN/2026/DEMO2",
     holderFullName: "Sample Holder",
     course: "ISO 45001 Internal Auditor",
     trainingStart: "2026-02-02",
@@ -128,7 +134,7 @@ export const DEMO_CERTIFICATE_INPUTS: CertificateInput[] = [
 
 export const CERTIFICATE_CSV_TEMPLATE = [
   "certificate_id,holder_full_name,course,training_start,training_end,issue_date,status",
-  "NAMQMS-2026-LA-0001,Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid",
+  "NAMQMS/TRN/2026/0001,Sample Holder,ISO 9001 Lead Auditor,2026-01-06,2026-01-10,2026-01-12,valid",
 ].join("\n");
 
 const CSV_HEADER_FIELDS: Record<string, CertificateField> = {
@@ -151,12 +157,31 @@ const REQUIRED_FIELDS: CertificateField[] = [
   "status",
 ];
 
+/**
+ * Trim, ignore capitalisation, and treat "-" as "/".
+ * " namqms-trn-2026-0001 " and "NAMQMS/TRN/2026/0001" are the same ID.
+ */
 export function normalizeCertificateId(value: string): string {
-  return value.trim().toUpperCase().replace(/\s+/g, "");
+  return value.trim().toUpperCase().replace(/\s+/g, "").replace(/-/g, "/");
 }
 
 export function isCertificateId(value: string): boolean {
-  return value.length <= 40 && CERTIFICATE_ID_RE.test(value);
+  return value.length <= CERTIFICATE_ID_MAX && CERTIFICATE_ID_RE.test(value);
+}
+
+/** Join a /verify/[id] path. Encoded slashes (%2F) are decoded first. */
+export function certificateIdFromPath(parts: string[] | undefined | null): string {
+  if (!parts?.length) return "";
+  return parts
+    .map((part) => {
+      const trimmed = part.trim();
+      try {
+        return decodeURIComponent(trimmed);
+      } catch {
+        return trimmed;
+      }
+    })
+    .join("/");
 }
 
 export function isISODate(value: string): boolean {
@@ -293,7 +318,7 @@ export function validateCertificateInput(raw: unknown): ValidationResult {
     return {
       ok: false,
       field: "certificateId",
-      error: "Enter a certificate ID such as NAMQMS-2026-LA-0001.",
+      error: `Enter a certificate ID such as ${CERTIFICATE_ID_EXAMPLE}.`,
     };
   }
 

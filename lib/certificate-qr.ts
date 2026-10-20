@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------
 // QR codes for a printed NAM QMS certificate of completion.
-// The code opens /verify/[certificateId] and carries no personal data.
+// The code opens /verify?id=… so a slash in the certificate number stays in
+// the query string. It carries no personal data.
 // ---------------------------------------------------------------------------
 
 import QRCode from "qrcode";
@@ -9,7 +10,7 @@ const HOST_RE = /^[a-z0-9.-]+(?::\d+)?$/i;
 
 export function certificateVerifyUrl(origin: string, certificateId: string): string {
   const base = origin.replace(/\/+$/, "");
-  return `${base}/verify/${encodeURIComponent(certificateId)}`;
+  return `${base}/verify?id=${encodeURIComponent(certificateId)}`;
 }
 
 export function requestPublicOrigin(request: {

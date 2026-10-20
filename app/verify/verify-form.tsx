@@ -16,16 +16,23 @@ export default function VerifyForm({
   const router = useRouter();
   const [certificateId, setCertificateId] = useState(initialId);
   const [surname, setSurname] = useState(initialSurname);
+  const syncKey = `${initialId}\n${initialSurname}`;
+  const [seenKey, setSeenKey] = useState(syncKey);
+  if (seenKey !== syncKey) {
+    setSeenKey(syncKey);
+    setCertificateId(initialId);
+    setSurname(initialSurname);
+  }
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     const id = certificateId.trim();
     if (!id) return;
     const params = new URLSearchParams();
+    params.set("id", id);
     const extra = surname.trim();
     if (extra) params.set("surname", extra);
-    const query = params.toString();
-    router.push(`/verify/${encodeURIComponent(id)}${query ? `?${query}` : ""}`);
+    router.push(`/verify?${params.toString()}`);
   };
 
   return (
@@ -41,11 +48,11 @@ export default function VerifyForm({
             name="certificateId"
             value={certificateId}
             onChange={(event) => setCertificateId(event.target.value)}
-            placeholder="NAMQMS-2026-LA-0001"
+            placeholder="NAMQMS/TRN/2026/0001"
             autoComplete="off"
             spellCheck={false}
             required
-            maxLength={40}
+            maxLength={80}
             className="mt-1.5 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-slate-900 focus:outline-none focus:border-teal-600"
           />
         </label>

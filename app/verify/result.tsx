@@ -1,5 +1,6 @@
 import { CheckCircle2, CircleOff, SearchX, ShieldAlert, TimerReset } from "lucide-react";
 import {
+  CERTIFICATE_ID_EXAMPLE,
   formatCertificateDate,
   type PublicLookupOutcome,
 } from "@/lib/certificates";
@@ -56,7 +57,7 @@ export default function CertificateLookupResult({
     invalid_id: {
       icon: <SearchX className="text-slate-500" size={22} aria-hidden="true" />,
       title: "Check the certificate ID",
-      body: "Certificate IDs look like NAMQMS-2026-LA-0001.",
+      body: `Certificate IDs look like ${CERTIFICATE_ID_EXAMPLE}.`,
     },
     not_found: {
       icon: <SearchX className="text-slate-500" size={22} aria-hidden="true" />,

@@ -65,14 +65,16 @@ the Internal Auditor Courses checkout (`/internal-auditor-courses`) can save
 a booking. Until it is run, the page still loads, but payment cannot be stored.
 
 `db/certificates.sql` **must be run** before `/verify` can look up a certificate.
+Run it again if it was applied before certificate numbers used slashes.
 Visitors only see the holder name, course, training dates, issue date and
-status, through the server. Preview deployments insert two fake rows on the
-first lookup (`NAMQMS-DEMO-0001`, valid, and `NAMQMS-DEMO-0002`, revoked,
+status, through the server. Numbers look like `NAMQMS/TRN/2026/0001`.
+Preview deployments insert two fake rows on the first lookup
+(`NAMQMS/TRN/2026/DEMO1`, valid, and `NAMQMS/TRN/2026/DEMO2`, revoked,
 both for Sample Holder). Delete those rows before launch:
 
 ```sql
 delete from public.certificates
-where certificate_id in ('NAMQMS-DEMO-0001', 'NAMQMS-DEMO-0002');
+where certificate_id in ('NAMQMS/TRN/2026/DEMO1', 'NAMQMS/TRN/2026/DEMO2');
 ```
 
 ## Operations

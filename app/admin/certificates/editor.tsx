@@ -411,7 +411,7 @@ export default function CertificateEditor({ demoUnlocked }: { demoUnlocked: bool
             {form.originalCertificateId ? "Edit certificate" : "Add a certificate"}
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <Field label="Certificate ID" value={form.certificateId} onChange={(value) => onField("certificateId", value)} placeholder="NAMQMS-2026-LA-0001" />
+            <Field label="Certificate ID" value={form.certificateId} onChange={(value) => onField("certificateId", value)} placeholder="NAMQMS/TRN/2026/0001" />
             <Field label="Holder full name" value={form.holderFullName} onChange={(value) => onField("holderFullName", value)} />
             <Field label="Course" value={form.course} onChange={(value) => onField("course", value)} placeholder="ISO 9001 Lead Auditor" />
             <label className="block text-sm text-slate-700">
@@ -451,6 +451,7 @@ export default function CertificateEditor({ demoUnlocked }: { demoUnlocked: bool
           <p className="text-sm text-slate-500 mb-4">
             Columns: certificate_id, holder_full_name, course, training_start, training_end, issue_date, status.
             Dates use YYYY-MM-DD. Status is valid or revoked. An existing certificate ID is updated.
+            Certificate IDs look like NAMQMS/TRN/2026/0001. Capitalisation is ignored, and a dash is stored as a slash.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <input

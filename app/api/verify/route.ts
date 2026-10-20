@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// GET /api/verify?certificateId=NAMQMS-2026-LA-0001&surname=Holder
+// GET /api/verify?id=NAMQMS/TRN/2026/0001&surname=Holder
 //
 // The only public read of a NAM QMS certificate of completion. Returns the
 // holder name, course, training dates, issue date and status. A miss and a
@@ -7,7 +7,11 @@
 // ---------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";
-import { clientIpFromHeaders, type PublicLookupOutcome } from "@/lib/certificates";
+import {
+  CERTIFICATE_ID_EXAMPLE,
+  clientIpFromHeaders,
+  type PublicLookupOutcome,
+} from "@/lib/certificates";
 import { runPublicLookup } from "@/lib/certificate-store";
 
 export const runtime = "nodejs";
@@ -22,7 +26,7 @@ export function lookupResponse(outcome: PublicLookupOutcome) {
   switch (outcome.kind) {
     case "invalid_id":
       return NextResponse.json(
-        { error: "Enter a certificate ID such as NAMQMS-2026-LA-0001." },
+        { error: `Enter a certificate ID such as ${CERTIFICATE_ID_EXAMPLE}.` },
         { status: 400, headers: NO_STORE },
       );
     case "rate_limited":
@@ -47,7 +51,10 @@ export function lookupResponse(outcome: PublicLookupOutcome) {
 
 export async function GET(req: NextRequest) {
   const outcome = await runPublicLookup({
-    certificateId: req.nextUrl.searchParams.get("certificateId") ?? "",
+    certificateId:
+      req.nextUrl.searchParams.get("id") ??
+      req.nextUrl.searchParams.get("certificateId") ??
+      "",
     surname: req.nextUrl.searchParams.get("surname"),
     ip: clientIpFromHeaders(req.headers),
   });

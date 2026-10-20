@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unknown certificate." }, { status: 404 });
     }
     const url = certificateVerifyUrl(requestPublicOrigin(req), row.certificateId);
-    const filename = `${row.certificateId}.${format}`;
+    const filename = `${row.certificateId.replaceAll("/", "-")}.${format}`;
     if (format === "svg") {
       const svg = await certificateQrSvg(url);
       return new NextResponse(svg, {

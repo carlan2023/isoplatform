@@ -23,7 +23,7 @@ export function localMemoryCertificateStore(
 }
 
 /**
- * Preview deployments insert NAMQMS-DEMO-* rows so the verifier can be
+ * Preview deployments insert NAMQMS/TRN/2026/DEMO1 and DEMO2 so the verifier can be
  * reviewed before launch. Production never inserts them, even if
  * CERTIFICATE_DEMO_SEED is set.
  */
