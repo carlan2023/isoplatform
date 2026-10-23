@@ -10,64 +10,55 @@ import { UGANDA_ISO_HUB_PATH, ugandaIsoSitemapPaths } from "@/lib/uganda-iso";
 export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: abs("/"), lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: abs("/"), changeFrequency: "weekly", priority: 1 },
     // Primary business conversion page (certification application form).
-    { url: abs("/apply"), lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: abs("/apply"), changeFrequency: "monthly", priority: 0.9 },
     {
       url: abs("/iso-certification-consulting"),
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     ...ugandaIsoSitemapPaths().map((path) => ({
       url: abs(path),
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: path === UGANDA_ISO_HUB_PATH ? 0.9 : 0.8,
     })),
     {
       url: abs("/internal-audit-training"),
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     // Per-standard certification landing pages (ISO 27001, 27701, PCI DSS…).
     ...STANDARDS.map((s) => ({
       url: abs(`/certifications/${s.slug}`),
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
     {
       url: abs("/verify"),
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.4,
     },
     {
       url: abs("/privacy"),
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.2,
     },
     {
       url: abs("/terms"),
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.2,
     },
     {
       url: abs(INTERNAL_AUDITOR_ENROLL_PATH),
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
   ];
 
   // Include active course pages so they can be indexed and rank individually.
+  // Checkout URLs (/enroll/...) stay out: they are noindex.
   let courseRoutes: MetadataRoute.Sitemap = [];
   try {
     const supabase = getSupabaseAdmin();
@@ -75,12 +66,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("courses")
       .select("title")
       .eq("is_active", true);
-    courseRoutes = (data || []).map((c) => ({
-      url: abs(coursePath(c)),
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
+    const seen = new Set<string>();
+    courseRoutes = [];
+    for (const course of data || []) {
+      const url = abs(coursePath(course));
+      if (seen.has(url)) continue;
+      seen.add(url);
+      courseRoutes.push({
+        url,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      });
+    }
   } catch {
     // If Supabase is unavailable at build time, still emit the static routes.
   }

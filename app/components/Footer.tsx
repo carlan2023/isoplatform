@@ -112,9 +112,9 @@ export default function Footer() {
 
           {/* Quick links */}
           <div className="min-w-0">
-            <h3 className="text-white font-semibold text-sm mb-4" style={sans}>
+            <p className="text-white font-semibold text-sm mb-4" style={sans}>
               Explore
-            </h3>
+            </p>
             <ul className="space-y-2.5 text-sm" style={sans}>
               {QUICK_LINKS.map((l) => (
                 <li key={l.href}>
@@ -127,12 +127,12 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-            <h3
+            <p
               className="text-white font-semibold text-sm mt-8 mb-4"
               style={sans}
             >
               ISO in Uganda
-            </h3>
+            </p>
             <ul className="space-y-2.5 text-sm" style={sans}>
               {UGANDA_LINKS.map((l) => (
                 <li key={l.href}>
@@ -149,9 +149,9 @@ export default function Footer() {
 
           {/* Legal + socials */}
           <div className="min-w-0">
-            <h3 className="text-white font-semibold text-sm mb-4" style={sans}>
+            <p className="text-white font-semibold text-sm mb-4" style={sans}>
               Company
-            </h3>
+            </p>
             <ul className="space-y-2.5 text-sm" style={sans}>
               <li>
                 <Link

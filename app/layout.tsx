@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { SITE_URL, SITE_NAME, SITE_LEGAL_NAME, abs } from "@/lib/site";
-import { OG_IMAGE, ogImageMetadata } from "@/lib/media";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { ogImageMetadata } from "@/lib/media";
 import { HUBSPOT_SCRIPT_SRC } from "@/lib/hubspot";
+import { organizationJsonLd } from "@/lib/uganda-iso";
+import { jsonLdHtml } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,46 +36,20 @@ export const metadata: Metadata = {
   ],
   applicationName: SITE_NAME,
   manifest: "/site.webmanifest",
-  alternates: { canonical: "/" },
+  // Page-specific title, description, canonical and social URL live on each
+  // route. Defaults here would otherwise be copied onto every page.
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    url: SITE_URL,
-    title:
-      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM QMS",
-    description:
-      "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
     images: [ogImageMetadata],
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM QMS",
-    description:
-      "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting across East Africa — plus internationally recognised Lead Auditor training.",
-    images: [OG_IMAGE.src],
   },
   verification: {
     other: {
       "websitelaunches-verification": "e8efdcb4dcfe654017ca970ddc64a794",
     },
-  },
-};
-
-const organizationLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: SITE_NAME,
-  alternateName: SITE_LEGAL_NAME,
-  url: SITE_URL,
-  logo: abs("/nam-qms-logo.png"),
-  description:
-    "ISO certification consulting and Lead Auditor training across Uganda and East Africa.",
-  areaServed: ["Uganda", "East Africa"],
-  contactPoint: {
-    "@type": "ContactPoint",
-    telephone: "+256707068533",
-    contactType: "sales",
   },
 };
 
@@ -91,13 +67,13 @@ export default function RootLayout({
       <body className="antialiased">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(organizationJsonLd()) }}
         />
         {children}
         <Script
           id="hs-script-loader"
           src={HUBSPOT_SCRIPT_SRC}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </body>
     </html>

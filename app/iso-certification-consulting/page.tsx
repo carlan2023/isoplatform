@@ -15,7 +15,8 @@ import {
   RefreshCw,
   Award,
 } from "lucide-react";
-import { SITE_NAME, CONTACT, abs } from "@/lib/site";
+import { SITE_NAME, SITE_URL, CONTACT, abs } from "@/lib/site";
+import { jsonLdHtml } from "@/lib/seo";
 import { MANAGEMENT_STANDARDS, SECURITY_STANDARDS } from "@/lib/standards";
 import {
   IMG,
@@ -148,8 +149,9 @@ export default function ConsultingPage() {
     serviceType: "ISO certification consulting",
     provider: {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
-      url: abs("/"),
+      url: SITE_URL,
     },
     areaServed: [
       { "@type": "Country", name: "Uganda" },
@@ -188,8 +190,9 @@ export default function ConsultingPage() {
     embedUrl: PRIMARY_VIDEO_EMBED_URL,
     publisher: {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
-      url: abs("/"),
+      url: SITE_URL,
     },
   };
 
@@ -214,19 +217,19 @@ export default function ConsultingPage() {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(serviceLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(videoLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbLd) }}
       />
 
       <SiteNav />

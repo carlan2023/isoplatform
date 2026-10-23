@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CalendarDays,
   Clock,
@@ -22,6 +23,7 @@ import {
 } from "@/lib/schedule";
 import { presentCourseCopy } from "@/lib/copy";
 import { ogImageMetadata } from "@/lib/media";
+import { courseJsonLd, jsonLdHtml } from "@/lib/seo";
 import InstructorContact from "@/app/components/InstructorContact";
 import {
   INDIVIDUAL_PRICE,
@@ -91,7 +93,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const course = await getCourse(id);
-  if (!course) return { title: "Course not found" };
+  if (!course) {
+    return {
+      title: "Course not found",
+      description: "This course is not listed.",
+      robots: { index: false, follow: false },
+    };
+  }
   const iso22000 = isIso22000Course(course);
   const title = iso22000
     ? `${course.title} — ISO 22000 training in Kampala for organisations`
@@ -139,36 +147,16 @@ export default async function CoursePage({
   const startDate = formatClassDate(nextStart);
   const startDateISO = toISODate(nextStart);
 
-  const courseLd = {
-    "@context": "https://schema.org",
-    "@type": "Course",
-    name: course.title,
-    description: course.description ?? undefined,
-    provider: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      sameAs: abs("/"),
-    },
-    hasCourseInstance: {
-      "@type": "CourseInstance",
-      courseMode: isVirtual ? "online" : "onsite",
-      startDate: startDateISO,
-      courseWorkload: `P${course.duration_days}D`,
-      location: isVirtual
-        ? undefined
-        : { "@type": "Place", name: "East Africa" },
-      offers: {
-        "@type": "Offer",
-        price: INDIVIDUAL_PRICE,
-        priceCurrency: "UGX",
-        availability:
-          seatsLeft > 0
-            ? "https://schema.org/InStock"
-            : "https://schema.org/SoldOut",
-        url: abs(coursePath(course)),
-      },
-    },
-  };
+  const courseLd = courseJsonLd({
+    title: course.title,
+    description: course.description,
+    url: abs(coursePath(course)),
+    format: course.format,
+    startDate: startDateISO,
+    durationDays: course.duration_days,
+    seatsLeft,
+    price: INDIVIDUAL_PRICE,
+  });
 
   const facts = [
     { icon: <CalendarDays size={16} />, label: "Start Date", value: startDate },
@@ -201,16 +189,19 @@ export default async function CoursePage({
     <div className="min-h-screen bg-slate-50">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(courseLd) }}
       />
 
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img
+            <Image
               src="/nam-qms-logo.png"
               alt="NAM Quality Management Systems"
+              width={1280}
+              height={586}
+              priority
               className="h-10 w-auto"
             />
           </Link>

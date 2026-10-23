@@ -14,6 +14,7 @@ import {
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 import { CONTACT, SITE_URL, abs } from "@/lib/site";
+import { jsonLdHtml } from "@/lib/seo";
 import { IMG } from "@/lib/media";
 
 const TITLE =
@@ -233,6 +234,7 @@ export default function InternalAuditTrainingPage() {
     serviceType: "ISO internal audit training",
     provider: {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: "NAM QMS",
       url: SITE_URL,
     },
@@ -275,15 +277,15 @@ export default function InternalAuditTrainingPage() {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(serviceLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbLd) }}
       />
 
       <SiteNav />
