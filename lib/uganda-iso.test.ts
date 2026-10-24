@@ -21,6 +21,7 @@ const REQUIRED_QUERIES = [
   "iso 13485 certification in uganda",
   "iso certification in uganda",
   "iso 9001 certification in uganda",
+  "iso 42001 certification in uganda",
 ];
 
 const FORBIDDEN = [
@@ -34,7 +35,7 @@ const FORBIDDEN = [
 ];
 
 describe("Uganda ISO landing pages", () => {
-  it("publishes the hub and five standard pages", () => {
+  it("publishes the hub and six standard pages", () => {
     expect(ugandaIsoSitemapPaths()).toEqual([
       "/iso-certification-uganda",
       "/iso-9001-certification-uganda",
@@ -42,6 +43,7 @@ describe("Uganda ISO landing pages", () => {
       "/iso-27001-certification-uganda",
       "/iso-45001-certification-uganda",
       "/iso-13485-certification-uganda",
+      "/iso-42001-certification-uganda",
     ]);
   });
 

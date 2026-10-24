@@ -97,7 +97,7 @@ const pages: UgandaIsoPage[] = [
     name: "Certification readiness",
     footerLabel: "ISO certification in Uganda",
     query: "iso certification in uganda",
-    metaTitle: "ISO Certification in Uganda for Organisations",
+    metaTitle: "ISO Certification in Uganda: Training & Readiness",
     metaDescription:
       "In-house ISO training and a free gap analysis for organisations in Uganda. NAM QMS prepares your team. An accredited body issues any certificate.",
     eyebrow: "For institutions and organisations",
@@ -147,13 +147,14 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "Five guides for organisations in Uganda",
+        heading: "Six guides for organisations in Uganda",
         paragraphs: [
           "[[/iso-9001-certification-uganda|ISO 9001 certification in Uganda]] is the quality management route for organisations that need consistent processes and a system a customer or tender can recognise. It is the usual base when no narrower standard applies.",
           "[[/iso-14001-certification-uganda|ISO 14001 certification in Uganda]] is for organisations that must show they understand their environmental aspects and legal obligations, and that they control them.",
           "[[/iso-27001-certification-uganda|ISO 27001 certification in Uganda]] is for organisations that hold other people's information and need an information security management system, not a one-off IT project.",
           "[[/iso-45001-certification-uganda|ISO 45001 for organisations]] covers occupational health and safety readiness, including an ISO 45001 lead auditor course for the people who will audit that system.",
           "[[/iso-13485-certification-uganda|Preparing for ISO 13485 certification in Uganda]] is for organisations in the medical-device chain: design, manufacture, storage, distribution, installation or servicing. It is not a general quality badge for every hospital department.",
+          "[[/iso-42001-certification-uganda|ISO 42001 certification in Uganda]] is for organisations that use AI and need it governed.",
         ],
       },
     ],
@@ -163,8 +164,8 @@ const pages: UgandaIsoPage[] = [
         a: "No. NAM QMS provides training and consulting for organisations. An independent accredited certification body carries out the certification audit and issues any ISO certificate. A certificate of completion from a NAM QMS course is evidence of training, not an ISO certificate.",
       },
       {
-        q: "Are these pages for individual candidates?",
-        a: "No. They are written for institutions and organisations that need their own staff trained and their management system prepared. Scheduled course fees are published on the course pages so a team can book seats. Personal career advice is not the offer.",
+        q: "Is the training for individuals or for organisations?",
+        a: "Scheduled training courses are open to individuals, who enrol and pay on each course page. Implementation is for organisations and is quoted after the free gap analysis.",
       },
       {
         q: "What does the free ISO gap analysis include?",
@@ -172,7 +173,7 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Which standards can you help a Ugandan organisation prepare for?",
-        a: "ISO 9001, ISO 14001, ISO 27001, ISO 45001 and ISO 13485, on their own or, where the structure is shared, alongside each other. Food safety and privacy consulting remain on their own pages.",
+        a: "ISO 9001, ISO 14001, ISO 27001, ISO 45001, ISO 13485 and ISO 42001, on their own or, where the structure is shared, alongside each other. Food safety and privacy consulting remain on their own pages.",
       },
       {
         q: "Where do we see prices?",
@@ -198,7 +199,7 @@ const pages: UgandaIsoPage[] = [
     name: "Quality management",
     footerLabel: "ISO 9001 in Uganda",
     query: "iso 9001 certification in uganda",
-    metaTitle: "ISO 9001 Certification in Uganda for Organisations",
+    metaTitle: "ISO 9001 Certification Readiness in Uganda",
     metaDescription:
       "Prepare your organisation for ISO 9001 certification in Uganda with in-house team training, a free gap analysis and audit readiness from NAM QMS.",
     eyebrow: "Quality management for organisations",
@@ -248,7 +249,7 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Who is this for?",
-        a: "Organisations and institutions in Uganda: manufacturers, contractors, universities, hospitals, NGOs, utilities and suppliers that need a quality management system. It is not a page for someone seeking a personal credential only.",
+        a: "ISO 9001 implementation is for organisations and institutions in Uganda: manufacturers, contractors, universities, hospitals, NGOs, utilities and suppliers that need a quality management system. Individuals who want ISO 9001 training can enrol on the Lead Auditor course page.",
       },
       {
         q: "Where is the Lead Auditor course fee?",
@@ -282,7 +283,7 @@ const pages: UgandaIsoPage[] = [
     name: "Environmental management",
     footerLabel: "ISO 14001 in Uganda",
     query: "iso 14001 certification in uganda",
-    metaTitle: "ISO 14001 Certification in Uganda for Organisations",
+    metaTitle: "ISO 14001 Certification Readiness in Uganda",
     metaDescription:
       "Prepare your organisation for ISO 14001 certification in Uganda. In-house environmental training, a free gap analysis and audit readiness from NAM QMS.",
     eyebrow: "Environmental management for organisations",
@@ -367,7 +368,7 @@ const pages: UgandaIsoPage[] = [
     name: "Information security",
     footerLabel: "ISO 27001 in Uganda",
     query: "iso 27001 certification in uganda",
-    metaTitle: "ISO 27001 Certification in Uganda for Organisations",
+    metaTitle: "ISO 27001 Certification Readiness in Uganda",
     metaDescription:
       "Prepare your organisation for ISO 27001 certification in Uganda. In-house ISMS training, a free gap analysis and audit readiness from NAM QMS.",
     eyebrow: "Information security for organisations",
@@ -536,13 +537,13 @@ const pages: UgandaIsoPage[] = [
     name: "Medical devices",
     footerLabel: "ISO 13485 in Uganda",
     query: "iso 13485 certification in uganda",
-    metaTitle: "ISO 13485 Certification in Uganda for Organisations",
+    metaTitle: "ISO 13485 Certification Readiness in Uganda",
     metaDescription:
-      "Preparing for ISO 13485 certification in Uganda: in-house training and a free gap analysis for medical-device organisations. NAM QMS does not issue certificates.",
+      "ISO 13485 training and a free gap analysis for medical-device organisations in Uganda. NAM QMS prepares you; it does not issue certificates.",
     eyebrow: "Medical devices — for organisations",
     h1: "Preparing for ISO 13485 certification in Uganda",
     lede:
-      "Preparing for ISO 13485 certification in Uganda is a step for organisations in the medical-device chain, not a general badge for every clinic and not a personal credential. NAM QMS trains the team that designs, makes, stores, distributes, installs or services devices, and we prepare the quality system for an independent audit. We do not issue ISO 13485 certificates.",
+      "Preparing for ISO 13485 certification in Uganda is a step for organisations in the medical-device chain, not a general badge for every clinic. ISO 13485 training is for individuals; implementation is for organisations. NAM QMS trains the people that designs, makes, stores, distributes, installs or services devices, and we prepare the quality system for an independent audit. We do not issue ISO 13485 certificates.",
     sections: [
       {
         heading: "Who the standard is actually for",
@@ -554,8 +555,8 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "In-house training for device quality teams",
         paragraphs: [
-          "There is no ISO 13485 Lead Auditor course published on this website, so we will not invent a fee for one. Team training is arranged in-house. We teach the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The company format is described on the [[/internal-audit-training|internal audit training page]]. A quoted in-house programme follows the gap analysis, once the roles and the sites are known.",
-          "The only published quality Lead Auditor fee on this site is on the [[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]], and that course is not ISO 13485. Internal auditor group fees are on the [[/internal-auditor-courses|Internal Auditor Courses page]].",
+          "ISO 13485 training is for individuals. No ISO 13485 course is published on this website yet, so there is no fee to show here. Implementation for an organisation is quoted after the gap analysis. We teach the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The company format is described on the [[/internal-audit-training|internal audit training page]]. A quoted in-house programme follows the gap analysis, once the roles and the sites are known.",
+          `The only published quality Lead Auditor fee on this site is on the [[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]], and that course is not ISO 13485. Internal auditor group fees are on the [[/internal-auditor-courses|Internal Auditor Courses page]].`,
         ],
       },
       {
@@ -608,6 +609,86 @@ const pages: UgandaIsoPage[] = [
     serviceType: "ISO 13485 medical device quality training and readiness",
     gapAnalysisHref: GAP_ANALYSIS_URL,
   },
+  {
+    kind: "standard",
+    path: "/iso-42001-certification-uganda",
+    code: "ISO 42001",
+    name: "AI management",
+    footerLabel: "ISO 42001 in Uganda",
+    query: "iso 42001 certification in uganda",
+    metaTitle: "ISO 42001 AI Management Certification in Uganda",
+    metaDescription:
+      "Get ready for ISO 42001 certification in Uganda: AI management system training, a free gap analysis and implementation support from NAM QMS.",
+    eyebrow: "Artificial intelligence management",
+    h1: "ISO 42001 certification in Uganda: AI management systems",
+    lede:
+      "ISO 42001 certification in Uganda is becoming a question for banks, telecoms, insurers, health providers, universities, public agencies and technology firms that build, buy or rely on artificial intelligence. ISO/IEC 42001 is the international standard for an AI management system: the policies, roles, risk assessments and controls an organisation uses to develop or use AI responsibly. NAM QMS trains people on the standard, runs a free gap analysis and helps organisations implement the system. We do not issue the certificate.",
+    sections: [
+      {
+        heading: "What an ISO 42001 AI management system covers",
+        paragraphs: [
+          "ISO/IEC 42001 follows the same high-level structure as ISO 9001 and ISO 27001: context, leadership, planning, support, operation, performance evaluation and improvement. What is new is the subject. The organisation has to decide which AI systems are in scope, what role it plays for each one (developer, provider or user), and which risks those systems create for the organisation, for the people affected and for society.",
+        ],
+        bullets: [
+          "An AI policy and clear responsibilities for AI decisions",
+          "AI risk assessment and AI system impact assessment",
+          "Controls from Annex A, chosen and justified in a statement of applicability",
+          "Data quality, transparency, human oversight and supplier controls",
+          "Internal audit and management review of the AI management system",
+        ],
+      },
+      {
+        heading: "ISO 42001 training for individuals, implementation for organisations",
+        paragraphs: [
+          "Training is for individuals: risk, compliance, data, IT and quality professionals who need to understand the standard or audit an AI management system. Implementation is for organisations and institutions. We work with the team that owns your AI systems to set the scope, write the policy, run the risk and impact assessments and build the records an auditor will sample. Implementation is quoted after the free gap analysis, because the work depends on how many AI systems you run and how you use them.",
+          "Organisations that already hold [[/iso-27001-certification-uganda|ISO 27001]] have a head start. Document control, internal audit, management review and supplier management carry over. The AI-specific parts, such as impact assessment, data governance for training data and human oversight of automated decisions, still need their own work.",
+        ],
+      },
+      {
+        heading: "Free gap analysis before you commit",
+        paragraphs: [
+          "The free ISO gap analysis starts with an inventory: which AI systems you build, which AI services you buy, and which decisions they influence. We then compare your current practice with the requirements of ISO/IEC 42001 and tell management what is in place, what is missing and how large the scope should honestly be. It is a briefing, not an audit and not a certificate.",
+        ],
+      },
+      {
+        heading: "Getting ISO 42001 certified: what ready means",
+        paragraphs: [
+          NOT_A_BODY +
+            " For ISO 42001, ready means the AI systems in scope are listed, roles are assigned, risk and impact assessments are current, the chosen controls are actually operated, internal audits have tested them, and management has reviewed the results. Then an accredited certification body that audits ISO/IEC 42001 can carry out its own assessment.",
+          "ISO 42001 does not certify an AI model as safe or accurate, and it does not replace legal duties such as Uganda's Data Protection and Privacy Act. It shows that the organisation manages AI with a system. Compare the other standards on the [[/iso-certification-uganda|ISO certification in Uganda]] hub.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "What is ISO 42001?",
+        a: "ISO/IEC 42001 is the international standard for an artificial intelligence management system. It sets requirements for how an organisation governs, develops, provides or uses AI systems responsibly, including risk assessment, impact assessment and controls.",
+      },
+      {
+        q: "Does NAM QMS issue ISO 42001 certificates?",
+        a: "No. NAM QMS trains people and helps organisations implement the AI management system. An independent accredited certification body audits the system and decides whether to issue the certificate.",
+      },
+      {
+        q: "Who needs ISO 42001 certification in Uganda?",
+        a: "Organisations that build AI products, offer AI-enabled services, or use AI in decisions about customers, patients, staff or citizens, and that need to show clients, regulators or tenders that the AI is governed.",
+      },
+      {
+        q: "We already have ISO 27001. Do we still need ISO 42001?",
+        a: "If the requirement is AI governance, yes. ISO 27001 covers information security. ISO 42001 adds AI risk and impact assessment, data governance, transparency and human oversight. The two systems can share document control, internal audit and management review.",
+      },
+      {
+        q: "How do we start?",
+        a: "Book the free gap analysis. We list your AI systems, compare current practice with the standard and recommend a scope. Implementation support is then quoted for your organisation.",
+      },
+    ],
+    closing:
+      "If your organisation is considering ISO 42001 certification in Uganda, book the free gap analysis. We will map your AI systems, show what the standard asks for and plan the work before a certification body is invited.",
+    image: IMG.implementationTraining,
+    courseLinkLabel: "preparing for ISO 42001 certification in Uganda",
+    serviceName: "ISO 42001 AI management system training and implementation",
+    serviceType: "ISO/IEC 42001 artificial intelligence management system readiness",
+    gapAnalysisHref: GAP_ANALYSIS_URL,
+  },
 ];
 
 export const UGANDA_ISO_PAGES: readonly UgandaIsoPage[] = pages;
@@ -636,7 +717,7 @@ export function ugandaIsoPageForCourse(course: {
   standard?: string | null;
 }): UgandaIsoPage {
   const hay = `${course.standard ?? ""} ${course.title}`.toLowerCase();
-  const order = ["13485", "27001", "14001", "45001", "9001"];
+  const order = ["42001", "13485", "27001", "14001", "45001", "9001"];
   for (const token of order) {
     if (hay.includes(token)) {
       const match = UGANDA_ISO_STANDARDS.find((page) =>
