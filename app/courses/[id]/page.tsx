@@ -102,10 +102,10 @@ export async function generateMetadata({
   }
   const iso22000 = isIso22000Course(course);
   const title = iso22000
-    ? `${course.title} — ISO 22000 training in Kampala for organisations`
+    ? `${course.title} — ISO 22000 training in Kampala for individuals`
     : `${course.title} — ${course.standard ?? "ISO"} Lead Auditor Training`;
   const description = iso22000
-    ? `ISO 22000 training in Kampala for organisations. ${course.description ?? ""}`.trim()
+    ? `ISO 22000 training in Kampala for individuals. ${course.description ?? ""}`.trim()
     : (course.description ??
       `${course.title}: internationally recognised ISO Lead Auditor training in East Africa.`);
   const path = coursePath(course);
@@ -244,7 +244,8 @@ export default async function CoursePage({
             className="text-sm text-slate-600 leading-relaxed mb-8"
             style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
           >
-            For organisations training a team:{" "}
+            Training on this page is for individuals. Implementation is for
+            organisations:{" "}
             <Link
               href={organisationGuide.path}
               className="font-medium underline underline-offset-2"
@@ -284,7 +285,7 @@ export default async function CoursePage({
 
           <h2 className="text-xl font-bold text-slate-900 mb-4">
             {isIso22000Course(course)
-              ? "What's included in ISO 22000 training in Kampala for organisations"
+              ? "What's included in ISO 22000 training in Kampala for individuals"
               : "What's included"}
           </h2>
           <ul className="space-y-2 mb-4">

@@ -21,6 +21,7 @@ const REQUIRED_QUERIES = [
   "iso 13485 certification in uganda",
   "iso certification in uganda",
   "iso 9001 certification in uganda",
+  "iso 42001 certification in uganda",
 ];
 
 const FORBIDDEN = [
@@ -34,7 +35,7 @@ const FORBIDDEN = [
 ];
 
 describe("Uganda ISO landing pages", () => {
-  it("publishes the hub and five standard pages", () => {
+  it("publishes the hub and six standard pages", () => {
     expect(ugandaIsoSitemapPaths()).toEqual([
       "/iso-certification-uganda",
       "/iso-9001-certification-uganda",
@@ -42,6 +43,7 @@ describe("Uganda ISO landing pages", () => {
       "/iso-27001-certification-uganda",
       "/iso-45001-certification-uganda",
       "/iso-13485-certification-uganda",
+      "/iso-42001-certification-uganda",
     ]);
   });
 
@@ -108,23 +110,6 @@ describe("Uganda ISO landing pages", () => {
     }
   });
 
-  it("links the ISO 13485 page to the published ISO 9001 course", () => {
-    const page = UGANDA_ISO_PAGES.find(
-      (item) => item.path === "/iso-13485-certification-uganda",
-    );
-    const paragraphs = page?.sections.flatMap((section) => section.paragraphs) ?? [];
-    const linked = paragraphs.find((paragraph) =>
-      paragraph.includes("ISO 9001:2015 Lead Auditor course page"),
-    );
-    expect(linked).toContain(
-      `[[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]]`,
-    );
-    expect(linked).not.toContain("${");
-    expect(LEAD_AUDITOR_COURSE_PAGES.iso9001.path.startsWith("/courses/")).toBe(
-      true,
-    );
-  });
-
   it("points Lead Auditor fees at the published course slugs", () => {
     expect(LEAD_AUDITOR_COURSE_PAGES.iso9001.path).toBe(
       `/courses/${courseSlug("ISO 9001:2015 Lead Auditor")}`,
@@ -138,6 +123,23 @@ describe("Uganda ISO landing pages", () => {
     expect(LEAD_AUDITOR_COURSE_PAGES.iso45001.path).toBe(
       "/courses/iso-45001-2018-lead-auditor",
     );
+  });
+
+  it("does not describe the ISO 13485 page as an ISO 9001 Lead Auditor course", () => {
+    const page = UGANDA_ISO_PAGES.find(
+      (item) => item.path === "/iso-13485-certification-uganda",
+    );
+    expect(page).toBeDefined();
+    const paragraphs = page!.sections.flatMap((section) => section.paragraphs);
+    const text = ugandaIsoPlainText(page!);
+    expect(text).not.toMatch(/Lead Auditor/i);
+    expect(text).not.toMatch(/ISO 9001:2015/);
+    expect(paragraphs.join("\n")).not.toContain("${");
+    expect(paragraphs.join("\n")).toContain(
+      "[[/internal-auditor-courses|Internal Auditor Courses page]]",
+    );
+    expect(text).toMatch(/Training is for individuals/i);
+    expect(text).toMatch(/Implementation is for organisations and is quoted/i);
   });
 
   it("links a course page to the matching organisational guide", () => {

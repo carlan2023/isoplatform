@@ -18,9 +18,9 @@ import { jsonLdHtml } from "@/lib/seo";
 import { IMG } from "@/lib/media";
 
 const TITLE =
-  "ISO internal auditor training in Uganda for organisations | NAM QMS";
+  "Internal Audit Implementation for Organisations | NAM QMS";
 const DESCRIPTION =
-  "For organisations: internal auditor training in Uganda. Train your own staff as ISO internal auditors for ISO 9001, 14001, 45001, 22000 and 27001. In-house or at our Kampala venue. Request a quote from NAM QMS.";
+  "Internal audit implementation for organisations in Uganda is quoted by NAM QMS. Individuals enrol on the internal auditor course.";
 
 const QUOTE_MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
   "Internal Audit Training – Quote Request",
@@ -149,8 +149,22 @@ const FAQS: { q: string; a: ReactNode; text: string }[] = [
   },
   {
     q: "How much does it cost and how long is it?",
-    text: "It depends on the standard, the number of staff and the format. Send us those details and we will reply with a tailored quote and schedule.",
-    a: "It depends on the standard, the number of staff and the format. Send us those details and we will reply with a tailored quote and schedule.",
+    text: "Implementation for an organisation is quoted. It depends on the standard, the number of staff and the format. The published course for individuals is a separate page.",
+    a: (
+      <>
+        Implementation for an organisation is quoted. It depends on the
+        standard, the number of staff and the format. Training is for
+        individuals on the{" "}
+        <Link
+          href="/internal-auditor-courses"
+          className="font-medium underline underline-offset-2"
+          style={{ color: "#0f766e" }}
+        >
+          internal auditor course
+        </Link>
+        .
+      </>
+    ),
   },
   {
     q: "Do participants get a certificate?",
@@ -195,7 +209,7 @@ function EnrollTeamLink({ onDark = false }: { onDark?: boolean }) {
       className="inline-flex items-center gap-1 font-medium underline underline-offset-4 hover:opacity-80"
       style={{ ...sans, color: onDark ? "#ccfbf1" : "#0f766e" }}
     >
-      Enroll your team <ArrowRight size={14} aria-hidden="true" />
+      Course for individuals <ArrowRight size={14} aria-hidden="true" />
     </Link>
   );
 }
@@ -230,8 +244,8 @@ export default function InternalAuditTrainingPage() {
   const serviceLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "Internal Audit Training for Companies",
-    serviceType: "ISO internal audit training",
+    name: "Internal audit implementation for organisations",
+    serviceType: "ISO internal audit implementation",
     provider: {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
@@ -298,18 +312,19 @@ export default function InternalAuditTrainingPage() {
               className="text-sm font-medium mb-4"
               style={{ color: "#0f766e", ...sans }}
             >
-              Corporate training · In-house at your site or at our Kampala venue
+              Implementation for organisations · Quoted, in-house or in Kampala
             </p>
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6 text-slate-900">
-              Internal Audit Training for Your Team
+              Internal audit implementation for organisations
             </h1>
             <p
               className="text-slate-600 text-lg leading-relaxed mb-8"
               style={sans}
             >
-              Build your own ISO internal audit team. We train your staff to
-              plan, run and report internal audits that keep your management
-              system working and your certificate safe.
+              This page is for organisations building an internal audit
+              programme as part of certification readiness. NAM QMS quotes the
+              work for your sites and your standards. Training is for
+              individuals, who enrol on the internal auditor course.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <QuoteButton />
@@ -358,7 +373,7 @@ export default function InternalAuditTrainingPage() {
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2 className="text-3xl font-bold text-slate-900 mb-10">
-            For organisations: internal auditor training in Uganda
+            Who this implementation is for
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {AUDIENCE.map((item) => (
