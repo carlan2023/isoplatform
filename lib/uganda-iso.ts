@@ -13,7 +13,7 @@
 
 import { courseSlug } from "./course-slug";
 import { IMG } from "./media";
-import { SITE_LEGAL_NAME, SITE_NAME, SITE_URL, abs } from "./site";
+import { CONTACT, SITE_LEGAL_NAME, SITE_NAME, SITE_URL, abs } from "./site";
 import { UGANDA_ISO_HUB_PATH } from "./uganda-paths";
 
 export const GAP_ANALYSIS_URL =
@@ -772,17 +772,32 @@ export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     alternateName: SITE_LEGAL_NAME,
     url: SITE_URL,
-    logo: abs("/nam-qms-logo.png"),
+    logo: {
+      "@type": "ImageObject",
+      url: abs("/nam-qms-logo.png"),
+      width: 1280,
+      height: 586,
+    },
     description:
       "ISO certification consulting and Lead Auditor training across Uganda and East Africa.",
+    email: CONTACT.email,
+    telephone: CONTACT.phone,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Kampala",
+      addressCountry: "UG",
+    },
     areaServed: ["Uganda", "East Africa"],
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+256707068533",
+      telephone: CONTACT.phone,
+      email: CONTACT.email,
       contactType: "sales",
+      areaServed: "UG",
     },
   };
 }
@@ -798,6 +813,7 @@ export function ugandaIsoJsonLd(page: UgandaIsoPage) {
     url: pageUrl,
     provider: {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
       url: SITE_URL,
     },

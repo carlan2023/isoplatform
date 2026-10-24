@@ -130,9 +130,14 @@ describe("Uganda ISO landing pages", () => {
       (item) => item.path === "/iso-13485-certification-uganda",
     );
     expect(page).toBeDefined();
+    const paragraphs = page!.sections.flatMap((section) => section.paragraphs);
     const text = ugandaIsoPlainText(page!);
     expect(text).not.toMatch(/Lead Auditor/i);
     expect(text).not.toMatch(/ISO 9001:2015/);
+    expect(paragraphs.join("\n")).not.toContain("${");
+    expect(paragraphs.join("\n")).toContain(
+      "[[/internal-auditor-courses|Internal Auditor Courses page]]",
+    );
     expect(text).toMatch(/Training is for individuals/i);
     expect(text).toMatch(/Implementation is for organisations and is quoted/i);
   });

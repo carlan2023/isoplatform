@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description: `How ${SITE_NAME} collects, uses and protects personal information from enrolment, mobile-money payments, HubSpot forms and analytics cookies.`,
   alternates: { canonical: "/privacy" },
+  openGraph: { url: "/privacy" },
 };
 
 const LAST_UPDATED = "20 October 2026";

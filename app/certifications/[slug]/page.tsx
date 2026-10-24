@@ -11,7 +11,7 @@ import {
 import ConsultForm from "@/app/components/ConsultForm";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
-import { SITE_NAME, CONTACT, abs } from "@/lib/site";
+import { SITE_NAME, SITE_URL, CONTACT, abs } from "@/lib/site";
 import { ogImageMetadata } from "@/lib/media";
 import {
   STANDARDS,
@@ -20,6 +20,7 @@ import {
   type Standard,
 } from "@/lib/standards";
 import { courseSlug } from "@/lib/course-slug";
+import { jsonLdHtml } from "@/lib/seo";
 import {
   LEAD_AUDITOR_COURSE_PAGES,
   ugandaIsoPageForStandardSlug,
@@ -104,7 +105,12 @@ export default async function CertificationPage({
     "@type": "Service",
     name: `${standard.code} — ${standard.name}`,
     serviceType: `${standard.code} certification consulting`,
-    provider: { "@type": "Organization", name: SITE_NAME, url: abs("/") },
+    provider: {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
     areaServed: [
       { "@type": "Country", name: "Uganda" },
       { "@type": "Place", name: "East Africa" },
@@ -157,15 +163,15 @@ export default async function CertificationPage({
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(serviceLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(breadcrumbLd) }}
       />
 
       <SiteNav />

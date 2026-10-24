@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Terms & Conditions",
   description: `The terms and conditions governing use of the ${SITE_NAME} website, course enrolments and services.`,
   alternates: { canonical: "/terms" },
+  openGraph: { url: "/terms" },
 };
 
 const LAST_UPDATED = "20 October 2026";

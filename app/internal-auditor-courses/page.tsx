@@ -3,7 +3,10 @@ import Link from "next/link";
 import Footer from "@/app/components/Footer";
 import InternalAuditorEnrollForm from "@/app/components/InternalAuditorEnrollForm";
 import SiteNav from "@/app/components/SiteNav";
-import { INTERNAL_AUDITOR_ENROLL_PATH } from "@/lib/group-enrollment";
+import {
+  INTERNAL_AUDITOR_COURSE_TITLE,
+  INTERNAL_AUDITOR_ENROLL_PATH,
+} from "@/lib/group-enrollment";
 import { OG_IMAGE } from "@/lib/media";
 import {
   formatUGX,
@@ -11,7 +14,8 @@ import {
   INTERNAL_AUDITOR_GROUP_PRICE,
   INTERNAL_AUDITOR_PRICE,
 } from "@/lib/pricing";
-import { abs, SITE_NAME } from "@/lib/site";
+import { jsonLdHtml } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
 
 const TITLE = "Internal Auditor Course for Individuals";
 const DESCRIPTION = `Internal auditor course for individuals from NAM QMS. ${formatUGX(INTERNAL_AUDITOR_PRICE)} per person, or ${formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person for groups of ${INTERNAL_AUDITOR_GROUP_MIN} or more. Pay the total with Mobile Money.`;
@@ -40,8 +44,33 @@ export const metadata: Metadata = {
 const sans = { fontFamily: "system-ui, sans-serif" } as const;
 
 export default function InternalAuditorCoursesPage() {
+  const courseLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: INTERNAL_AUDITOR_COURSE_TITLE,
+    description: DESCRIPTION,
+    url: abs(INTERNAL_AUDITOR_ENROLL_PATH),
+    provider: {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    offers: {
+      "@type": "Offer",
+      price: INTERNAL_AUDITOR_PRICE,
+      priceCurrency: "UGX",
+      availability: "https://schema.org/InStock",
+      url: abs(INTERNAL_AUDITOR_ENROLL_PATH),
+    },
+  };
+
   return (
     <main className="min-h-screen bg-slate-50" style={{ fontFamily: "'Georgia', serif" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(courseLd) }}
+      />
       <SiteNav />
 
       <section className="bg-white border-b border-slate-100">
