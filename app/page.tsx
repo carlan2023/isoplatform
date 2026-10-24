@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import Link from "next/link";
@@ -25,10 +26,29 @@ import { coursePath } from "@/lib/course-slug";
 import { presentCourseCopy } from "@/lib/copy";
 import { UGANDA_ISO_STANDARDS } from "@/lib/uganda-iso";
 import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
+import { jsonLdHtml } from "@/lib/seo";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: {
+    title:
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM QMS",
+    description:
+      "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting for organisations across East Africa — plus internationally recognised Lead Auditor training.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "Helping Businesses Get ISO Certified in Uganda & East Africa | NAM QMS",
+    description:
+      "End-to-end ISO 9001, 14001, 45001 & 22000 certification consulting across East Africa — plus internationally recognised Lead Auditor training.",
+  },
+};
 
 async function getCourses() {
   try {
@@ -58,7 +78,12 @@ export default async function HomePage() {
     "@type": "Service",
     name: "ISO Certification Consulting",
     serviceType: "ISO certification consulting",
-    provider: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    provider: {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
     areaServed: [
       { "@type": "Country", name: "Uganda" },
       { "@type": "Place", name: "East Africa" },
@@ -90,6 +115,7 @@ export default async function HomePage() {
     "@type": "WebSite",
     name: SITE_NAME,
     url: SITE_URL,
+    publisher: { "@id": `${SITE_URL}/#organization` },
   };
 
   return (
@@ -99,11 +125,11 @@ export default async function HomePage() {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(serviceLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(websiteLd) }}
       />
 
       <SiteNav />
@@ -185,6 +211,7 @@ export default async function HomePage() {
               alt={IMG.heroRoadmap.alt}
               priority
               unoptimized
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="w-full h-auto rounded-xl border border-slate-200 shadow-sm"
             />
             <div className="grid grid-cols-2 gap-4">
@@ -533,9 +560,9 @@ export default async function HomePage() {
           <div className="space-y-4">
             <Image
               src={IMG.implementationTraining.src}
-              width={IMG.leadAuditorTraining.width}
-              height={IMG.leadAuditorTraining.height}
-              alt={IMG.leadAuditorTraining.alt}
+              width={IMG.implementationTraining.width}
+              height={IMG.implementationTraining.height}
+              alt={IMG.implementationTraining.alt}
               sizes="(max-width: 768px) 100vw, 40vw"
               className="w-full h-auto rounded-lg border border-slate-200 object-cover"
             />

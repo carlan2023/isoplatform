@@ -13,7 +13,7 @@
 
 import { courseSlug } from "./course-slug";
 import { IMG } from "./media";
-import { SITE_LEGAL_NAME, SITE_NAME, SITE_URL, abs } from "./site";
+import { CONTACT, SITE_LEGAL_NAME, SITE_NAME, SITE_URL, abs } from "./site";
 import { UGANDA_ISO_HUB_PATH } from "./uganda-paths";
 
 export const GAP_ANALYSIS_URL =
@@ -555,7 +555,7 @@ const pages: UgandaIsoPage[] = [
         heading: "In-house training for device quality teams",
         paragraphs: [
           "There is no ISO 13485 Lead Auditor course published on this website, so we will not invent a fee for one. Team training is arranged in-house. We teach the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The company format is described on the [[/internal-audit-training|internal audit training page]]. A quoted in-house programme follows the gap analysis, once the roles and the sites are known.",
-          "The only published quality Lead Auditor fee on this site is on the [[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]], and that course is not ISO 13485. Internal auditor group fees are on the [[/internal-auditor-courses|Internal Auditor Courses page]].",
+          `The only published quality Lead Auditor fee on this site is on the [[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]], and that course is not ISO 13485. Internal auditor group fees are on the [[/internal-auditor-courses|Internal Auditor Courses page]].`,
         ],
       },
       {
@@ -692,17 +692,32 @@ export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     alternateName: SITE_LEGAL_NAME,
     url: SITE_URL,
-    logo: abs("/nam-qms-logo.png"),
+    logo: {
+      "@type": "ImageObject",
+      url: abs("/nam-qms-logo.png"),
+      width: 1280,
+      height: 586,
+    },
     description:
       "ISO certification consulting and Lead Auditor training across Uganda and East Africa.",
+    email: CONTACT.email,
+    telephone: CONTACT.phone,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Kampala",
+      addressCountry: "UG",
+    },
     areaServed: ["Uganda", "East Africa"],
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+256707068533",
+      telephone: CONTACT.phone,
+      email: CONTACT.email,
       contactType: "sales",
+      areaServed: "UG",
     },
   };
 }
@@ -718,6 +733,7 @@ export function ugandaIsoJsonLd(page: UgandaIsoPage) {
     url: pageUrl,
     provider: {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
       url: SITE_URL,
     },

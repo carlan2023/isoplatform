@@ -7,7 +7,8 @@ import { CONTACT } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Page not found",
-  robots: { index: false },
+  description: "This page is not on the NAM QMS site.",
+  robots: { index: false, follow: false },
 };
 
 const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;

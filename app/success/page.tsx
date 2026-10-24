@@ -25,6 +25,7 @@ import AutoRefresh from "./AutoRefresh";
 
 export const metadata: Metadata = {
   title: "Enrollment status",
+  description: "Check the status of a NAM QMS course enrollment.",
   robots: { index: false, follow: false },
 };
 

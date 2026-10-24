@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
@@ -7,6 +10,7 @@ import EnrollForm from "@/app/components/EnrollForm";
 import InstructorContact from "@/app/components/InstructorContact";
 import { advertisedCourseStart, formatClassDate } from "@/lib/schedule";
 import { presentCourseCopy } from "@/lib/copy";
+import { enrollPageMetadata } from "@/lib/seo";
 import {
   INDIVIDUAL_PRICE,
   TEAM_PRICE,
@@ -20,22 +24,42 @@ import {
 // from the production build.
 export const revalidate = 60;
 
+const loadCourse = cache(async (id: string) => {
+  const { data: found } = await getSupabaseAdmin()
+    .from("courses")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (!found) return null;
+  const [course] = (await withCurrentCohortSeats([found])).map(presentCourseCopy);
+  return course;
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const course = await loadCourse(id);
+  if (!course) {
+    return {
+      title: "Enrollment",
+      description: "This course enrollment is not listed.",
+      robots: { index: false, follow: false },
+    };
+  }
+  return enrollPageMetadata(course);
+}
+
 export default async function EnrollPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  // Fetch course
-  const { data: found } = await getSupabaseAdmin()
-    .from("courses")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (!found) redirect("/");
-  const [course] = (await withCurrentCohortSeats([found])).map(presentCourseCopy);
+  const course = await loadCourse(id);
+  if (!course) redirect("/");
 
   const seatsLeft = course.seats_total - (course.seats_taken || 0);
   // Same date the homepage and course page advertise, including a roll-forward
@@ -48,9 +72,12 @@ export default async function EnrollPage({
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-5xl mx-auto">
           <Link href="/" className="flex items-center">
-            <img
+            <Image
               src="/nam-qms-logo.png"
               alt="NAM Quality Management Systems"
+              width={1280}
+              height={586}
+              priority
               className="h-10 w-auto"
             />
           </Link>
@@ -134,7 +161,7 @@ export default async function EnrollPage({
 
           {/* Pricing */}
           <div className="bg-white border border-slate-200 rounded-xl p-6">
-            <h3 className="font-bold text-slate-900 mb-4">Pricing</h3>
+            <h2 className="font-bold text-slate-900 mb-4">Pricing</h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span

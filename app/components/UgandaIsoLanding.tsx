@@ -6,6 +6,7 @@ import { ArrowRight, Building2, CheckCircle2, ShieldCheck } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 import { ogImageMetadata } from "@/lib/media";
+import { jsonLdHtml } from "@/lib/seo";
 import { SITE_NAME, abs } from "@/lib/site";
 import {
   LEAD_AUDITOR_COURSE_PAGES,
@@ -122,19 +123,19 @@ export default function UgandaIsoLanding({ page }: { page: UgandaIsoPage }) {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld.organization) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(ld.organization) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld.service) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(ld.service) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld.faq) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(ld.faq) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld.breadcrumb) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(ld.breadcrumb) }}
       />
 
       <SiteNav />

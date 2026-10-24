@@ -108,6 +108,23 @@ describe("Uganda ISO landing pages", () => {
     }
   });
 
+  it("links the ISO 13485 page to the published ISO 9001 course", () => {
+    const page = UGANDA_ISO_PAGES.find(
+      (item) => item.path === "/iso-13485-certification-uganda",
+    );
+    const paragraphs = page?.sections.flatMap((section) => section.paragraphs) ?? [];
+    const linked = paragraphs.find((paragraph) =>
+      paragraph.includes("ISO 9001:2015 Lead Auditor course page"),
+    );
+    expect(linked).toContain(
+      `[[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]]`,
+    );
+    expect(linked).not.toContain("${");
+    expect(LEAD_AUDITOR_COURSE_PAGES.iso9001.path.startsWith("/courses/")).toBe(
+      true,
+    );
+  });
+
   it("points Lead Auditor fees at the published course slugs", () => {
     expect(LEAD_AUDITOR_COURSE_PAGES.iso9001.path).toBe(
       `/courses/${courseSlug("ISO 9001:2015 Lead Auditor")}`,

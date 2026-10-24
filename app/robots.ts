@@ -16,6 +16,8 @@ export default function robots(): MetadataRoute.Robots {
         "/success",
         "/api",
       ],
+      // /enroll is left crawlable. Those pages send noindex, which only works
+      // if the crawler is allowed to fetch them.
     },
     sitemap: abs("/sitemap.xml"),
     host: abs("/"),
