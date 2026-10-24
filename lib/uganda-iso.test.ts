@@ -125,6 +125,18 @@ describe("Uganda ISO landing pages", () => {
     );
   });
 
+  it("does not describe the ISO 13485 page as an ISO 9001 Lead Auditor course", () => {
+    const page = UGANDA_ISO_PAGES.find(
+      (item) => item.path === "/iso-13485-certification-uganda",
+    );
+    expect(page).toBeDefined();
+    const text = ugandaIsoPlainText(page!);
+    expect(text).not.toMatch(/Lead Auditor/i);
+    expect(text).not.toMatch(/ISO 9001:2015/);
+    expect(text).toMatch(/Training is for individuals/i);
+    expect(text).toMatch(/Implementation is for organisations and is quoted/i);
+  });
+
   it("links a course page to the matching organisational guide", () => {
     expect(
       ugandaIsoPageForCourse({

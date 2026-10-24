@@ -108,7 +108,7 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "Start with the team that will live with the system",
         paragraphs: [
-          "An institution is ready only when its own people can explain the processes, show the records and close the findings. That is why in-house training comes first. We train quality, environmental, health and safety, information-security or regulatory staff at your premises, or at a venue in Kampala when the team needs to step away from the working day. The same offer exists as a published group booking on the [[/internal-auditor-courses|Internal Auditor Courses page]], which is where that programme's fee is shown.",
+          "An institution is ready only when its own people can explain the processes, show the records and close the findings. Implementation is for organisations: we work with quality, environmental, health and safety, information-security or regulatory staff at your premises, or at a venue in Kampala. Training is for individuals, who enrol and pay on the [[/internal-auditor-courses|Internal Auditor Courses page]]. An in-house programme for the organisation is quoted on the [[/internal-audit-training|internal audit implementation page]].",
           "Scheduled Lead Auditor fees stay on the course pages for " +
             courseLink(
               "ISO 9001",
@@ -129,7 +129,7 @@ const pages: UgandaIsoPage[] = [
               "ISO 45001",
               LEAD_AUDITOR_COURSE_PAGES.iso45001.path,
             ) +
-            ". Organisations book seats for their staff. No ISO 13485 course fee is published; device teams start with in-house training.",
+            ". Those courses are training for individuals. No ISO 13485 course fee is published; implementation for a device organisation is quoted.",
         ],
       },
       {
@@ -210,13 +210,13 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "Train the people who own the processes",
         paragraphs: [
-          "A quality manual that staff have never used will not survive an audit interview. We therefore lead with team training. Internal auditors, process owners and the management representative learn how ISO 9001 expects planning, operation, documented information and improvement to work in your organisation, not in a generic factory. Delivery is in-house, or at a Kampala venue. The outline for company internal-audit training is on the [[/internal-audit-training|internal audit training page]].",
-          "Where a leadership team wants the longer Lead Auditor programme, book the published " +
+          "A quality manual that staff have never used will not survive an audit interview. Internal auditors, process owners and the management representative learn how ISO 9001 expects planning, operation, documented information and improvement to work in your organisation, not in a generic factory. Delivery is in-house, or at a Kampala venue. Implementation for the organisation is quoted on the [[/internal-audit-training|internal audit implementation page]].",
+          "Training is for individuals on the published " +
             courseLink(
               LEAD_AUDITOR_COURSE_PAGES.iso9001.title,
               LEAD_AUDITOR_COURSE_PAGES.iso9001.path,
             ) +
-            ". The fee is on that course page, including the team rate. Do not treat a course completion certificate as ISO 9001 certification. It shows the person attended the training.",
+            ". The fee is on that course page. Implementation for an organisation is quoted. A course completion certificate is not ISO 9001 certification.",
         ],
       },
       {
@@ -238,7 +238,7 @@ const pages: UgandaIsoPage[] = [
         heading: "How a quality system connects to the other standards",
         paragraphs: [
           "ISO 9001 shares a high-level structure with [[/iso-14001-certification-uganda|ISO 14001]] and [[/iso-45001-certification-uganda|ISO 45001]]. Document control, internal audit and management review can serve more than one standard when the organisation is honest about the different risks. [[/iso-27001-certification-uganda|ISO 27001]] is a different system, aimed at information security. Keep the scopes distinct even when one team coordinates them.",
-          "The wider set of guides sits on the [[/iso-certification-uganda|ISO certification in Uganda]] hub. Consulting detail for this standard also lives on the [[/certifications/iso-9001|ISO 9001 consulting page]].",
+          "The wider set of guides sits on the [[/iso-certification-uganda|ISO certification in Uganda]] hub. Implementation for an organisation is quoted on the [[/certifications/iso-9001|ISO 9001 implementation consulting page]].",
         ],
       },
     ],
@@ -294,13 +294,13 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "In-house training for the environmental team",
         paragraphs: [
-          "Environmental control fails when it lives in a consultant's folder and not with the people who handle waste, fuel, water, chemicals and contractors. We train those people in-house: how to describe environmental aspects, how to tell a significant impact from a minor one, and how an internal audit checks operational control rather than paperwork alone. Company delivery is described on the [[/internal-audit-training|internal audit training page]].",
+          "Environmental control fails when it lives in a consultant's folder and not with the people who handle waste, fuel, water, chemicals and contractors. We work with those people in-house: how to describe environmental aspects, how to tell a significant impact from a minor one, and how an internal audit checks operational control rather than paperwork alone. Implementation for the organisation is quoted on the [[/internal-audit-training|internal audit implementation page]].",
           "Staff who will lead audits of the environmental system can join the published " +
             courseLink(
               LEAD_AUDITOR_COURSE_PAGES.iso14001.title,
               LEAD_AUDITOR_COURSE_PAGES.iso14001.path,
             ) +
-            ". The current fee is on that course page. Book it for your organisation's team. A seat on a course does not make the organisation certified.",
+            ". Training is for individuals, and the fee is on that course page. Implementation for an organisation is quoted. A seat on a course does not make the organisation certified.",
         ],
       },
       {
@@ -322,7 +322,7 @@ const pages: UgandaIsoPage[] = [
         heading: "Environment beside quality and safety",
         paragraphs: [
           "Organisations that already run [[/iso-9001-certification-uganda|ISO 9001]] often add ISO 14001 rather than building a second, unrelated bureaucracy. The shared structure covers leadership, planning and improvement. The environmental content — aspects, obligations, operational control — stays specific. Occupational health and safety belongs on the [[/iso-45001-certification-uganda|ISO 45001]] guide, even when one HSE team covers both.",
-          "Return to the [[/iso-certification-uganda|ISO certification in Uganda]] hub to compare standards, or read the [[/certifications/iso-14001|ISO 14001 consulting page]] for the implementation services we already describe there.",
+          "Return to the [[/iso-certification-uganda|ISO certification in Uganda]] hub to compare standards. Implementation for an organisation is quoted on the [[/certifications/iso-14001|ISO 14001 implementation consulting page]].",
         ],
       },
     ],
@@ -379,13 +379,13 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "Train the team that owns the ISMS",
         paragraphs: [
-          "An information security management system fails when only the IT supplier understands it. We train the organisation's own people: the staff who classify information, approve access, manage suppliers, respond to incidents and audit the controls. In-house delivery uses your processes and your sites. The company format is set out on the [[/internal-audit-training|internal audit training page]].",
-          "For staff who need the full Lead Auditor programme, use the published " +
+          "An information security management system fails when only the IT supplier understands it. We work with the organisation's own people: the staff who classify information, approve access, manage suppliers, respond to incidents and audit the controls. In-house delivery uses your processes and your sites. Implementation for the organisation is quoted on the [[/internal-audit-training|internal audit implementation page]].",
+          "Training is for individuals on the published " +
             courseLink(
               LEAD_AUDITOR_COURSE_PAGES.iso27001.title,
               LEAD_AUDITOR_COURSE_PAGES.iso27001.path,
             ) +
-            ". The fee for an individual seat and for a team is on that course page. Send the people who will audit your ISMS. Passing a course is not ISO 27001 certification of the organisation.",
+            ". The fee is on that course page. Implementation for an organisation is quoted. Passing a course is not ISO 27001 certification of the organisation.",
         ],
       },
       {
@@ -407,7 +407,7 @@ const pages: UgandaIsoPage[] = [
         heading: "Where this sits among the other Uganda guides",
         paragraphs: [
           "Quality, environment and safety systems do not replace an ISMS. If a tender asks for several standards, read [[/iso-9001-certification-uganda|ISO 9001]] and [[/iso-45001-certification-uganda|ISO 45001]] as their own scopes and keep information security defined on its own. Medical-device organisations that also hold patient or device data may need both this system and [[/iso-13485-certification-uganda|ISO 13485]]. They are not interchangeable.",
-          "The [[/iso-certification-uganda|ISO certification in Uganda]] hub compares all five. Implementation services we already offer are on the [[/certifications/iso-27001|ISO 27001 consulting page]].",
+          "The [[/iso-certification-uganda|ISO certification in Uganda]] hub compares the guides. Implementation for an organisation is quoted on the [[/certifications/iso-27001|ISO 27001 implementation consulting page]].",
         ],
       },
     ],
@@ -469,8 +469,8 @@ const pages: UgandaIsoPage[] = [
               LEAD_AUDITOR_COURSE_PAGES.iso45001.title,
               LEAD_AUDITOR_COURSE_PAGES.iso45001.path,
             ) +
-            " already listed on this site. Organisations book seats for their staff. The fee, and the team rate, are published on that course page and nowhere else, so we are not restating a price here.",
-          "A lead auditor course is training. It does not certify your sites, and a course completion record is not an ISO 45001 certificate. Many institutions also need shorter in-house internal-audit training for supervisors who will audit their own projects. That format is on the [[/internal-audit-training|internal audit training page]], and the published group booking is on the [[/internal-auditor-courses|Internal Auditor Courses page]].",
+            " already listed on this site. Training is for individuals, who enrol on that course page. The fee is published there and nowhere else, so we are not restating a price here. Implementation for an organisation is quoted.",
+          "A lead auditor course is training for individuals. It does not certify your sites, and a course completion record is not an ISO 45001 certificate. Organisations that need the internal audit programme implemented in-house use the [[/internal-audit-training|internal audit implementation page]], which is quoted. The open course for individuals is the [[/internal-auditor-courses|Internal Auditor Courses page]].",
         ],
       },
       {
@@ -492,22 +492,22 @@ const pages: UgandaIsoPage[] = [
         heading: "Safety beside the other management systems",
         paragraphs: [
           "ISO 45001 shares a structure with [[/iso-9001-certification-uganda|ISO 9001]] and [[/iso-14001-certification-uganda|ISO 14001]]. One integrated system can hold quality, environment and safety when each discipline still has its own risks and controls. Do not fold health and safety into a quality procedure and call it done. Information security is [[/iso-27001-certification-uganda|ISO 27001]]. Device quality is [[/iso-13485-certification-uganda|ISO 13485]].",
-          "Compare the set on the [[/iso-certification-uganda|ISO certification in Uganda]] hub. The existing [[/certifications/iso-45001|ISO 45001 consulting page]] describes implementation support in more detail.",
+          "Compare the set on the [[/iso-certification-uganda|ISO certification in Uganda]] hub. Implementation for an organisation is quoted on the [[/certifications/iso-45001|ISO 45001 implementation consulting page]].",
         ],
       },
     ],
     faqs: [
       {
         q: "Is the ISO 45001 lead auditor course the same as certifying our company?",
-        a: "No. The course trains people, usually staff an organisation sends. ISO 45001 certification of the organisation is a later audit by an independent certification body. NAM QMS does not issue that certificate.",
+        a: "No. The course is training for individuals. ISO 45001 certification of the organisation is a later audit by an independent certification body. NAM QMS does not issue that certificate. Implementation for the organisation is quoted.",
       },
       {
         q: "Where is the lead auditor course fee?",
-        a: "On the ISO 45001:2018 Lead Auditor course page. Use that page for the current individual and team fees. In-house internal-audit training is quoted separately once we know the group size and the venue.",
+        a: "On the ISO 45001:2018 Lead Auditor course page, where individuals enrol. Implementation for an organisation is quoted once the sites and the scope are known.",
       },
       {
         q: "Can the course be delivered to our team only?",
-        a: "Yes. In-house training at your premises is the usual request from institutions. The scheduled lead auditor course is the public alternative when you want staff to join the published cohort. Both are team decisions, not a personal marketing offer.",
+        a: "The scheduled lead auditor course is training for individuals. In-house implementation at your premises is for the organisation and is quoted.",
       },
       {
         q: "Does ISO 45001 replace the Occupational Safety and Health Act?",
@@ -539,11 +539,11 @@ const pages: UgandaIsoPage[] = [
     query: "iso 13485 certification in uganda",
     metaTitle: "ISO 13485 Certification Readiness in Uganda",
     metaDescription:
-      "ISO 13485 training and a free gap analysis for medical-device organisations in Uganda. NAM QMS prepares you; it does not issue certificates.",
+      "ISO 13485 certification readiness for medical-device organisations in Uganda. Implementation is quoted. NAM QMS does not issue certificates.",
     eyebrow: "Medical devices — for organisations",
     h1: "Preparing for ISO 13485 certification in Uganda",
     lede:
-      "Preparing for ISO 13485 certification in Uganda is a step for organisations in the medical-device chain, not a general badge for every clinic. ISO 13485 training is for individuals; implementation is for organisations. NAM QMS trains the people that designs, makes, stores, distributes, installs or services devices, and we prepare the quality system for an independent audit. We do not issue ISO 13485 certificates.",
+      "Preparing for ISO 13485 certification in Uganda is a step for organisations in the medical-device chain, not a general badge for every clinic. Training is for individuals. Implementation is for organisations and is quoted. NAM QMS trains the people who design, make, store, distribute, install or service devices, and we prepare the quality system for an independent audit. We do not issue ISO 13485 certificates.",
     sections: [
       {
         heading: "Who the standard is actually for",
@@ -553,10 +553,9 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "In-house training for device quality teams",
+        heading: "Training for individuals, implementation for organisations",
         paragraphs: [
-          "ISO 13485 training is for individuals. No ISO 13485 course is published on this website yet, so there is no fee to show here. Implementation for an organisation is quoted after the gap analysis. We teach the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The company format is described on the [[/internal-audit-training|internal audit training page]]. A quoted in-house programme follows the gap analysis, once the roles and the sites are known.",
-          `The only published quality Lead Auditor fee on this site is on the [[${LEAD_AUDITOR_COURSE_PAGES.iso9001.path}|ISO 9001:2015 Lead Auditor course page]], and that course is not ISO 13485. Internal auditor group fees are on the [[/internal-auditor-courses|Internal Auditor Courses page]].`,
+          "Training is for individuals. No ISO 13485 course is published on this website yet, so there is no fee to show here. Individuals who need a published internal auditor course enrol on the [[/internal-auditor-courses|Internal Auditor Courses page]]. Implementation for an organisation is quoted after the gap analysis. We work with the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The organisational programme is described on the [[/internal-audit-training|internal audit implementation page]].",
         ],
       },
       {
@@ -586,7 +585,7 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Why is there no ISO 13485 price on this page?",
-        a: "This site does not publish an ISO 13485 course fee. In-house training and consulting are quoted after the free gap analysis. The ISO 9001 Lead Auditor course page shows that course's fee only, and it is a different standard.",
+        a: "This site does not publish an ISO 13485 course fee. Training for individuals will appear on a course page when a course exists. Implementation for an organisation is quoted after the free gap analysis.",
       },
       {
         q: "How is ISO 13485 different from ISO 9001?",
@@ -598,7 +597,7 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Can our distributors and warehouse staff be trained together?",
-        a: "Yes, when they are part of the same organisational system. In-house training is built around the procedures those teams will have to follow and audit. We train the institution's people, not anonymous individual candidates.",
+        a: "Yes, when they are part of the same organisation. Implementation is quoted for that organisation and follows the procedures those teams will use. A person who wants a scheduled course enrols as an individual when a course page is published.",
       },
     ],
     closing:

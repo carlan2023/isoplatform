@@ -2,7 +2,8 @@
 
 > NAM QMS (NAM Quality Management Systems) is a Uganda-based ISO training and implementation consultancy. Training courses are for individuals and are booked on each course page. Implementation and consulting are for organisations and institutions and are quoted after a free gap analysis. NAM QMS is not a certification body and does not issue ISO certificates.
 
-## ISO certification in Uganda
+## Certification readiness and implementation for organisations
+These pages are for organisations. Implementation is quoted. They are not the open training courses.
 - [ISO certification in Uganda](https://www.amqualitysystems.com/iso-certification-uganda): hub comparing the standards
 - [ISO 9001 certification in Uganda](https://www.amqualitysystems.com/iso-9001-certification-uganda)
 - [ISO 14001 certification in Uganda](https://www.amqualitysystems.com/iso-14001-certification-uganda)
@@ -10,9 +11,20 @@
 - [ISO 45001 certification in Uganda](https://www.amqualitysystems.com/iso-45001-certification-uganda)
 - [ISO 13485 certification in Uganda](https://www.amqualitysystems.com/iso-13485-certification-uganda)
 - [ISO 42001 certification in Uganda](https://www.amqualitysystems.com/iso-42001-certification-uganda)
+- [Internal audit implementation for organisations](https://www.amqualitysystems.com/internal-audit-training)
+- [ISO 9001 implementation consulting](https://www.amqualitysystems.com/certifications/iso-9001)
+- [ISO 14001 implementation consulting](https://www.amqualitysystems.com/certifications/iso-14001)
+- [ISO 27001 implementation consulting](https://www.amqualitysystems.com/certifications/iso-27001)
+- [ISO 45001 implementation consulting](https://www.amqualitysystems.com/certifications/iso-45001)
+- [ISO 22000 implementation consulting](https://www.amqualitysystems.com/certifications/iso-22000)
 
-## Training for individuals
+## Training courses for individuals
 - [ISO 9001:2015 Lead Auditor](https://www.amqualitysystems.com/courses/iso-9001-2015-lead-auditor)
+- [ISO 14001:2015 Lead Auditor](https://www.amqualitysystems.com/courses/iso-14001-2015-lead-auditor)
+- [ISO 27001:2022 Lead Auditor](https://www.amqualitysystems.com/courses/iso-27001-2022-lead-auditor)
+- [ISO 45001:2018 Lead Auditor](https://www.amqualitysystems.com/courses/iso-45001-2018-lead-auditor)
+- [ISO 22000 Lead Auditor](https://www.amqualitysystems.com/courses/iso-22000-lead-auditor)
+- [Internal auditor course](https://www.amqualitysystems.com/internal-auditor-courses)
 
 ## Contact
 - Email: info@amqualitysystems.com

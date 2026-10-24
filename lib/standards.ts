@@ -89,16 +89,16 @@ export const STANDARDS: Standard[] = [
     category: MANAGEMENT_CATEGORY,
     enquiryLabel: "ISO 9001 — Quality Management",
     tagline: "The world's most widely used standard for quality management.",
-    heading: "ISO 9001 certification in Uganda: quality management consulting",
+    heading: "ISO 9001 implementation consulting for organisations",
     intro:
       "ISO 9001 is the international standard for a Quality Management System (QMS). We help Ugandan organisations build a practical QMS that fits how they already work: defined processes, clear responsibilities, customer focus and continual improvement. From gap analysis to internal audits and certification-audit preparation, we handle the groundwork so you are ready for the accredited certification body's audit and for tenders that ask for ISO 9001.",
-    metaTitle: "ISO 9001 Certification in Uganda | Cost & Timeline",
+    metaTitle: "ISO 9001 Consulting in Uganda: Steps & Timeline",
     metaDescription:
-      "ISO 9001 certification consulting in Uganda: gap analysis, QMS documentation, internal audits and certification-audit preparation for tenders and growth.",
+      "ISO 9001 consulting in Uganda: gap analysis, QMS documentation, internal audits and certification-audit preparation for tenders and growth.",
     keywords: [
-      "ISO 9001 certification in Uganda",
+      "ISO 9001 consulting Uganda",
       "ISO 9001 Uganda",
-      "ISO certification in Uganda",
+      "ISO 9001 implementation Uganda",
       "quality management system Uganda",
       "ISO 9001 consultants Kampala",
       "ISO 9001 certification cost Uganda",
@@ -162,14 +162,14 @@ export const STANDARDS: Standard[] = [
     category: MANAGEMENT_CATEGORY,
     enquiryLabel: "ISO 14001 — Environmental Management",
     tagline: "The international standard for managing environmental impact.",
-    heading: "ISO 14001 certification in Uganda: environmental management consulting",
+    heading: "ISO 14001 implementation consulting for organisations",
     intro:
       "ISO 14001 is the international standard for an Environmental Management System (EMS). We help Ugandan organisations identify their environmental aspects, keep track of their legal obligations, control their impacts and prepare for certification by an accredited certification body. A well-run EMS also makes it easier to demonstrate compliance with national environmental requirements overseen by NEMA.",
-    metaTitle: "ISO 14001 Certification in Uganda | Cost & Timeline",
+    metaTitle: "ISO 14001 Consulting in Uganda",
     metaDescription:
-      "ISO 14001 certification consulting in Uganda: environmental aspects, legal register, EMS documentation, internal audits and certification-audit preparation.",
+      "ISO 14001 consulting in Uganda: environmental aspects, legal register, EMS documentation, internal audits and certification-audit preparation.",
     keywords: [
-      "ISO 14001 certification in Uganda",
+      "ISO 14001 consulting Uganda",
       "ISO 14001 Uganda",
       "environmental management system Uganda",
       "EMS certification Uganda",
@@ -235,14 +235,14 @@ export const STANDARDS: Standard[] = [
     category: MANAGEMENT_CATEGORY,
     enquiryLabel: "ISO 45001 — Occupational Health & Safety",
     tagline: "The international standard for workplace health and safety.",
-    heading: "ISO 45001 certification in Uganda: occupational health & safety consulting",
+    heading: "ISO 45001 implementation consulting for organisations",
     intro:
       "ISO 45001 is the international standard for an Occupational Health and Safety (OH&S) Management System. We help Ugandan organisations identify hazards, assess and control risks, involve workers and prepare for certification by an accredited certification body. A working OH&S system also supports compliance with the Occupational Safety and Health Act, 2006.",
-    metaTitle: "ISO 45001 Certification in Uganda | Cost & Timeline",
+    metaTitle: "ISO 45001 Consulting in Uganda",
     metaDescription:
-      "ISO 45001 certification consulting in Uganda: hazard identification, risk assessment, OH&S documentation, internal audits and certification-audit preparation.",
+      "ISO 45001 consulting in Uganda: hazard identification, risk assessment, OH&S documentation, internal audits and certification-audit preparation.",
     keywords: [
-      "ISO 45001 certification in Uganda",
+      "ISO 45001 consulting Uganda",
       "ISO 45001 Uganda",
       "occupational health and safety management system Uganda",
       "OHS certification Uganda",
@@ -308,15 +308,14 @@ export const STANDARDS: Standard[] = [
     category: MANAGEMENT_CATEGORY,
     enquiryLabel: "ISO 22000 — Food Safety",
     tagline: "The international standard for food safety across the food chain.",
-    heading: "ISO 22000 certification in Uganda: food safety management consulting",
+    heading: "ISO 22000 implementation consulting for organisations",
     intro:
       "ISO 22000 is the international standard for a Food Safety Management System (FSMS). It combines HACCP principles, prerequisite programmes and a management system approach. We help Ugandan food processors, manufacturers, packers and exporters build an FSMS that controls food safety hazards and prepares them for certification by an accredited certification body and for the expectations of buyers and export markets.",
-    metaTitle:
-      "ISO 22000 Certification in Uganda — ISO 22000 training in Kampala",
+    metaTitle: "ISO 22000 Consulting in Kampala",
     metaDescription:
-      "ISO 22000 training in Kampala for organisations: HACCP, prerequisite programmes, FSMS documentation, internal audits and audit preparation for food businesses.",
+      "ISO 22000 implementation for organisations in Kampala: HACCP, prerequisite programmes, FSMS documentation, internal audits and audit preparation.",
     keywords: [
-      "ISO 22000 certification in Uganda",
+      "ISO 22000 consulting Kampala",
       "ISO 22000 Uganda",
       "food safety management system Uganda",
       "HACCP certification Uganda",
@@ -382,14 +381,14 @@ export const STANDARDS: Standard[] = [
     category: "Information Security & Data Protection",
     enquiryLabel: "ISO 27001 — Information Security",
     tagline: "The global standard for managing information security risk.",
-    heading: "ISO 27001 certification for businesses in Uganda & East Africa",
+    heading: "ISO 27001 implementation consulting for organisations",
     intro:
       "ISO/IEC 27001 is the international standard for an Information Security Management System (ISMS). We take your organisation from first risk assessment to a certified ISMS — policies, controls, internal audits and certification-audit preparation, handled end to end so you can win security-conscious clients and tenders with confidence.",
-    metaTitle: "ISO 27001 Certification in Uganda & East Africa",
+    metaTitle: "ISO 27001 Consulting in Uganda & East Africa",
     metaDescription:
-      "ISO 27001 (ISMS) certification consulting for businesses in Uganda and East Africa — risk assessment, Annex A controls, documentation, internal audits and certification-audit preparation, end to end.",
+      "ISO 27001 consulting in Uganda and East Africa: risk assessment, Annex A controls, ISMS documentation, internal audits and certification-audit prep.",
     keywords: [
-      "ISO 27001 certification Uganda",
+      "ISO 27001 consulting Uganda",
       "ISO 27001 East Africa",
       "ISMS certification",
       "information security management system",
