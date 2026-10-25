@@ -200,7 +200,7 @@ export default function UgandaIsoLanding({ page }: { page: UgandaIsoPage }) {
                 className="inline-flex items-center gap-2 border border-slate-300 text-slate-700 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-300 hover:text-teal-700"
                 style={sans}
               >
-                In-house team training
+                Implementation for organisations
               </Link>
               {fee && (
                 <Link

@@ -16,10 +16,9 @@ import {
 } from "@/lib/pricing";
 import { jsonLdHtml } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, abs } from "@/lib/site";
-import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
 
-const TITLE = "Internal Auditor Courses";
-const DESCRIPTION = `Enroll your team in NAM QMS ${INTERNAL_AUDITOR_COURSE_TITLE}. ${formatUGX(INTERNAL_AUDITOR_PRICE)} per person, or ${formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person for groups of ${INTERNAL_AUDITOR_GROUP_MIN} or more. Pay the total with Mobile Money.`;
+const TITLE = "Internal Auditor Course for Individuals";
+const DESCRIPTION = `Internal auditor course for individuals from NAM QMS. ${formatUGX(INTERNAL_AUDITOR_PRICE)} per person, or ${formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person for groups of ${INTERNAL_AUDITOR_GROUP_MIN} or more. Pay the total with Mobile Money.`;
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} | NAM QMS` },
@@ -80,28 +79,28 @@ export default function InternalAuditorCoursesPage() {
             className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: "#0d9488", ...sans }}
           >
-            NAM QMS · Corporate training
+            NAM QMS · Training for individuals
           </p>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight mb-4">
-            {INTERNAL_AUDITOR_COURSE_TITLE}
+            {TITLE}
           </h1>
           <p className="text-slate-600 text-base sm:text-lg leading-relaxed" style={sans}>
-            Book your staff onto NAM QMS Internal Auditor Courses.{" "}
-            {formatUGX(INTERNAL_AUDITOR_PRICE)} per person. Groups of{" "}
-            {INTERNAL_AUDITOR_GROUP_MIN} or more get 50% off —{" "}
-            {formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person. Enter your team,
-            see the total, and pay it with MTN or Airtel Mobile Money.
+            Training is for individuals. {formatUGX(INTERNAL_AUDITOR_PRICE)} per
+            person. Groups of {INTERNAL_AUDITOR_GROUP_MIN} or more get 50% off —{" "}
+            {formatUGX(INTERNAL_AUDITOR_GROUP_PRICE)} per person. Enter each
+            participant, see the total, and pay it with MTN or Airtel Mobile
+            Money.
           </p>
           <p className="text-sm text-slate-600 mt-4" style={sans}>
-            Preparing the wider system? Read{" "}
+            Implementation is for organisations and is quoted. See{" "}
             <Link
-              href={UGANDA_ISO_HUB_PATH}
+              href="/internal-audit-training"
               className="font-medium underline underline-offset-2"
               style={{ color: "#0f766e" }}
             >
-              ISO certification in Uganda
-            </Link>{" "}
-            for organisations.
+              internal audit implementation for organisations
+            </Link>
+            .
           </p>
         </div>
       </section>

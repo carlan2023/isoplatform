@@ -19,8 +19,36 @@ import {
   allStandardSlugs,
   type Standard,
 } from "@/lib/standards";
-import { ugandaIsoPageForStandardSlug } from "@/lib/uganda-iso";
+import { courseSlug } from "@/lib/course-slug";
 import { jsonLdHtml } from "@/lib/seo";
+import {
+  LEAD_AUDITOR_COURSE_PAGES,
+  ugandaIsoPageForStandardSlug,
+} from "@/lib/uganda-iso";
+
+/** Open courses. Training is for individuals; these pages are not that course. */
+const INDIVIDUAL_COURSES: Record<string, { href: string; label: string }> = {
+  "iso-9001": {
+    href: LEAD_AUDITOR_COURSE_PAGES.iso9001.path,
+    label: `${LEAD_AUDITOR_COURSE_PAGES.iso9001.title} course`,
+  },
+  "iso-14001": {
+    href: LEAD_AUDITOR_COURSE_PAGES.iso14001.path,
+    label: `${LEAD_AUDITOR_COURSE_PAGES.iso14001.title} course`,
+  },
+  "iso-27001": {
+    href: LEAD_AUDITOR_COURSE_PAGES.iso27001.path,
+    label: `${LEAD_AUDITOR_COURSE_PAGES.iso27001.title} course`,
+  },
+  "iso-45001": {
+    href: LEAD_AUDITOR_COURSE_PAGES.iso45001.path,
+    label: `${LEAD_AUDITOR_COURSE_PAGES.iso45001.title} course`,
+  },
+  "iso-22000": {
+    href: `/courses/${courseSlug("ISO 22000: Lead Auditor")}`,
+    label: "ISO 22000 Lead Auditor course",
+  },
+};
 
 export const revalidate = 3600;
 
@@ -67,6 +95,7 @@ export default async function CertificationPage({
   const path = `/certifications/${standard.slug}`;
   const applyHref = `/apply?standard=${encodeURIComponent(standard.slug)}`;
   const ugandaGuide = ugandaIsoPageForStandardSlug(standard.slug);
+  const individualCourse = INDIVIDUAL_COURSES[standard.slug];
   const related = STANDARDS.filter(
     (s) => s.slug !== standard.slug && s.category === standard.category,
   );
@@ -208,12 +237,34 @@ export default async function CertificationPage({
                 Or chat with us on WhatsApp
               </a>
             </div>
+            <p
+              className="text-sm text-slate-600 mt-6"
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+            >
+              Implementation is for organisations and is quoted.
+              {individualCourse ? (
+                <>
+                  {" "}
+                  Training is for individuals:{" "}
+                  <Link
+                    href={individualCourse.href}
+                    className="font-medium underline underline-offset-2"
+                    style={{ color: "#0f766e" }}
+                  >
+                    {individualCourse.label}
+                  </Link>
+                  .
+                </>
+              ) : (
+                " Training is for individuals and is booked on each course page."
+              )}
+            </p>
             {ugandaGuide && (
               <p
-                className="text-sm text-slate-600 mt-6"
+                className="text-sm text-slate-600 mt-3"
                 style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
-                Training a team in Uganda?{" "}
+                Certification readiness for organisations:{" "}
                 <Link
                   href={ugandaGuide.path}
                   className="font-medium underline underline-offset-2"
@@ -235,9 +286,7 @@ export default async function CertificationPage({
             <div className="flex items-center gap-2 mb-4">
               <Building2 size={20} className="text-teal-600" />
               <h2 className="text-2xl font-bold text-slate-900">
-                {standard.slug === "iso-22000"
-                  ? "ISO 22000 training in Kampala for organisations"
-                  : `Who ${standard.code} is for`}
+                {`Who ${standard.code} implementation is for`}
               </h2>
             </div>
             <p
