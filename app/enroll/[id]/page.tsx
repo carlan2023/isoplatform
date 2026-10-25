@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
+import { formatSeatsRemaining } from "@/lib/seats";
 import { CalendarDays, Clock, Users, MapPin } from "lucide-react";
 import EnrollForm from "@/app/components/EnrollForm";
 import InstructorContact from "@/app/components/InstructorContact";
@@ -131,7 +132,7 @@ export default async function EnrollPage({
               {
                 icon: <Users size={16} />,
                 label: "Seats Remaining",
-                value: `${seatsLeft} of ${course.seats_total}`,
+                value: formatSeatsRemaining(seatsLeft),
               },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-3">
