@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
+import { formatSeatsRemaining } from "@/lib/seats";
 import { SITE_NAME, abs } from "@/lib/site";
 import { courseSlug, coursePath, isUuid } from "@/lib/course-slug";
 import {
@@ -173,7 +174,7 @@ export default async function CoursePage({
     {
       icon: <Users size={16} />,
       label: "Seats Remaining",
-      value: `${seatsLeft} of ${course.seats_total}`,
+      value: formatSeatsRemaining(seatsLeft),
     },
   ];
 

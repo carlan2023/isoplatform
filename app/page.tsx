@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { withCurrentCohortSeats } from "@/lib/cohort-seats";
+import { formatSeatsRemaining } from "@/lib/seats";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -710,7 +711,7 @@ export default async function HomePage() {
                       style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
                     >
                       <Users size={14} className="text-teal-600 shrink-0" />
-                      {course.seats_total - course.seats_taken} seats remaining
+                      {formatSeatsRemaining(course.seats_total - course.seats_taken)}
                     </div>
                   </div>
                   <div className="border-t border-slate-100 pt-4 flex items-center justify-between">

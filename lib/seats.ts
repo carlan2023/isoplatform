@@ -17,3 +17,11 @@ export function canReserveSeat(heldSeats: number, totalSeats: number): boolean {
 export function nextSeatNumber(heldSeats: number): number {
   return heldSeats + 1;
 }
+
+/**
+ * Copy for the seats-remaining fact. Remaining count only — never "X of Y"
+ * or "X out of Y". Capacity math stays with the caller.
+ */
+export function formatSeatsRemaining(seatsLeft: number): string {
+  return `${seatsLeft} seats remaining`;
+}
