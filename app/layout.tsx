@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import HubSpotPageView from "@/app/components/HubSpotPageView";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import { ogImageMetadata } from "@/lib/media";
 import { HUBSPOT_SCRIPT_SRC } from "@/lib/hubspot";
@@ -70,10 +72,13 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: jsonLdHtml(organizationJsonLd()) }}
         />
         {children}
+        <Suspense fallback={null}>
+          <HubSpotPageView />
+        </Suspense>
         <Script
           id="hs-script-loader"
           src={HUBSPOT_SCRIPT_SRC}
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
       </body>
     </html>

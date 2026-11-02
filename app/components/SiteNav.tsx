@@ -13,6 +13,7 @@ const sans = { fontFamily: "var(--font-geist-sans), sans-serif" } as const;
 /** Absolute `/#section` hrefs so every link works from any page. */
 const NAV_BEFORE = [
   { label: "For Businesses", href: "/iso-certification-consulting" },
+  { label: "Free consultation", href: "/free-consultation" },
   { label: "ISO in Uganda", href: UGANDA_ISO_HUB_PATH },
 ] as const;
 

@@ -45,7 +45,7 @@ const SECTIONS: Section[] = [
   {
     h: "4. HubSpot forms",
     p: [
-      "Some requests, including the free ISO gap analysis, are collected on forms hosted by HubSpot. If you submit a HubSpot form, the information you enter on that form is processed by HubSpot for us. We use it to respond to the request and to provide the related service.",
+      "The free consultation and the enquiry form are emailed to our team and submitted to HubSpot. The certification application is emailed to our team and is submitted to HubSpot when that form is connected. HubSpot processes those submissions for us so we can respond to the request.",
     ],
   },
   {

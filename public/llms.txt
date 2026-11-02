@@ -1,9 +1,10 @@
 # NAM QMS
 
-> NAM QMS (NAM Quality Management Systems) is a Uganda-based ISO training and implementation consultancy. Training courses are for individuals and are booked on each course page. Implementation and consulting are for organisations and institutions and are quoted after a free gap analysis. NAM QMS is not a certification body and does not issue ISO certificates.
+> NAM QMS (NAM Quality Management Systems) is a Uganda-based ISO training and implementation consultancy. Training courses are for individuals and are booked on each course page. Implementation and consulting are for organisations and institutions and are quoted after a free consultation. NAM QMS is not a certification body and does not issue ISO certificates.
 
 ## Certification readiness and implementation for organisations
 These pages are for organisations. Implementation is quoted. They are not the open training courses.
+- [Book a free consultation](https://www.amqualitysystems.com/free-consultation)
 - [ISO certification in Uganda](https://www.amqualitysystems.com/iso-certification-uganda): hub comparing the standards
 - [ISO 9001 certification in Uganda](https://www.amqualitysystems.com/iso-9001-certification-uganda)
 - [ISO 14001 certification in Uganda](https://www.amqualitysystems.com/iso-14001-certification-uganda)

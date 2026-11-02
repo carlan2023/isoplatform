@@ -14,8 +14,10 @@ import {
   Search,
   RefreshCw,
   Award,
+  Phone,
 } from "lucide-react";
-import { SITE_NAME, SITE_URL, CONTACT, abs } from "@/lib/site";
+import { SITE_NAME, SITE_URL, CONTACT, FREE_CONSULTATION_PATH, abs } from "@/lib/site";
+import { UGANDA_ISO_HUB_PATH, UGANDA_ISO_STANDARDS } from "@/lib/uganda-iso";
 import { jsonLdHtml } from "@/lib/seo";
 import { MANAGEMENT_STANDARDS, SECURITY_STANDARDS } from "@/lib/standards";
 import {
@@ -73,6 +75,7 @@ const SERVICES = [
     icon: Users,
     title: "Internal Auditor Training",
     desc: "We train your team to run effective internal audits so you maintain compliance year-round, not just at audit time.",
+    href: "/internal-audit-training",
   },
   {
     icon: ClipboardCheck,
@@ -129,7 +132,15 @@ const FAQS = [
   },
   {
     q: "Will we actually pass the certification audit?",
-    a: "Certification is issued by an independent certification body, not by us. Our job is to prepare you thoroughly — through documentation, internal audits, and mock audits — so you meet every requirement before the audit. That preparation is why our clients pass.",
+    a: "Certification is issued by an independent certification body, not by us. NAM QMS does not issue ISO certificates. Our job is to prepare you thoroughly — through documentation, internal audits, and mock audits — so you meet every requirement before the audit.",
+  },
+  {
+    q: "What happens on a free consultation?",
+    a: "A free consultation is a conversation about the standard you are considering, the sites involved, and what your team already has in place. We say whether the next step is training, documentation, or a full implementation, and what a certification body will expect to see. It is not an audit and not a certificate.",
+  },
+  {
+    q: "Can we talk before we apply?",
+    a: "Yes. Book a free consultation if you are still choosing a standard or you want to talk it through first. The application form is for organisations that are ready for a fixed-scope quotation. You can also call or message us on WhatsApp.",
   },
 ];
 
@@ -264,26 +275,45 @@ export default function ConsultingPage() {
               preparation, handled end to end so your team can keep running the
               business.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-col items-start gap-4">
               <Link
-                href="/apply"
+                href={FREE_CONSULTATION_PATH}
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{
                   backgroundColor: "#0d9488",
                   fontFamily: "var(--font-geist-sans), sans-serif",
                 }}
               >
-                Apply for certification <ArrowRight size={16} />
+                Book a free consultation <ArrowRight size={16} />
               </Link>
-              <a
-                href={CONTACT.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-600 text-sm underline underline-offset-4"
+              <div
+                className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm"
                 style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
               >
-                Or chat with us on WhatsApp
-              </a>
+                <a
+                  href={`tel:${CONTACT.phone}`}
+                  className="inline-flex items-center gap-2 font-medium text-slate-800 hover:text-teal-700"
+                >
+                  <Phone size={16} aria-hidden="true" />
+                  {CONTACT.phoneDisplay}
+                </a>
+                <a
+                  href={CONTACT.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 font-medium hover:opacity-80"
+                  style={{ color: "#128c4a" }}
+                >
+                  <WhatsAppIcon /> WhatsApp
+                </a>
+              </div>
+              <Link
+                href="/apply"
+                className="text-sm text-slate-600 underline underline-offset-4 hover:text-teal-700"
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+              >
+                Ready for a quotation? Apply for certification
+              </Link>
             </div>
           </div>
 
@@ -304,7 +334,7 @@ export default function ConsultingPage() {
         <div className="max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
           <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-3">
-            ISO standards we certify organisations to
+            Standards we prepare organisations for
           </h2>
           <p
             className="text-slate-500 mb-10 max-w-2xl"
@@ -332,6 +362,40 @@ export default function ConsultingPage() {
               </Link>
             ))}
           </div>
+          <h3 className="text-xl font-bold text-slate-900 mt-10 mb-4">
+            Guides for organisations in Uganda
+          </h3>
+          <ul
+            className="grid sm:grid-cols-2 gap-2 text-sm"
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+          >
+            <li>
+              <Link
+                href={UGANDA_ISO_HUB_PATH}
+                className="text-teal-700 font-medium hover:underline"
+              >
+                ISO certification in Uganda
+              </Link>
+            </li>
+            {UGANDA_ISO_STANDARDS.map((standard) => (
+              <li key={standard.path}>
+                <Link
+                  href={standard.path}
+                  className="text-teal-700 font-medium hover:underline"
+                >
+                  {standard.code} certification in Uganda
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/internal-audit-training"
+                className="text-teal-700 font-medium hover:underline"
+              >
+                Internal Audit Training
+              </Link>
+            </li>
+          </ul>
           </div>
 
           <Image
@@ -443,6 +507,15 @@ export default function ConsultingPage() {
                 >
                   {s.desc}
                 </p>
+                {"href" in s && s.href ? (
+                  <Link
+                    href={s.href}
+                    className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-teal-700 hover:underline"
+                    style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+                  >
+                    Internal Audit Training <ArrowRight size={14} aria-hidden="true" />
+                  </Link>
+                ) : null}
               </div>
             ))}
           </div>
@@ -450,11 +523,11 @@ export default function ConsultingPage() {
       </section>
 
       {/* PROCESS */}
-      <section className="bg-slate-50 border-b border-slate-100">
+      <section id="how-it-works" className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1.4fr_1fr] gap-12 items-start">
           <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-3">
-            How the road to ISO certification works
+            How it works
           </h2>
           <p
             className="text-slate-500 mb-12 max-w-2xl"
@@ -488,6 +561,16 @@ export default function ConsultingPage() {
               </div>
             ))}
           </div>
+          <Link
+            href={FREE_CONSULTATION_PATH}
+            className="inline-flex items-center gap-2 text-white px-6 py-3 mt-8 rounded-md font-medium transition-colors hover:bg-teal-700"
+            style={{
+              backgroundColor: "#0d9488",
+              fontFamily: "var(--font-geist-sans), sans-serif",
+            }}
+          >
+            Book a free consultation <ArrowRight size={16} />
+          </Link>
           </div>
 
           <Image
@@ -616,6 +699,16 @@ export default function ConsultingPage() {
               </div>
             ))}
           </div>
+          <Link
+            href={FREE_CONSULTATION_PATH}
+            className="inline-flex items-center gap-2 text-white px-6 py-3 mt-10 rounded-md font-medium transition-colors hover:bg-teal-700"
+            style={{
+              backgroundColor: "#0d9488",
+              fontFamily: "var(--font-geist-sans), sans-serif",
+            }}
+          >
+            Book a free consultation <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
 

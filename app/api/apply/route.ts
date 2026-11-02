@@ -12,6 +12,13 @@ import {
   isHoneypotTripped,
   validateApplication,
 } from "@/lib/application";
+import {
+  applyHubSpotFields,
+  hubSpotApplyFormId,
+  logHubSpotResult,
+  pageContextFrom,
+  submitHubSpotForm,
+} from "@/lib/hubspot-forms";
 
 // ---------------------------------------------------------------------------
 // POST /api/apply — ISO certification application.
@@ -98,8 +105,25 @@ export async function POST(req: NextRequest) {
 
     const data = result.data;
     const reference = generateReference();
+    const raw =
+      body && typeof body === "object" ? (body as Record<string, unknown>) : {};
 
     const staffTo = getStaffInbox();
+
+    const hubspot = submitHubSpotForm({
+      formId: hubSpotApplyFormId(),
+      missingEnvName: "HUBSPOT_APPLY_FORM_ID",
+      fields: applyHubSpotFields(data, reference),
+      context: pageContextFrom({
+        pageUri: raw.pageUri,
+        pageName: raw.pageName,
+        referer: req.headers.get("referer"),
+        hutk: req.cookies.get("hubspotutk")?.value,
+      }),
+    }).then((result) => {
+      logHubSpotResult("apply", result);
+      return result;
+    });
 
     const staffEmail = buildStaffEmail(data, reference);
     const staff = await sendResendEmail({
@@ -110,6 +134,7 @@ export async function POST(req: NextRequest) {
       html: staffEmail.html,
       text: staffEmail.text,
     });
+    await hubspot;
     if (!staff.ok) {
       console.error("[apply] staff email failed:", reference, staff.error);
       return NextResponse.json(
