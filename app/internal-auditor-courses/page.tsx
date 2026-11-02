@@ -8,6 +8,7 @@ import {
   INTERNAL_AUDITOR_ENROLL_PATH,
 } from "@/lib/group-enrollment";
 import { OG_IMAGE } from "@/lib/media";
+import { PECB_TRAINING_PATH } from "@/lib/pecb";
 import {
   formatUGX,
   INTERNAL_AUDITOR_GROUP_MIN,
@@ -100,7 +101,15 @@ export default function InternalAuditorCoursesPage() {
             >
               internal audit implementation for organisations
             </Link>
-            .
+            . PECB courses are delivered separately. NAM QMS is a PECB partner.{" "}
+            <Link
+              href={PECB_TRAINING_PATH}
+              className="font-medium underline underline-offset-2"
+              style={{ color: "#0f766e" }}
+            >
+              PECB training
+            </Link>{" "}
+            is by quote.
           </p>
         </div>
       </section>
