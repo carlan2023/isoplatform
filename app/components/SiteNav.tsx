@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
+import { PECB_TRAINING_PATH } from "@/lib/pecb";
 import { SITE_NAME } from "@/lib/site";
 import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
 
@@ -21,11 +22,18 @@ const NAV_AFTER = [
   { label: "Pricing", href: "/#pricing" },
 ] as const;
 
-/** Training menu: Lead Auditor courses, then in-house internal audit training. */
+/** Training menu: Lead Auditor courses, in-house internal audit, then PECB. */
 const TRAINING_LINKS = [
   { label: "Lead Auditor courses", href: "/#courses" },
   { label: "Internal Audit Training", href: "/internal-audit-training" },
+  { label: "PECB Training", href: PECB_TRAINING_PATH },
 ] as const;
+
+function onTrainingSection(pathname: string) {
+  return (
+    pathname === "/internal-audit-training" || pathname === PECB_TRAINING_PATH
+  );
+}
 
 const APPLY_HREF = "/apply";
 
@@ -48,20 +56,18 @@ function isCurrent(pathname: string, href: string) {
 export default function SiteNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [trainingOpen, setTrainingOpen] = useState(
-    pathname === "/internal-audit-training",
-  );
+  const [trainingOpen, setTrainingOpen] = useState(onTrainingSection(pathname));
   const menuId = useId();
   const trainingMenuId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const onTrainingPage = pathname === "/internal-audit-training";
+  const onTrainingPage = onTrainingSection(pathname);
 
   // Close on route change (e.g. navigating to another page from the menu).
   const [lastPath, setLastPath] = useState(pathname);
   if (pathname !== lastPath) {
     setLastPath(pathname);
     setOpen(false);
-    setTrainingOpen(pathname === "/internal-audit-training");
+    setTrainingOpen(onTrainingSection(pathname));
   }
 
   // Close on Escape and return focus to the toggle.
@@ -260,7 +266,7 @@ function TrainingMenu({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const onTrainingPage = pathname === "/internal-audit-training";
+  const onTrainingPage = onTrainingSection(pathname);
 
   // Close when the route changes, during render (same pattern as the mobile menu).
   const [lastPath, setLastPath] = useState(pathname);

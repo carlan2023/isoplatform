@@ -18,6 +18,10 @@ These pages are for organisations. Implementation is quoted. They are not the op
 - [ISO 45001 implementation consulting](https://www.amqualitysystems.com/certifications/iso-45001)
 - [ISO 22000 implementation consulting](https://www.amqualitysystems.com/certifications/iso-22000)
 
+## PECB training
+NAM QMS is a PECB partner and a PECB Authorized Training Reseller. Classroom and live-online PECB courses are priced by quote. Exams and certification are run by PECB. NAM QMS does not certify or accredit organisations or people.
+- [PECB training in Uganda, Africa and the Middle East](https://www.amqualitysystems.com/pecb-training-uganda)
+
 ## Training courses for individuals
 - [ISO 9001:2015 Lead Auditor](https://www.amqualitysystems.com/courses/iso-9001-2015-lead-auditor)
 - [ISO 14001:2015 Lead Auditor](https://www.amqualitysystems.com/courses/iso-14001-2015-lead-auditor)
