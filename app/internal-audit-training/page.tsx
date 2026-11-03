@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
+import { PECB_TRAINING_PATH } from "@/lib/pecb";
 import { CONTACT, FREE_CONSULTATION_PATH, SITE_URL, abs } from "@/lib/site";
 import { jsonLdHtml } from "@/lib/seo";
 import { IMG } from "@/lib/media";
@@ -353,8 +354,7 @@ export default function InternalAuditTrainingPage() {
             className="text-sm md:text-base leading-relaxed"
             style={{ color: "#ccfbf1", ...sans }}
           >
-            500+ auditors trained · Exemplar Global &amp; IRCA certified trainers
-            · 10+ years of ISO experience in East Africa
+            500+ auditors trained · 10+ years of ISO experience in East Africa
           </p>
           <p className="mt-4">
             <Link
@@ -457,6 +457,17 @@ export default function InternalAuditTrainingPage() {
               ISO certification in Uganda
             </Link>
             , including medical devices.
+          </p>
+          <p className="text-sm text-slate-500 mt-3" style={sans}>
+            PECB courses are a separate programme. NAM QMS is a PECB partner.{" "}
+            <Link
+              href={PECB_TRAINING_PATH}
+              className="font-medium underline underline-offset-2"
+              style={{ color: "#0f766e" }}
+            >
+              PECB training
+            </Link>{" "}
+            is by quote.
           </p>
         </div>
       </section>

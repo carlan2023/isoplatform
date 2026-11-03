@@ -8,6 +8,7 @@ import {
   Linkedin,
   Youtube,
 } from "lucide-react";
+import { PECB_TRAINING_PATH } from "@/lib/pecb";
 import { SITE_NAME, LEGAL_NAME, CONTACT, SOCIALS } from "@/lib/site";
 import { UGANDA_ISO_PAGES } from "@/lib/uganda-iso";
 
@@ -19,6 +20,7 @@ const QUICK_LINKS = [
   { label: "Apply for Certification", href: "/apply" },
   { label: "Lead Auditor Training", href: "/#training" },
   { label: "Internal Audit Training", href: "/internal-audit-training" },
+  { label: "PECB Training", href: PECB_TRAINING_PATH },
   { label: "Upcoming Courses", href: "/#courses" },
   { label: "ISO 27001", href: "/certifications/iso-27001" },
   { label: "Internal Auditor Courses", href: "/internal-auditor-courses" },

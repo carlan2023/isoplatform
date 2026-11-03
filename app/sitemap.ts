@@ -4,6 +4,7 @@ import { INTERNAL_AUDITOR_ENROLL_PATH } from "@/lib/group-enrollment";
 import { abs, FREE_CONSULTATION_PATH } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
 import { coursePath } from "@/lib/course-slug";
+import { PECB_TRAINING_PATH } from "@/lib/pecb";
 import { UGANDA_ISO_HUB_PATH, ugandaIsoSitemapPaths } from "@/lib/uganda-iso";
 
 // Regenerate alongside the ISR pages so newly published courses appear.
@@ -31,6 +32,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     {
       url: abs("/internal-audit-training"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: abs(PECB_TRAINING_PATH),
       changeFrequency: "monthly",
       priority: 0.8,
     },

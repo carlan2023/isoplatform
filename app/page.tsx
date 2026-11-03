@@ -29,6 +29,7 @@ import { coursePath } from "@/lib/course-slug";
 import { presentCourseCopy } from "@/lib/copy";
 import { UGANDA_ISO_STANDARDS } from "@/lib/uganda-iso";
 import { UGANDA_ISO_HUB_PATH } from "@/lib/uganda-paths";
+import { PECB_TRAINING_PATH } from "@/lib/pecb";
 import { jsonLdHtml } from "@/lib/seo";
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
@@ -578,6 +579,13 @@ export default async function HomePage() {
               >
                 See training pricing
               </a>
+              <Link
+                href={PECB_TRAINING_PATH}
+                className="text-slate-600 text-sm underline underline-offset-4"
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+              >
+                PECB training, by quote
+              </Link>
             </div>
           </div>
 
@@ -628,8 +636,8 @@ export default async function HomePage() {
             {[
               {
                 icon: <Award size={22} className="text-teal-600" />,
-                title: "Accredited Instructors",
-                desc: "All our lead tutors are practising auditors with active certifications from Exemplar Global and IRCA.",
+                title: "Practising auditors",
+                desc: "Lead tutors are practising auditors. Courses include mock audits and exam coaching.",
               },
               {
                 icon: <Globe size={22} className="text-teal-600" />,
@@ -868,6 +876,19 @@ export default async function HomePage() {
               </ul>
             </div>
           </div>
+          <p
+            className="text-sm text-slate-500 mt-8"
+            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+          >
+            Lead Auditor course fees are shown above.{" "}
+            <Link
+              href={PECB_TRAINING_PATH}
+              className="text-teal-700 font-medium underline underline-offset-2"
+            >
+              PECB training
+            </Link>{" "}
+            is by quote.
+          </p>
         </div>
       </section>
 
