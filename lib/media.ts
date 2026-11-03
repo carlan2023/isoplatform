@@ -86,6 +86,15 @@ export const IMG = {
     height: 2400,
     alt: "Professionals collaborating around a conference table during a corporate training meeting",
   },
+  /**
+   * PECB training page hero. 1152×864 (4:3), matching the hero frame.
+   */
+  pecbClassroom: {
+    src: "/media/pecb-classroom-trainer-uganda.webp",
+    width: 1152,
+    height: 864,
+    alt: "A Black woman trainer points to a four-step diagram on a whiteboard while learners sit around a conference table",
+  },
 } as const;
 
 /**

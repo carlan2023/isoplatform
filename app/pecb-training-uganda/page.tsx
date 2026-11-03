@@ -148,8 +148,8 @@ export default function PecbTrainingPage() {
 
           <div className="relative overflow-hidden rounded-xl border border-teal-100 shadow-sm bg-white aspect-[4/3]">
             <Image
-              src={IMG.internalAuditTraining.src}
-              alt="Professionals in a meeting room during a classroom training session"
+              src={IMG.pecbClassroom.src}
+              alt={IMG.pecbClassroom.alt}
               fill
               priority
               sizes="(max-width: 768px) 100vw, 45vw"

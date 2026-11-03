@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -84,6 +84,14 @@ describe("PECB partner page", () => {
     expect(page).toContain("PECB_TRADEMARK_NOTICE");
     expect(page).toContain('canonical: PECB_TRAINING_PATH');
     expect(page).toContain("pecbPageJsonLd");
+    expect(page).toContain("IMG.pecbClassroom");
+    expect(page).not.toContain("internalAuditTraining");
+    const hero = path.join(
+      process.cwd(),
+      "public/media/pecb-classroom-trainer-uganda.webp",
+    );
+    expect(existsSync(hero)).toBe(true);
+    expect(readFileSync(hero).subarray(0, 4).toString()).toBe("RIFF");
     expect(page).not.toMatch(/<img[^>]+pecb/i);
     expect(page).not.toMatch(/src=.*logo/i);
     for (const file of PAGE_FILES) {
