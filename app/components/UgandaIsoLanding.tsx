@@ -186,15 +186,13 @@ export default function UgandaIsoLanding({ page }: { page: UgandaIsoPage }) {
               <RichText text={page.lede} />
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <a
-                href={page.gapAnalysisHref}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={page.consultationHref}
                 className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
                 style={{ backgroundColor: "#0d9488", ...sans }}
               >
-                Free ISO gap analysis <ArrowRight size={16} aria-hidden="true" />
-              </a>
+                Book a free consultation <ArrowRight size={16} aria-hidden="true" />
+              </Link>
               <Link
                 href="/internal-audit-training"
                 className="inline-flex items-center gap-2 border border-slate-300 text-slate-700 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-300 hover:text-teal-700"
@@ -349,15 +347,13 @@ export default function UgandaIsoLanding({ page }: { page: UgandaIsoPage }) {
           <p className="text-slate-700 leading-relaxed mb-8" style={sans}>
             <RichText text={page.closing} />
           </p>
-          <a
-            href={page.gapAnalysisHref}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={page.consultationHref}
             className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
             style={{ backgroundColor: "#0d9488", ...sans }}
           >
-            Book a free ISO gap analysis <ArrowRight size={16} aria-hidden="true" />
-          </a>
+            Book a free consultation <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </div>
       </section>
 

@@ -39,7 +39,11 @@ export default function ConsultForm({
       const res = await fetch("/api/consult", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          pageUri: window.location.href,
+          pageName: document.title,
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;

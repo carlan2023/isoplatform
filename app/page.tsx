@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   Award,
   Globe,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import {
   INDIVIDUAL_PRICE,
@@ -19,7 +21,7 @@ import {
   TEAM_MIN_SIZE,
   formatUGX,
 } from "@/lib/pricing";
-import { SITE_NAME, SITE_URL, CONTACT } from "@/lib/site";
+import { SITE_NAME, SITE_URL, CONTACT, FREE_CONSULTATION_PATH } from "@/lib/site";
 import { advertisedCourseStart, formatClassDateShort } from "@/lib/schedule";
 import { SECURITY_STANDARDS } from "@/lib/standards";
 import { IMG } from "@/lib/media";
@@ -157,8 +159,42 @@ export default async function HomePage() {
               <span style={{ color: "#0d9488" }}>ISO certified</span> in Uganda
               & East Africa | NAM QMS
             </h1>
+            <div className="flex flex-col items-start gap-4 mb-8">
+              <Link
+                href={FREE_CONSULTATION_PATH}
+                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
+                style={{
+                  backgroundColor: "#0d9488",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
+                }}
+              >
+                Book a free consultation <ArrowRight size={16} />
+              </Link>
+              <div
+                className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm"
+                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+              >
+                <a
+                  href={`tel:${CONTACT.phone}`}
+                  className="inline-flex items-center gap-2 font-medium text-slate-800 hover:text-teal-700"
+                >
+                  <Phone size={16} aria-hidden="true" />
+                  {CONTACT.phoneDisplay}
+                </a>
+                <a
+                  href={CONTACT.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 font-medium hover:opacity-80"
+                  style={{ color: "#128c4a" }}
+                >
+                  <MessageCircle size={16} aria-hidden="true" />
+                  WhatsApp
+                </a>
+              </div>
+            </div>
             <p
-              className="text-slate-500 text-lg leading-relaxed mb-8"
+              className="text-slate-500 text-lg leading-relaxed mb-6"
               style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               We take your organisation all the way to ISO 9001, 14001, 45001
@@ -167,39 +203,27 @@ export default async function HomePage() {
               also run internationally recognised Lead Auditor training for
               professionals.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
-              <Link
-                href="/apply"
-                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-700"
-                style={{
-                  backgroundColor: "#0d9488",
-                  fontFamily: "var(--font-geist-sans), sans-serif",
-                }}
-              >
-                Get your business certified <ArrowRight size={16} />
+            <div
+              className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600"
+              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+            >
+              <Link href="/apply" className="underline underline-offset-4 hover:text-teal-700">
+                Get your business certified
               </Link>
               <Link
-                href="/iso-certification-consulting"
-                className="inline-flex items-center gap-2 border border-slate-300 text-slate-700 px-6 py-3 rounded-md font-medium transition-colors hover:border-teal-300 hover:text-teal-700"
-                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+                href="/iso-certification-consulting#how-it-works"
+                className="underline underline-offset-4 hover:text-teal-700"
               >
                 How it works
               </Link>
-              <a
-                href="https://149517164.hs-sites-eu1.com/free-iso-gap-analysis"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 border border-teal-600 text-teal-700 px-6 py-3 rounded-md font-medium transition-colors hover:bg-teal-50"
-                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
+              <Link
+                href="/internal-audit-training"
+                className="underline underline-offset-4 hover:text-teal-700"
               >
-                Free ISO gap analysis <ArrowRight size={16} />
-              </a>
-              <a
-                href="#training"
-                className="text-slate-600 text-sm underline underline-offset-4"
-                style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-              >
-                Looking for Lead Auditor training?
+                Internal Audit Training
+              </Link>
+              <a href="#training" className="underline underline-offset-4 hover:text-teal-700">
+                Lead Auditor training
               </a>
             </div>
           </div>
@@ -469,7 +493,7 @@ export default async function HomePage() {
               style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Guides for institutions and organisations: in-house team training,
-              a free gap analysis, and what has to be ready before a
+              a free consultation, and what has to be ready before a
               certification body audits.{" "}
               <Link
                 href={UGANDA_ISO_HUB_PATH}

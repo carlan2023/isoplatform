@@ -14,7 +14,7 @@ import {
 import Footer from "@/app/components/Footer";
 import SiteNav from "@/app/components/SiteNav";
 import { PECB_TRAINING_PATH } from "@/lib/pecb";
-import { CONTACT, SITE_URL, abs } from "@/lib/site";
+import { CONTACT, FREE_CONSULTATION_PATH, SITE_URL, abs } from "@/lib/site";
 import { jsonLdHtml } from "@/lib/seo";
 import { IMG } from "@/lib/media";
 
@@ -30,7 +30,7 @@ const WHATSAPP_QUOTE = `${CONTACT.whatsapp}?text=${encodeURIComponent(
   "Hi NAM QMS, we'd like a quote for Internal Audit training for our team",
 )}`;
 
-const GAP_ANALYSIS_HREF = "/iso-certification-consulting";
+const CONSULTATION_HREF = FREE_CONSULTATION_PATH;
 
 const sans = { fontFamily: "system-ui, sans-serif" } as const;
 
@@ -174,16 +174,16 @@ const FAQS: { q: string; a: ReactNode; text: string }[] = [
   },
   {
     q: "We also need to get certified. Can you help?",
-    text: "Yes. ISO certification consulting is our core service. Book a free gap analysis and we will show you exactly what it takes.",
+    text: "Yes. ISO certification consulting is our core service. Book a free consultation and we will show you exactly what it takes.",
     a: (
       <>
         Yes. ISO certification consulting is our core service.{" "}
         <Link
-          href={GAP_ANALYSIS_HREF}
+          href={CONSULTATION_HREF}
           className="font-medium underline underline-offset-2"
           style={{ color: "#0f766e" }}
         >
-          Book a free gap analysis
+          Book a free consultation
         </Link>{" "}
         and we will show you exactly what it takes.
       </>
@@ -358,11 +358,11 @@ export default function InternalAuditTrainingPage() {
           </p>
           <p className="mt-4">
             <Link
-              href={GAP_ANALYSIS_HREF}
+              href={CONSULTATION_HREF}
               className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-4 hover:opacity-80"
               style={{ color: "#d4a017", ...sans }}
             >
-              Not certified yet? Book a free ISO gap analysis
+              Not certified yet? Book a free consultation
               <ArrowRight size={14} aria-hidden="true" />
             </Link>
           </p>

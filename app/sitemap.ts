@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { INTERNAL_AUDITOR_ENROLL_PATH } from "@/lib/group-enrollment";
-import { abs } from "@/lib/site";
+import { abs, FREE_CONSULTATION_PATH } from "@/lib/site";
 import { STANDARDS } from "@/lib/standards";
 import { coursePath } from "@/lib/course-slug";
 import { PECB_TRAINING_PATH } from "@/lib/pecb";
@@ -15,6 +15,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: abs("/"), changeFrequency: "weekly", priority: 1 },
     // Primary business conversion page (certification application form).
     { url: abs("/apply"), changeFrequency: "monthly", priority: 0.9 },
+    {
+      url: abs(FREE_CONSULTATION_PATH),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     {
       url: abs("/iso-certification-consulting"),
       changeFrequency: "monthly",

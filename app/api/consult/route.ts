@@ -16,6 +16,13 @@ import {
   sendResendEmail,
 } from "@/lib/email";
 import { cleanString, isValidEmail, readJsonObject } from "@/lib/validation";
+import {
+  consultHubSpotFields,
+  hubSpotConsultFormId,
+  logHubSpotResult,
+  pageContextFrom,
+  submitHubSpotForm,
+} from "@/lib/hubspot-forms";
 
 const LIMITS = {
   name: 120,
@@ -91,6 +98,28 @@ export async function POST(req: NextRequest) {
       ? `New Consulting Enquiry — ${oneLine(standard)} — ${oneLine(company)}`
       : `New Consulting Enquiry — ${oneLine(standard)}`;
 
+    const hubspot = submitHubSpotForm({
+      formId: hubSpotConsultFormId(),
+      missingEnvName: "HUBSPOT_CONSULT_FORM_ID",
+      fields: consultHubSpotFields({
+        name,
+        email,
+        company,
+        phone,
+        standard,
+        message,
+      }),
+      context: pageContextFrom({
+        pageUri: body.pageUri,
+        pageName: body.pageName,
+        referer: req.headers.get("referer"),
+        hutk: req.cookies.get("hubspotutk")?.value,
+      }),
+    }).then((result) => {
+      logHubSpotResult("consult", result);
+      return result;
+    });
+
     const staff = await sendResendEmail({
       from: getResendNotificationsFrom(),
       to: staffTo,
@@ -116,6 +145,8 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+    await hubspot;
+
     if (!staff.ok) {
       console.error("[consult] staff email failed:", staff.error);
       return NextResponse.json(

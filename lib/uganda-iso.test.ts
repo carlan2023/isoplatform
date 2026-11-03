@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { courseSlug } from "./course-slug";
 import {
-  GAP_ANALYSIS_URL,
+  FREE_CONSULTATION_PATH,
   LEAD_AUDITOR_COURSE_PAGES,
   UGANDA_ISO_PAGES,
   organizationJsonLd,
@@ -56,7 +56,8 @@ describe("Uganda ISO landing pages", () => {
       expect(page.metaTitle.length).toBeGreaterThan(20);
       expect(page.metaDescription.length).toBeGreaterThan(80);
       expect(page.metaDescription.length).toBeLessThanOrEqual(170);
-      expect(page.gapAnalysisHref).toBe(GAP_ANALYSIS_URL);
+      expect(page.consultationHref).toBe(FREE_CONSULTATION_PATH);
+      expect(page.consultationHref).toBe("/free-consultation");
     }
   });
 

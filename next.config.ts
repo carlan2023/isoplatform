@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
-import { APEX_HOST, CANONICAL_ORIGIN } from "./lib/site";
+import {
+  APEX_HOST,
+  CANONICAL_ORIGIN,
+  FREE_CONSULTATION_PATH,
+  LEGACY_FREE_GAP_ANALYSIS_PATH,
+} from "./lib/site";
 
 const nextConfig: NextConfig = {
   // Build gate: never ship a build with type errors. This is the Next.js
@@ -22,6 +27,11 @@ const nextConfig: NextConfig = {
     // rule is what visitors hit. See the pull request notes.
     const has = [{ type: "host" as const, value: APEX_HOST }];
     return [
+      {
+        source: LEGACY_FREE_GAP_ANALYSIS_PATH,
+        destination: FREE_CONSULTATION_PATH,
+        permanent: true,
+      },
       {
         source: "/:path*",
         has,

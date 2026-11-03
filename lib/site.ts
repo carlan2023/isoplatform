@@ -46,6 +46,15 @@ export function canonicalSiteUrl(raw?: string | null): string {
 
 export const SITE_URL = canonicalSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
+/**
+ * Public consultation landing page. The previous path is a permanent
+ * redirect (see next.config.ts) and must not be linked.
+ */
+export const FREE_CONSULTATION_PATH = "/free-consultation";
+
+/** Old public path for the consultation page. Redirects permanently. */
+export const LEGACY_FREE_GAP_ANALYSIS_PATH = "/free-iso-gap-analysis";
+
 export const SITE_NAME = "NAM QMS";
 /** The full trading name, for prose and the Organization JSON-LD alternateName. */
 export const SITE_LEGAL_NAME = "NAM Quality Management Systems";

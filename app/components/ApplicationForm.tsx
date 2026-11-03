@@ -430,7 +430,12 @@ function ApplicationFormInner({
       res = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, [HONEYPOT_FIELD]: honeypot }),
+        body: JSON.stringify({
+          ...form,
+          [HONEYPOT_FIELD]: honeypot,
+          pageUri: window.location.href,
+          pageName: document.title,
+        }),
       });
     } catch {
       setSubmitting(false);

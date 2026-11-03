@@ -3,7 +3,7 @@
 //
 // One hub (/iso-certification-uganda) and one page per standard. Copy rules:
 //   - Audience is institutions and organisations, not individual candidates.
-//   - Lead with in-house / team training, the free gap analysis, and readiness.
+//   - Lead with in-house / team training, the free consultation, and readiness.
 //   - NAM QMS trains and consults. It does not issue ISO certificates and is
 //     not a certification body.
 //   - Never mention IQS. The public brand is "NAM QMS".
@@ -13,11 +13,17 @@
 
 import { courseSlug } from "./course-slug";
 import { IMG } from "./media";
-import { CONTACT, SITE_LEGAL_NAME, SITE_NAME, SITE_URL, abs } from "./site";
+import {
+  CONTACT,
+  FREE_CONSULTATION_PATH,
+  SITE_LEGAL_NAME,
+  SITE_NAME,
+  SITE_URL,
+  abs,
+} from "./site";
 import { UGANDA_ISO_HUB_PATH } from "./uganda-paths";
 
-export const GAP_ANALYSIS_URL =
-  "https://149517164.hs-sites-eu1.com/free-iso-gap-analysis";
+export { FREE_CONSULTATION_PATH };
 
 export { UGANDA_ISO_HUB_PATH };
 
@@ -79,7 +85,7 @@ export type UgandaIsoPage = {
   courseLinkLabel: string;
   serviceName: string;
   serviceType: string;
-  gapAnalysisHref: string;
+  consultationHref: string;
 };
 
 const NOT_A_BODY =
@@ -99,11 +105,11 @@ const pages: UgandaIsoPage[] = [
     query: "iso certification in uganda",
     metaTitle: "ISO Certification in Uganda: Training & Readiness",
     metaDescription:
-      "In-house ISO training and a free gap analysis for organisations in Uganda. NAM QMS prepares your team. An accredited body issues any certificate.",
+      "In-house ISO training and a free consultation for organisations in Uganda. NAM QMS prepares your team. An accredited body issues any certificate.",
     eyebrow: "For institutions and organisations",
     h1: "ISO certification in Uganda for organisations",
     lede:
-      "ISO certification in Uganda is usually a leadership decision: a buyer, a donor, a hospital board or a tender has asked for evidence that the organisation runs a managed system. NAM QMS works with that organisation. We train the team in-house, carry out a free ISO gap analysis, and prepare the system so a certification body can audit it. We do not sell a personal certificate to an individual, and we do not issue ISO certificates.",
+      "ISO certification in Uganda is usually a leadership decision: a buyer, a donor, a hospital board or a tender has asked for evidence that the organisation runs a managed system. NAM QMS works with that organisation. We train the team in-house, carry out a free consultation, and prepare the system so a certification body can audit it. We do not sell a personal certificate to an individual, and we do not issue ISO certificates.",
     sections: [
       {
         heading: "Start with the team that will live with the system",
@@ -133,9 +139,9 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "Use a free ISO gap analysis to decide the scope",
+        heading: "Use a free consultation to decide the scope",
         paragraphs: [
-          "The free ISO gap analysis compares how you work today with the standard you are considering. It names what is already in place and what still needs training, documents or records. It is a briefing for management, not an audit and not a certificate. Tell us the standard, the sites and who owns the system. We will say whether the next step is team training, documentation, or both.",
+          "The free consultation compares how you work today with the standard you are considering. It names what is already in place and what still needs training, documents or records. It is a briefing for management, not an audit and not a certificate. Tell us the standard, the sites and who owns the system. We will say whether the next step is team training, documentation, or both.",
         ],
       },
       {
@@ -165,11 +171,11 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Is the training for individuals or for organisations?",
-        a: "Scheduled training courses are open to individuals, who enrol and pay on each course page. Implementation is for organisations and is quoted after the free gap analysis.",
+        a: "Scheduled training courses are open to individuals, who enrol and pay on each course page. Implementation is for organisations and is quoted after the free consultation.",
       },
       {
-        q: "What does the free ISO gap analysis include?",
-        a: "We look at current practice against the standard you name, and we tell you what is already covered and what still needs training, documents or records. There is no charge for that first analysis. It does not replace the certification body's audit.",
+        q: "What does the free consultation include?",
+        a: "We look at current practice against the standard you name, and we tell you what is already covered and what still needs training, documents or records. There is no charge for that consultation. It does not replace the certification body's audit.",
       },
       {
         q: "Which standards can you help a Ugandan organisation prepare for?",
@@ -177,20 +183,20 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Where do we see prices?",
-        a: "Lead Auditor fees are on each course page. The Internal Auditor Courses page shows that programme's group fee. In-house training and consulting are quoted after the gap analysis, once the standard, the sites and the team size are known. We do not publish a single consulting price.",
+        a: "Lead Auditor fees are on each course page. The Internal Auditor Courses page shows that programme's group fee. In-house training and consulting are quoted after the free consultation, once the standard, the sites and the team size are known. We do not publish a single consulting price.",
       },
       {
         q: "Can training happen at our premises?",
-        a: "Yes. In-house delivery is the usual route for institutions anywhere in Uganda. A Kampala venue is available when the team needs to train away from daily operations. Ask for that when you book the gap analysis or the internal-audit training.",
+        a: "Yes. In-house delivery is the usual route for institutions anywhere in Uganda. A Kampala venue is available when the team needs to train away from daily operations. Ask for that when you book the free consultation or the internal-audit training.",
       },
     ],
     closing:
-      "If your organisation is weighing ISO certification in Uganda, book the free gap analysis. We will say which standard fits and what must be true before a certification body is invited.",
+      "If your organisation is weighing ISO certification in Uganda, book the free consultation. We will say which standard fits and what must be true before a certification body is invited.",
     image: IMG.heroRoadmap,
     courseLinkLabel: "ISO certification in Uganda for organisations",
     serviceName: "ISO training and certification readiness for organisations in Uganda",
     serviceType: "ISO management system training and certification readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
   {
     kind: "standard",
@@ -201,11 +207,11 @@ const pages: UgandaIsoPage[] = [
     query: "iso 9001 certification in uganda",
     metaTitle: "ISO 9001 Certification Readiness in Uganda",
     metaDescription:
-      "Prepare your organisation for ISO 9001 certification in Uganda with in-house team training, a free gap analysis and audit readiness from NAM QMS.",
+      "Prepare your organisation for ISO 9001 certification in Uganda with in-house team training, a free consultation and audit readiness from NAM QMS.",
     eyebrow: "Quality management for organisations",
     h1: "ISO 9001 certification in Uganda for organisations",
     lede:
-      "ISO 9001 certification in Uganda matters when a customer, a donor or a tender wants evidence that an organisation controls the way it delivers work. NAM QMS helps institutions build that evidence: we train the team, run a free gap analysis, and prepare the quality management system for an independent audit. The certificate, if it is issued, comes from an accredited certification body.",
+      "ISO 9001 certification in Uganda matters when a customer, a donor or a tender wants evidence that an organisation controls the way it delivers work. NAM QMS helps institutions build that evidence: we train the team, run a free consultation, and prepare the quality management system for an independent audit. The certificate, if it is issued, comes from an accredited certification body.",
     sections: [
       {
         heading: "Train the people who own the processes",
@@ -220,9 +226,9 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "A free gap analysis before documents are rewritten",
+        heading: "A free consultation before documents are rewritten",
         paragraphs: [
-          "Many organisations already have procedures, work instructions and records. Some of them match ISO 9001 and some of them describe a process that stopped being true years ago. The free ISO gap analysis sorts those two piles. We look at context, interested parties, the scope of the quality system, process controls, competence, internal audit and management review, and we say what is missing.",
+          "Many organisations already have procedures, work instructions and records. Some of them match ISO 9001 and some of them describe a process that stopped being true years ago. The free consultation sorts those two piles. We look at context, interested parties, the scope of the quality system, process controls, competence, internal audit and management review, and we say what is missing.",
           "That briefing is how leadership chooses a scope it can actually defend: one site or several, which products and services, and which support processes. Consulting to close the gaps is quoted afterwards. We do not publish a flat implementation fee, because the amount of work depends on what the analysis finds.",
         ],
       },
@@ -265,16 +271,16 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "What should we have in place before a certification body visits?",
-        a: "An agreed scope, a system people actually use, completed internal audits, and a management review of the results. The gap analysis tells you which of those are still open. The certification body will make its own assessment.",
+        a: "An agreed scope, a system people actually use, completed internal audits, and a management review of the results. The consultation tells you which of those are still open. The certification body will make its own assessment.",
       },
     ],
     closing:
-      "Book a free ISO gap analysis if your organisation is preparing for ISO 9001 certification in Uganda. We will show you the training and the system work that still sit between today and an audit by a certification body.",
+      "Book a free consultation if your organisation is preparing for ISO 9001 certification in Uganda. We will show you the training and the system work that still sit between today and an audit by a certification body.",
     image: IMG.qmsImplementation,
     courseLinkLabel: "preparing your organisation for ISO 9001 certification in Uganda",
     serviceName: "ISO 9001 team training and certification readiness",
     serviceType: "ISO 9001 quality management training and readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
   {
     kind: "standard",
@@ -285,11 +291,11 @@ const pages: UgandaIsoPage[] = [
     query: "iso 14001 certification in uganda",
     metaTitle: "ISO 14001 Certification Readiness in Uganda",
     metaDescription:
-      "Prepare your organisation for ISO 14001 certification in Uganda. In-house environmental training, a free gap analysis and audit readiness from NAM QMS.",
+      "Prepare your organisation for ISO 14001 certification in Uganda. In-house environmental training, a free consultation and audit readiness from NAM QMS.",
     eyebrow: "Environmental management for organisations",
     h1: "ISO 14001 certification in Uganda for organisations",
     lede:
-      "ISO 14001 certification in Uganda is a question for organisations whose clients, financiers or neighbours expect a controlled approach to environmental impact. NAM QMS trains the team that will run the environmental management system, starts with a free gap analysis, and prepares the organisation for an audit. We do not issue the certificate.",
+      "ISO 14001 certification in Uganda is a question for organisations whose clients, financiers or neighbours expect a controlled approach to environmental impact. NAM QMS trains the team that will run the environmental management system, starts with a free consultation, and prepares the organisation for an audit. We do not issue the certificate.",
     sections: [
       {
         heading: "In-house training for the environmental team",
@@ -304,10 +310,10 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "Free gap analysis of aspects, obligations and controls",
+        heading: "Free consultation on aspects, obligations and controls",
         paragraphs: [
-          "The free ISO gap analysis for ISO 14001 looks at whether you know your environmental aspects, whether compliance obligations are identified and evaluated, and whether objectives and operational controls exist for the impacts that matter. Emergency preparedness is part of that picture when spills, fires or releases are realistic for your sites.",
-          "ISO 14001 does not replace permits, licences or statutory environmental duties. A management system is how an organisation keeps track of those duties and shows that it acts on them. The gap analysis will not tell a regulator that you are compliant. It tells your leadership what the system still lacks before a certification body is invited.",
+          "The free consultation for ISO 14001 looks at whether you know your environmental aspects, whether compliance obligations are identified and evaluated, and whether objectives and operational controls exist for the impacts that matter. Emergency preparedness is part of that picture when spills, fires or releases are realistic for your sites.",
+          "ISO 14001 does not replace permits, licences or statutory environmental duties. A management system is how an organisation keeps track of those duties and shows that it acts on them. The consultation will not tell a regulator that you are compliant. It tells your leadership what the system still lacks before a certification body is invited.",
         ],
       },
       {
@@ -344,7 +350,7 @@ const pages: UgandaIsoPage[] = [
         a: "The ISO 14001:2015 Lead Auditor fee is on that course page. Internal auditor group fees are on the Internal Auditor Courses page. In-house environmental training is quoted after we know the sites and the size of the team.",
       },
       {
-        q: "What will the free gap analysis look at?",
+        q: "What will the free consultation look at?",
         a: "Your aspects and impacts, compliance obligations, objectives, operational controls, emergency preparedness, internal audit and management review. You leave with a practical list, not with a certificate.",
       },
       {
@@ -353,13 +359,13 @@ const pages: UgandaIsoPage[] = [
       },
     ],
     closing:
-      "If your organisation needs ISO 14001 certification in Uganda, start with the free gap analysis. We will show the environmental team what to train, what to document, and what a certification body will expect to see on site.",
+      "If your organisation needs ISO 14001 certification in Uganda, start with the free consultation. We will show the environmental team what to train, what to document, and what a certification body will expect to see on site.",
     image: IMG.implementationTraining,
     courseLinkLabel:
       "preparing your organisation for ISO 14001 certification in Uganda",
     serviceName: "ISO 14001 team training and certification readiness",
     serviceType: "ISO 14001 environmental management training and readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
   {
     kind: "standard",
@@ -370,11 +376,11 @@ const pages: UgandaIsoPage[] = [
     query: "iso 27001 certification in uganda",
     metaTitle: "ISO 27001 Certification Readiness in Uganda",
     metaDescription:
-      "Prepare your organisation for ISO 27001 certification in Uganda. In-house ISMS training, a free gap analysis and audit readiness from NAM QMS.",
+      "Prepare your organisation for ISO 27001 certification in Uganda. In-house ISMS training, a free consultation and audit readiness from NAM QMS.",
     eyebrow: "Information security for organisations",
     h1: "ISO 27001 certification in Uganda for organisations",
     lede:
-      "ISO 27001 certification in Uganda is how banks, universities, hospitals, public agencies, NGOs and technology firms show that information security is a managed system rather than a pile of tools. NAM QMS trains the team that will run that system, offers a free gap analysis, and prepares the organisation for an independent audit. We are not the body that issues the certificate.",
+      "ISO 27001 certification in Uganda is how banks, universities, hospitals, public agencies, NGOs and technology firms show that information security is a managed system rather than a pile of tools. NAM QMS trains the team that will run that system, offers a free consultation, and prepares the organisation for an independent audit. We are not the body that issues the certificate.",
     sections: [
       {
         heading: "Train the team that owns the ISMS",
@@ -389,9 +395,9 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "A free gap analysis of scope, risk and controls",
+        heading: "A free consultation on scope, risk and controls",
         paragraphs: [
-          "The free ISO gap analysis starts with scope. Which information, which systems, which sites and which suppliers are inside the ISMS, and which are honestly outside it? We then look at whether risks are assessed, whether a treatment plan exists, and whether the controls you claim are the ones people follow. Policies that nobody has read are recorded as gaps, not as comfort.",
+          "The free consultation starts with scope. Which information, which systems, which sites and which suppliers are inside the ISMS, and which are honestly outside it? We then look at whether risks are assessed, whether a treatment plan exists, and whether the controls you claim are the ones people follow. Policies that nobody has read are recorded as gaps, not as comfort.",
           "We will not invent a risk score for you on this page, and we will not tell you that a tool, a firewall or a policy template is enough. The analysis is a conversation with the people who run the organisation. Consulting to close the gaps is quoted from what we find.",
         ],
       },
@@ -426,10 +432,10 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Where do we see the course price?",
-        a: "On the ISO 27001:2022 Lead Auditor course page. That page is the source for the current fee. In-house ISMS training is quoted after the gap analysis, based on scope and team size.",
+        a: "On the ISO 27001:2022 Lead Auditor course page. That page is the source for the current fee. In-house ISMS training is quoted after the free consultation, based on scope and team size.",
       },
       {
-        q: "What does the free gap analysis cover?",
+        q: "What does the free consultation cover?",
         a: "Scope, leadership and responsibilities, risk assessment and treatment, the controls you say you operate, internal audit and management review. You receive a practical picture of the gaps. You do not receive a certificate.",
       },
       {
@@ -438,13 +444,13 @@ const pages: UgandaIsoPage[] = [
       },
     ],
     closing:
-      "Book a free gap analysis if your organisation is working toward ISO 27001 certification in Uganda. We will identify who needs training and which parts of the ISMS are not yet ready for a certification body.",
+      "Book a free consultation if your organisation is working toward ISO 27001 certification in Uganda. We will identify who needs training and which parts of the ISMS are not yet ready for a certification body.",
     image: IMG.leadAuditorTraining,
     courseLinkLabel:
       "preparing your organisation for ISO 27001 certification in Uganda",
     serviceName: "ISO 27001 team training and certification readiness",
     serviceType: "ISO 27001 information security training and readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
   {
     kind: "standard",
@@ -455,7 +461,7 @@ const pages: UgandaIsoPage[] = [
     query: "iso 45001 lead auditor course",
     metaTitle: "ISO 45001 Training and Readiness in Uganda",
     metaDescription:
-      "In-house ISO 45001 training for organisations in Uganda, including the lead auditor course, plus a free gap analysis. NAM QMS does not issue certificates.",
+      "In-house ISO 45001 training for organisations in Uganda, including the lead auditor course, plus a free consultation. NAM QMS does not issue certificates.",
     eyebrow: "Health and safety for organisations",
     h1: "ISO 45001 readiness for organisations in Uganda",
     lede:
@@ -481,9 +487,9 @@ const pages: UgandaIsoPage[] = [
         ],
       },
       {
-        heading: "Free gap analysis, then certification readiness",
+        heading: "Free consultation, then certification readiness",
         paragraphs: [
-          "The free ISO gap analysis looks at how you identify hazards, how you apply controls, how workers are consulted, how incidents are investigated, and whether internal audits reach the dangerous jobs rather than the tidy offices. Emergency preparedness and contractor management are usually where the gaps are. You get a prioritised picture, not a certificate.",
+          "The free consultation looks at how you identify hazards, how you apply controls, how workers are consulted, how incidents are investigated, and whether internal audits reach the dangerous jobs rather than the tidy offices. Emergency preparedness and contractor management are usually where the gaps are. You get a prioritised picture, not a certificate.",
           NOT_A_BODY +
             " Ready, for this standard, means the scope includes the sites and activities where people can be harmed, risk assessments are current, controls are in use, internal audits have been completed by trained staff, and management review has looked at incidents and worker feedback. Then a certification body can do its own audit.",
         ],
@@ -514,7 +520,7 @@ const pages: UgandaIsoPage[] = [
         a: "No. Statutory health and safety duties stand on their own. ISO 45001 is a voluntary management system. Many organisations use it to structure how they meet those duties and how they show evidence to clients.",
       },
       {
-        q: "What does the free gap analysis check?",
+        q: "What does the free consultation check?",
         a: "Hazard identification, risk controls, worker participation, incident handling, contractor control, emergency preparedness, internal audit and management review. It prepares a work list. It is not a certification audit.",
       },
       {
@@ -523,12 +529,12 @@ const pages: UgandaIsoPage[] = [
       },
     ],
     closing:
-      "Put your team on the ISO 45001 lead auditor course, or ask for in-house training, and book the free gap analysis so the organisation knows what else must be true before a certification body visits.",
+      "Put your team on the ISO 45001 lead auditor course, or ask for in-house training, and book the free consultation so the organisation knows what else must be true before a certification body visits.",
     image: IMG.leadAuditorTraining,
     courseLinkLabel: "ISO 45001 readiness and the lead auditor course for your team",
     serviceName: "ISO 45001 team training and certification readiness",
     serviceType: "ISO 45001 occupational health and safety training and readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
   {
     kind: "standard",
@@ -548,21 +554,21 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "Who the standard is actually for",
         paragraphs: [
-          "ISO 13485 is a quality management system for medical devices and related services. It fits manufacturers, importers, distributors, organisations that install or service devices, and suppliers whose work affects device quality. A hospital department that only treats patients is not automatically in scope. A workshop that refurbishes devices, or a distributor that stores and traces them, may be. The free gap analysis is where we agree the honest scope before anyone writes procedures.",
+          "ISO 13485 is a quality management system for medical devices and related services. It fits manufacturers, importers, distributors, organisations that install or service devices, and suppliers whose work affects device quality. A hospital department that only treats patients is not automatically in scope. A workshop that refurbishes devices, or a distributor that stores and traces them, may be. The free consultation is where we agree the honest scope before anyone writes procedures.",
           "Regulatory duties for devices are separate from certification. We will not tell you that an ISO 13485 certificate replaces product registration, import permission or a buyer's own technical requirements. Those obligations stay with the authorities and the customers that impose them. The management system is how your organisation shows it can meet the requirements that apply to its role.",
         ],
       },
       {
         heading: "Training for individuals, implementation for organisations",
         paragraphs: [
-          "Training is for individuals. No ISO 13485 course is published on this website yet, so there is no fee to show here. Individuals who need a published internal auditor course enrol on the [[/internal-auditor-courses|Internal Auditor Courses page]]. Implementation for an organisation is quoted after the gap analysis. We work with the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The organisational programme is described on the [[/internal-audit-training|internal audit implementation page]].",
+          "Training is for individuals. No ISO 13485 course is published on this website yet, so there is no fee to show here. Individuals who need a published internal auditor course enrol on the [[/internal-auditor-courses|Internal Auditor Courses page]]. Implementation for an organisation is quoted after the free consultation. We work with the people who will run the system: regulatory and quality staff, warehouse and distribution leads, complaint handlers, and internal auditors. The organisational programme is described on the [[/internal-audit-training|internal audit implementation page]].",
         ],
       },
       {
         heading: "How ISO 13485 differs from a general quality system",
         paragraphs: [
           "ISO 13485 asks for a quality system aimed at regulatory requirements and device safety. Traceability, complaint handling, advisory notices and control of suppliers are central. Design controls apply only when design is inside your scope, not for a distributor that never designs a device.",
-          "Organisations sometimes arrive with [[/iso-9001-certification-uganda|ISO 9001]] and assume the same manual will do. The structure is familiar, and document control, internal audit and management review transfer. The device-specific requirements do not. The gap analysis marks that difference so you do not pay to rename a general quality system.",
+          "Organisations sometimes arrive with [[/iso-9001-certification-uganda|ISO 9001]] and assume the same manual will do. The structure is familiar, and document control, internal audit and management review transfer. The device-specific requirements do not. The consultation marks that difference so you do not pay to rename a general quality system.",
         ],
       },
       {
@@ -581,18 +587,18 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "Is every hospital supposed to hold ISO 13485?",
-        a: "No. The standard applies to organisations involved in the design, manufacture, storage, distribution, installation or servicing of a medical device, and to suppliers that affect device quality. Clinical care on its own is a different question. The gap analysis is how we confirm whether your organisation is in scope.",
+        a: "No. The standard applies to organisations involved in the design, manufacture, storage, distribution, installation or servicing of a medical device, and to suppliers that affect device quality. Clinical care on its own is a different question. The consultation is how we confirm whether your organisation is in scope.",
       },
       {
         q: "Why is there no ISO 13485 price on this page?",
-        a: "This site does not publish an ISO 13485 course fee. Training for individuals will appear on a course page when a course exists. Implementation for an organisation is quoted after the free gap analysis.",
+        a: "This site does not publish an ISO 13485 course fee. Training for individuals will appear on a course page when a course exists. Implementation for an organisation is quoted after the free consultation.",
       },
       {
         q: "How is ISO 13485 different from ISO 9001?",
         a: "ISO 9001 is a general quality management system. ISO 13485 is written for medical devices and regulatory expectations: traceability, complaint handling, advisory notices and, where relevant, design controls. A general quality certificate is not a device-quality certificate.",
       },
       {
-        q: "What does the free gap analysis cover for devices?",
+        q: "What does the free consultation cover for devices?",
         a: "Your role in the device chain, the scope that role implies, the records you already keep, supplier control, complaint handling and internal audit. You receive a work list for training and documents. You do not receive a certificate.",
       },
       {
@@ -601,12 +607,12 @@ const pages: UgandaIsoPage[] = [
       },
     ],
     closing:
-      "If your organisation is preparing for ISO 13485 certification in Uganda, book the free gap analysis. We will confirm the scope, train the team in-house, and show you what still has to be true before a certification body audits the system.",
+      "If your organisation is preparing for ISO 13485 certification in Uganda, book the free consultation. We will confirm the scope, train the team in-house, and show you what still has to be true before a certification body audits the system.",
     image: IMG.qmsImplementation,
     courseLinkLabel: "preparing for ISO 13485 certification in Uganda",
     serviceName: "ISO 13485 team training and certification readiness",
     serviceType: "ISO 13485 medical device quality training and readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
   {
     kind: "standard",
@@ -617,11 +623,11 @@ const pages: UgandaIsoPage[] = [
     query: "iso 42001 certification in uganda",
     metaTitle: "ISO 42001 AI Management Certification in Uganda",
     metaDescription:
-      "Get ready for ISO 42001 certification in Uganda: AI management system training, a free gap analysis and implementation support from NAM QMS.",
+      "Get ready for ISO 42001 certification in Uganda: AI management system training, a free consultation and implementation support from NAM QMS.",
     eyebrow: "Artificial intelligence management",
     h1: "ISO 42001 certification in Uganda: AI management systems",
     lede:
-      "ISO 42001 certification in Uganda is becoming a question for banks, telecoms, insurers, health providers, universities, public agencies and technology firms that build, buy or rely on artificial intelligence. ISO/IEC 42001 is the international standard for an AI management system: the policies, roles, risk assessments and controls an organisation uses to develop or use AI responsibly. NAM QMS trains people on the standard, runs a free gap analysis and helps organisations implement the system. We do not issue the certificate.",
+      "ISO 42001 certification in Uganda is becoming a question for banks, telecoms, insurers, health providers, universities, public agencies and technology firms that build, buy or rely on artificial intelligence. ISO/IEC 42001 is the international standard for an AI management system: the policies, roles, risk assessments and controls an organisation uses to develop or use AI responsibly. NAM QMS trains people on the standard, runs a free consultation and helps organisations implement the system. We do not issue the certificate.",
     sections: [
       {
         heading: "What an ISO 42001 AI management system covers",
@@ -639,14 +645,14 @@ const pages: UgandaIsoPage[] = [
       {
         heading: "ISO 42001 training for individuals, implementation for organisations",
         paragraphs: [
-          "Training is for individuals: risk, compliance, data, IT and quality professionals who need to understand the standard or audit an AI management system. Implementation is for organisations and institutions. We work with the team that owns your AI systems to set the scope, write the policy, run the risk and impact assessments and build the records an auditor will sample. Implementation is quoted after the free gap analysis, because the work depends on how many AI systems you run and how you use them.",
+          "Training is for individuals: risk, compliance, data, IT and quality professionals who need to understand the standard or audit an AI management system. Implementation is for organisations and institutions. We work with the team that owns your AI systems to set the scope, write the policy, run the risk and impact assessments and build the records an auditor will sample. Implementation is quoted after the free consultation, because the work depends on how many AI systems you run and how you use them.",
           "Organisations that already hold [[/iso-27001-certification-uganda|ISO 27001]] have a head start. Document control, internal audit, management review and supplier management carry over. The AI-specific parts, such as impact assessment, data governance for training data and human oversight of automated decisions, still need their own work.",
         ],
       },
       {
-        heading: "Free gap analysis before you commit",
+        heading: "Free consultation before you commit",
         paragraphs: [
-          "The free ISO gap analysis starts with an inventory: which AI systems you build, which AI services you buy, and which decisions they influence. We then compare your current practice with the requirements of ISO/IEC 42001 and tell management what is in place, what is missing and how large the scope should honestly be. It is a briefing, not an audit and not a certificate.",
+          "The free consultation starts with an inventory: which AI systems you build, which AI services you buy, and which decisions they influence. We then compare your current practice with the requirements of ISO/IEC 42001 and tell management what is in place, what is missing and how large the scope should honestly be. It is a briefing, not an audit and not a certificate.",
         ],
       },
       {
@@ -677,16 +683,16 @@ const pages: UgandaIsoPage[] = [
       },
       {
         q: "How do we start?",
-        a: "Book the free gap analysis. We list your AI systems, compare current practice with the standard and recommend a scope. Implementation support is then quoted for your organisation.",
+        a: "Book the free consultation. We list your AI systems, compare current practice with the standard and recommend a scope. Implementation support is then quoted for your organisation.",
       },
     ],
     closing:
-      "If your organisation is considering ISO 42001 certification in Uganda, book the free gap analysis. We will map your AI systems, show what the standard asks for and plan the work before a certification body is invited.",
+      "If your organisation is considering ISO 42001 certification in Uganda, book the free consultation. We will map your AI systems, show what the standard asks for and plan the work before a certification body is invited.",
     image: IMG.implementationTraining,
     courseLinkLabel: "preparing for ISO 42001 certification in Uganda",
     serviceName: "ISO 42001 AI management system training and implementation",
     serviceType: "ISO/IEC 42001 artificial intelligence management system readiness",
-    gapAnalysisHref: GAP_ANALYSIS_URL,
+    consultationHref: FREE_CONSULTATION_PATH,
   },
 ];
 
